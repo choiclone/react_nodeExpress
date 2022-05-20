@@ -11,16 +11,16 @@ const connection = maria.createConnection({
 
 let handleDisconnect = () => {
     connection.connect((err) => {
-        if(err) {
+        if (err) {
             setTimeout(handleDisconnect(), 2000);
         }
     });
 
     connection.on('error', (err) => {
         console.log(err.message);
-        if(err.code === 'PROTOCOL_CONNECTION_LOST') {
+        if (err.code === 'PROTOCOL_CONNECTION_LOST') {
             handleDisconnect();
-        }else{
+        } else {
             throw err;
         }
     });
