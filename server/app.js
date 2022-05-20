@@ -18,8 +18,8 @@ app.get("/", (req, res) => {
 const SECRET_KEY = "MY-SECRET-KEY";
 
 app.post("/api/test1", (req, res) => {
-  let pw = "1234red!";
-  maria.query("select * from Users where id=?", ["s207040@gmail.com"], (err, rows, fields) => {
+  let pw = "1234red#";
+  maria.query("select * from Users where id=?", ["hyunclone@first2000.co.kr"], (err, rows, fields) => {
     if (err) return res.json({ error: err });
     if (rows.length === 0) return res.json({ error: err });
     else {
@@ -64,8 +64,8 @@ app.post("/api/test2", (req, res) => {
 });
 
 app.post("/api/test3", (req, res) => {
-  let pw = bcrypt.hashSync("1234red!", 10);
-  maria.query("update users set password=? where idx=1", [pw], (err, rows, fields) => {
+  let pw = bcrypt.hashSync("1234red%", 10);
+  maria.query("update users set password=? where idx=5", [pw], (err, rows, fields) => {
     res.json({ test: err });
   })
 });
