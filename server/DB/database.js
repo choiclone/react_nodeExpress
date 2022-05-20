@@ -24,7 +24,6 @@ let handleDisconnect = () => {
             throw err;
         }
     });
-    // exports.connection = connection
 }
 
 handleDisconnect();
