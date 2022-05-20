@@ -13,7 +13,7 @@ const App = () => {
         console.log(getUser)
       })
       .catch((err) => {
-        console.log(err)
+        console.log(err);
       })
   }
 
@@ -35,7 +35,7 @@ const App = () => {
         console.log(getUser)
       })
       .catch((err) => {
-        console.log(err)
+        console.log(err);
       })
   }
 
