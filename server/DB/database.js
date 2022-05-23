@@ -1,18 +1,23 @@
 const maria = require("mysql");
 var config = require('./config');
 
-const connection = maria.createConnection({
+const db_config = {
     host: config.host,
     port: config.port,
     user: config.user,
     password: config.password,
     database: config.database
-});
+};
+
+
+let connection;
 
 let handleDisconnect = () => {
+    connection = maria.createConnection(db_config);
+
     connection.connect((err) => {
         if (err) {
-            setTimeout(handleDisconnect(), 2000);
+            setTimeout(handleDisconnect, 2000);
         }
     });
 
