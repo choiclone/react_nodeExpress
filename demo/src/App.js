@@ -1,38 +1,16 @@
 import logo from './logo.svg';
 import React, { useState, useEffect, useRef } from 'react';
+import StationList from "./list/StationList";
 import axios from 'axios';
 import './App.css';
 
 const App = () => {
-  const [getUser, setUser] = useState([]);
-
-  const clickButton = () => {
-    axios.post("/api/test1", { user: "ddd" })
-      .then((res) => {
-        setUser(res.data)
-        console.log(getUser)
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-  }
-
-  const clickButton2 = () => {
-    axios.post("/api/test2", { user: "ddd" })
-      .then((res) => {
-        setUser(res.data)
-        console.log(getUser)
-      })
-      .catch((err) => {
-        console.log(err)
-      })
-  }
+  const [station, setStation] = useState('');
 
   const clickBus = () => {
     axios.post("/api/BusApi")
       .then((res) => {
-        // let BusResult = res.data["ddd"]["ServiceResult"]
-        let BusResult = res.data["bus"]
+        let BusResult = res.data["bus"]["ServiceResult"]
         console.log(BusResult)
       })
       .catch((err) => {
@@ -40,27 +18,20 @@ const App = () => {
       })
   }
 
-  const clickBusStation = () => {
-    axios.post("/api/BusStationApi")
+  const clickBusStation = e => {
+    axios.post("/api/BusStationApi", { station: station })
       .then((res) => {
-        // let BusResult = res.data["ddd"]["ServiceResult"]
-        let BusResult = res.data["station"]
-        console.log(BusResult)
+        let BusResult = res.data["station"]["ServiceResult"];
+        BusResult = BusResult["msgBody"]["itemList"];
       })
       .catch((err) => {
+        setStation('');
         console.log(err)
       })
   }
 
-  const clickButton3 = () => {
-    axios.post("/api/test3")
-      .then((res) => {
-        setUser(res.data)
-        console.log(getUser)
-      })
-      .catch((err) => {
-        console.log(err);
-      })
+  const handleStation = (e) => {
+    setStation(e.target.value);
   }
 
   return (
@@ -79,10 +50,9 @@ const App = () => {
           >
             Learn React
           </a>
+          <input type="text" name='stationName' onChange={handleStation}></input>
           <button type="button" onClick={clickBusStation}>Bus Station 조회</button>
           <button type="button" onClick={clickBus}>Bus 조회</button>
-          <button type="button" onClick={clickButton2}>Create</button>
-          <button type="button" onClick={clickButton3}>Update</button>
         </header>
       </div>
     </>

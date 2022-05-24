@@ -13,8 +13,10 @@ const fs = require("fs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+/* 24개월 마다 현재 할당 받은 key 값은 사라지니 다시 받거나 기간 연장이 필요함
+https://www.data.go.kr/index.do
+여기서 로그인 하고 자신이 사용하고 있는 api 중에서 연장하거나 취소할 거 누르면 됨*/
 const dataApiKey = '1tTp/cC+ot3y4T1GDzqOKLS6171dZSkuH70eiqtN5Qt9SWDQkV2QTvPrttM1+neB9kCsSBS5FSOYR6OQ8InPUg==';
-let queryParams = '?' + encodeURIComponent('serviceKey') + '=' + encodeURIComponent(dataApiKey);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -67,7 +69,7 @@ app.post("/api/test2", (req, res) => {
   const url2 = 'http://apis.data.go.kr/1613000/ArvlInfoInqireService/getSttnAcctoSpcifyRouteBusArvlPrearngeInfoList';
   /* 도착정보조회 서비스 [도시코드 목록 조회] */
   const url3 = 'http://apis.data.go.kr/1613000/ArvlInfoInqireService/getCtyCodeList';
-
+  let queryParams = '?' + encodeURIComponent('serviceKey') + '=' + encodeURIComponent(dataApiKey);
   // queryParams += '&' + encodeURIComponent('pageNo') + '=' + encodeURIComponent('1'); /* */
   // queryParams += '&' + encodeURIComponent('numOfRows') + '=' + encodeURIComponent('10'); /* */
   queryParams += '&' + encodeURIComponent('_type') + '=' + encodeURIComponent('json'); /* */
@@ -85,6 +87,7 @@ app.post("/api/test2", (req, res) => {
 app.post("/api/BusApi", (req, res) => {
   // const url = 'http://ws.bus.go.kr/api/rest/arrive/getArrInfoByRouteAll';
   const url = 'http://ws.bus.go.kr/api/rest/arrive/getLowArrInfoByStId';
+  let queryParams = '?' + encodeURIComponent('serviceKey') + '=' + encodeURIComponent(dataApiKey);
   // queryParams += '&' + encodeURIComponent('busRouteId') + '=' + encodeURIComponent('100100016');
   queryParams += '&' + encodeURIComponent('stId') + '=' + encodeURIComponent('107000070');
   /* 08160 */
@@ -102,18 +105,22 @@ app.post("/api/BusApi", (req, res) => {
 });
 
 app.post("/api/BusStationApi", (req, res) => {
+  const station = req.body.station;
   const url = 'http://ws.bus.go.kr/api/rest/stationinfo/getStationByName';
-  queryParams += '&' + encodeURIComponent('stSrch') + '=' + encodeURIComponent('화곡역'); /* */
-
+  let queryParams = '?' + encodeURIComponent('serviceKey') + '=' + encodeURIComponent(dataApiKey);
+  queryParams += '&' + encodeURIComponent('stSrch') + '=' + encodeURIComponent(String(station)); /* */
   request({
     url: url + queryParams,
     method: 'GET'
   }, (err, response, body) => {
     if (err) return res.json({ error: err })
     else {
-
-      let xmltoJson = convert.xml2json(body, { compact: true, spaces: 4 });
-      res.json({ station: JSON.parse(xmltoJson) });
+      try {
+        let xmltoJson = convert.xml2json(body, { compact: true, spaces: 4 });
+        res.json({ station: JSON.parse(xmltoJson) });
+      } catch (error) {
+        res.json({ station: []})
+      }
     }
   });
 });
