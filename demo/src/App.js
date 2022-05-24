@@ -1,11 +1,12 @@
 import logo from './logo.svg';
 import React, { useState, useEffect, useRef } from 'react';
-import StationList from "./list/StationList";
+// import StationList from "./list/StationList";
 import axios from 'axios';
 import './App.css';
 
 const App = () => {
   const [station, setStation] = useState('');
+  const [busStation, setBusStation] = useState([]);
 
   const clickBus = () => {
     axios.post("/api/BusApi")
@@ -19,10 +20,15 @@ const App = () => {
   }
 
   const clickBusStation = e => {
+    let BusResult;
     axios.post("/api/BusStationApi", { station: station })
       .then((res) => {
-        let BusResult = res.data["station"]["ServiceResult"];
-        BusResult = BusResult["msgBody"]["itemList"];
+        if(res.data.code === 200){
+          BusResult = res.data["station"]["ServiceResult"]["msgBody"]["itemList"];
+          setBusStation(BusResult);
+        }else{
+          console.log("400");
+        }
       })
       .catch((err) => {
         setStation('');
@@ -50,6 +56,13 @@ const App = () => {
           >
             Learn React
           </a>
+          {
+            busStation.map((item, key) => {
+              <ul key={key}>
+                <li>{item.stNm}</li>
+              </ul>
+            })
+          }
           <input type="text" name='stationName' onChange={handleStation}></input>
           <button type="button" onClick={clickBusStation}>Bus Station 조회</button>
           <button type="button" onClick={clickBus}>Bus 조회</button>

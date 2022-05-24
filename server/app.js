@@ -117,9 +117,9 @@ app.post("/api/BusStationApi", (req, res) => {
     else {
       try {
         let xmltoJson = convert.xml2json(body, { compact: true, spaces: 4 });
-        res.json({ station: JSON.parse(xmltoJson) });
+        res.json({ station: JSON.parse(xmltoJson), code:200 });
       } catch (error) {
-        res.json({ station: []})
+        res.json({ station: [], code: 400})
       }
     }
   });

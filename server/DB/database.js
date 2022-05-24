@@ -9,7 +9,6 @@ const db_config = {
     database: config.database
 };
 
-
 let connection;
 
 let handleDisconnect = () => {
