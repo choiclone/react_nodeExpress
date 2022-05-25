@@ -136,7 +136,6 @@ app.post("/api/BusStationApi", (req, res) => {
     if (err) return res.json({ error: err })
     else {
       try {
-        console.log(response)
         let xmltoJson = convert.xml2json(body, { compact: true, spaces: 4 });
         res.json({ station: JSON.parse(xmltoJson), code:200 });
       } catch (error) {
@@ -154,5 +153,4 @@ app.post("/api/test3", (req, res) => {
 });
 
 const PORT = 3000;
-
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));

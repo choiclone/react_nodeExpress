@@ -47,18 +47,22 @@ const Test = () => {
   }
 
   const clickStationInfo = async (item) => {
-    await axios.post("/api/BusStationList", {arsID:item.arsId["_text"]})
-    .then((res) => {
-      if(res.data.code === 200){
-        console.log("StationList", res.data.stationList["ServiceResult"]["msgBody"])
-      }
-    });
-    await axios.post("/api/ArriveBusList", {arsID:item.arsId["_text"]})
-    .then((res) => {
-      if(res.data.code === 200){
-        console.log("arrive", res.data.arrive["ServiceResult"]["msgBody"])
-      }
-    });
+    await axios.post("/api/BusStationList", { arsID: item.arsId["_text"] })
+      .then((res) => {
+        if (res.data.code === 200) {
+          console.log("StationList", res.data.stationList["ServiceResult"]["msgBody"])
+        }
+      });
+    await axios.post("/api/ArriveBusList", { arsID: item.arsId["_text"] })
+      .then((res) => {
+        if (res.data.code === 200) {
+          console.log("arrive", res.data.arrive["ServiceResult"]["msgBody"])
+        }
+      });
+  }
+
+  const clickPosInfo = async (position) => {
+    console.log(position)
   }
 
   const handleStation = (e) => {
@@ -81,8 +85,7 @@ const Test = () => {
                   <tr>
                     <th>정류소 명</th>
                     <th>정류소 고유번호</th>
-                    <th>정류소 좌표</th>
-                    <th>정류소 좌표</th>
+                    <th>정류소 위도, 경도</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -91,8 +94,11 @@ const Test = () => {
                       <tr key={parseInt(item.stId["_text"])}>
                         <td>{item.stNm["_text"]}</td>
                         <td><button onClick={() => clickStationInfo(item)}>{item.arsId["_text"]}</button></td>
-                        <td>{item.tmX["_text"]}</td>
-                        <td>{item.tmY["_text"]}</td>
+                        <td>
+                          <button onClick={() => clickPosInfo(item.tmY["_text"] + ", " + item.tmX["_text"])}>
+                            지도로 이동
+                          </button>
+                        </td>
                       </tr>
                     ))
                   }
