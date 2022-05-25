@@ -13,7 +13,7 @@ const fs = require("fs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-/* 24개월 마다 현재 할당 받은 key 값은 사라지니 다시 받거나 기간 연장이 필요함
+/* 24개월(2년) 마다 현재 할당 받은 key 값은 사라지니 다시 받거나 기간 연장이 필요함
 https://www.data.go.kr/index.do
 여기서 로그인 하고 자신이 사용하고 있는 api 중에서 연장하거나 취소할 거 누르면 됨*/
 const dataApiKey = '1tTp/cC+ot3y4T1GDzqOKLS6171dZSkuH70eiqtN5Qt9SWDQkV2QTvPrttM1+neB9kCsSBS5FSOYR6OQ8InPUg==';
@@ -62,25 +62,45 @@ app.post("/api/test1", (req, res) => {
   })
 });
 
-app.post("/api/test2", (req, res) => {
-  /* 도착정보조회 서비스 [정류소별 도착 예정정보 목록 조회] */
-  const url1 = 'http://apis.data.go.kr/1613000/ArvlInfoInqireService/getSttnAcctoArvlPrearngeInfoList';
-  /* 도착정보조회 서비스 [정류소별 특정 노선보스 도착 예정 벙보 목록 조회] */
-  const url2 = 'http://apis.data.go.kr/1613000/ArvlInfoInqireService/getSttnAcctoSpcifyRouteBusArvlPrearngeInfoList';
-  /* 도착정보조회 서비스 [도시코드 목록 조회] */
-  const url3 = 'http://apis.data.go.kr/1613000/ArvlInfoInqireService/getCtyCodeList';
+app.post("/api/BusStationList", (req, res) => {
+  let arsID = req.body.arsID;
+  const url = "http://ws.bus.go.kr/api/rest/stationinfo/getRouteByStation";
   let queryParams = '?' + encodeURIComponent('serviceKey') + '=' + encodeURIComponent(dataApiKey);
-  // queryParams += '&' + encodeURIComponent('pageNo') + '=' + encodeURIComponent('1'); /* */
-  // queryParams += '&' + encodeURIComponent('numOfRows') + '=' + encodeURIComponent('10'); /* */
-  queryParams += '&' + encodeURIComponent('_type') + '=' + encodeURIComponent('json'); /* */
-  // queryParams += '&' + encodeURIComponent('cityCode') + '=' + encodeURIComponent('25'); /* */
-  // queryParams += '&' + encodeURIComponent('nodeId') + '=' + encodeURIComponent('DJB8001793'); /* */
-  let bodys = '';
+  queryParams += '&' + encodeURIComponent('arsId') + '=' + encodeURIComponent(String(arsID));
   request({
-    url: url3 + queryParams,
+    url: url + queryParams,
     method: 'GET'
   }, (err, response, body) => {
-    res.json({ end: JSON.parse(body) })
+    if (err) return res.json({ error: err })
+    else {
+      try {
+        let xmltoJson = convert.xml2json(body, { compact: true, spaces: 4 });
+        res.json({ stationList: JSON.parse(xmltoJson), code:200 });
+      } catch (error) {
+        res.json({ stationList: [], code: 400})
+      }
+    }
+  });
+});
+
+app.post("/api/ArriveBusList", (req, res) => {
+  let arsID = req.body.arsID;
+  const url = "http://ws.bus.go.kr/api/rest/stationinfo/getStationByUid";
+  let queryParams = '?' + encodeURIComponent('serviceKey') + '=' + encodeURIComponent(dataApiKey);
+  queryParams += '&' + encodeURIComponent('arsId') + '=' + encodeURIComponent(String(arsID));
+  request({
+    url: url + queryParams,
+    method: 'GET'
+  }, (err, response, body) => {
+    if (err) return res.json({ error: err })
+    else {
+      try {
+        let xmltoJson = convert.xml2json(body, { compact: true, spaces: 4 });
+        res.json({ arrive: JSON.parse(xmltoJson), code:200 });
+      } catch (error) {
+        res.json({ arrive: [], code: 400})
+      }
+    }
   });
 });
 
@@ -108,7 +128,7 @@ app.post("/api/BusStationApi", (req, res) => {
   const station = req.body.station;
   const url = 'http://ws.bus.go.kr/api/rest/stationinfo/getStationByName';
   let queryParams = '?' + encodeURIComponent('serviceKey') + '=' + encodeURIComponent(dataApiKey);
-  queryParams += '&' + encodeURIComponent('stSrch') + '=' + encodeURIComponent(String(station)); /* */
+  queryParams += '&' + encodeURIComponent('stSrch') + '=' + encodeURIComponent(String(station));
   request({
     url: url + queryParams,
     method: 'GET'
@@ -116,6 +136,7 @@ app.post("/api/BusStationApi", (req, res) => {
     if (err) return res.json({ error: err })
     else {
       try {
+        console.log(response)
         let xmltoJson = convert.xml2json(body, { compact: true, spaces: 4 });
         res.json({ station: JSON.parse(xmltoJson), code:200 });
       } catch (error) {
