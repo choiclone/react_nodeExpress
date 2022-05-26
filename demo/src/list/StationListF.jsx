@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
+import KakaoMapScript from '../script/KakaoMapScript';
 import axios from 'axios';
 
-const Test = () => {
+const StationListF = () => {
   const [station, setStation] = useState('');
+  const [searchStation, setSearchStation] = useState('');
   const [searchTitle, setSerchTitle] = useState('검색요망');
   const [busStation, setBusStation] = useState([]);
+  const [searchStationList, setsearchStationList] = useState([]);
 
   const clickBus = () => {
     axios.post("/api/BusApi")
       .then((res) => {
         let BusResult = res.data["bus"]["ServiceResult"]
-        console.log(BusResult["msgBody"])
       })
       .catch((err) => {
         console.log(err)
@@ -19,18 +21,27 @@ const Test = () => {
 
   const clickBusStation = async (e) => {
     e.preventDefault();
-    let BusList = []
+    let BusList = [];
+    let stationArray = [];
     await axios.post("/api/BusStationApi", { station: station })
       .then((res) => {
         if (res.data.code === 200) {
-          console.log(res.data["station"])
           let body = res.data["station"]["ServiceResult"]["msgBody"]
           if ("itemList" in body) {
             BusList.push(body.itemList)
-            if (Array.isArray(BusList[0]))
+            if (Array.isArray(BusList[0])) {
               setBusStation(BusList[0]);
-            else
+              BusList[0].map((item) => {
+                stationArray.push({x: item.tmX["_text"], y: item.tmY["_text"]})
+              })
+              setsearchStationList(stationArray)
+            } else {
               setBusStation(BusList);
+              BusList[0].map((item) => {
+                stationArray.push({x: item.tmX["_text"], y: item.tmY["_text"]})
+              })
+              setsearchStationList(stationArray)
+            }
           } else {
             setSerchTitle("검색하신 결과가 존재하지 않습니다.");
             setBusStation([]);
@@ -80,30 +91,33 @@ const Test = () => {
           <button type="button" onClick={clickBus}>Bus 조회</button>
           {
             busStation.length !== 0 ?
-              <table>
-                <thead>
-                  <tr>
-                    <th>정류소 명</th>
-                    <th>정류소 고유번호</th>
-                    <th>정류소 위도, 경도</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {
-                    busStation.map(item => (
-                      <tr key={parseInt(item.stId["_text"])}>
-                        <td>{item.stNm["_text"]}</td>
-                        <td><button onClick={() => clickStationInfo(item)}>{item.arsId["_text"]}</button></td>
-                        <td>
-                          <button onClick={() => clickPosInfo(item.tmY["_text"] + ", " + item.tmX["_text"])}>
-                            지도로 이동
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  }
-                </tbody>
-              </table>
+              <div>
+                <div><KakaoMapScript searchPlace={searchStationList} /></div>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>정류소 명</th>
+                      <th>정류소 고유번호</th>
+                      <th>정류소 위도, 경도</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {
+                      busStation.map(item => (
+                        <tr key={parseInt(item.stId["_text"])}>
+                          <td>{item.stNm["_text"]}</td>
+                          <td><button onClick={() => clickStationInfo(item)}>{item.arsId["_text"]}</button></td>
+                          <td>
+                            <button onClick={() => clickPosInfo(item.tmY["_text"] + ", " + item.tmX["_text"])}>
+                              지도로 이동
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    }
+                  </tbody>
+                </table>
+              </div>
               : <h5>{searchTitle}</h5>
           }
         </header>
@@ -112,4 +126,4 @@ const Test = () => {
   );
 }
 
-export default Test;
+export default StationListF;
