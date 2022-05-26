@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import KakaoMapScript from '../script/KakaoMapScript';
 import axios from 'axios';
 
@@ -46,29 +47,15 @@ const StationListF = () => {
             setBusStation([]);
           }
         } else {
-          setSerchTitle("API 문제 발생 문의 해주시기 바랍니다.");
+          setSerchTitle("검색명 입력하라고 아 ㅋㅋㅋ");
           console.log("400");
         }
       })
       .catch((err) => {
+        setSerchTitle("서버가 돌아가셨습니다. ㅈㅅ");
         setStation('');
         console.log(err)
       })
-  }
-
-  const clickStationInfo = async (item) => {
-    await axios.post("/api/BusStationList", { arsID: item.arsId["_text"] })
-      .then((res) => {
-        if (res.data.code === 200) {
-          console.log("StationList", res.data.stationList["ServiceResult"]["msgBody"])
-        }
-      });
-    await axios.post("/api/ArriveBusList", { arsID: item.arsId["_text"] })
-      .then((res) => {
-        if (res.data.code === 200) {
-          console.log("arrive", res.data.arrive["ServiceResult"]["msgBody"])
-        }
-      });
   }
 
   const handleStation = (e) => {
@@ -89,10 +76,6 @@ const StationListF = () => {
               <div style={{ width: "50%" }}>
                 <div className="map_wrap">
                   <KakaoMapScript searchPlace={searchStationList} />
-                  {/* <div class="hAddr">
-                    <span class="title">지도중심기준 행정동 주소정보</span>
-                    <p id="centerAddr"></p>
-                  </div> */}
                 </div>
                 <table>
                   <thead>
@@ -106,7 +89,12 @@ const StationListF = () => {
                       busStation.map(item => (
                         <tr key={parseInt(item.stId["_text"])}>
                           <td>{item.stNm["_text"]}</td>
-                          <td><button onClick={() => clickStationInfo(item)}>{item.arsId["_text"]}</button></td>
+                          <td><Link to="/BusInfo"
+                            state = {{
+                              stNm: item.stNm["_text"],
+                              arsId: item.arsId["_text"]
+                            }}
+                          >{item.arsId["_text"]}</Link></td>
                         </tr>
                       ))
                     }
