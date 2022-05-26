@@ -18,6 +18,50 @@ https://www.data.go.kr/index.do
 여기서 로그인 하고 자신이 사용하고 있는 api 중에서 연장하거나 취소할 거 누르면 됨*/
 const dataApiKey = '1tTp/cC+ot3y4T1GDzqOKLS6171dZSkuH70eiqtN5Qt9SWDQkV2QTvPrttM1+neB9kCsSBS5FSOYR6OQ8InPUg==';
 
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
+const SECRET_KEY = "MY-SECRET-KEY";
+
+app.post("/api/test1", (req, res) => {
+  let pw = "1234red#";
+  maria.query("select * from Users where id=?", ["hyunclone@first2000.co.kr"], (err, rows, fields) => {
+    if (err) return res.json({ error: err });
+    if (rows.length === 0) return res.json({ error: err });
+    else {
+      const resultUser = bcrypt.compare(pw, rows[0].password);
+      if (resultUser) {
+        const token = jwt.sign(
+          {
+            type: "JWT",
+            id: rows[0].id,
+            isAdmin: rows[0].idx,
+          },
+          SECRET_KEY,
+          { expiresIn: "10m", issuer: "token" }
+        );
+        maria.query(
+          "UPDATE users SET token=? where id=?",
+          [token, rows[0].id],
+          async (err, dds, fields) => {
+            maria.query(
+              "SELECT * FROM Users WHERE id = ? ",
+              rows[0].id,
+              async function (err, rows, fields) {
+                res.json({
+                  code: 200,
+                  message: "Token Success",
+                  UserInfo: rows[0],
+                });
+              }
+            );
+          }
+        );
+      }
+    }
+  })
+});
+
 app.post("/api/BusStationList", (req, res) => {
   let arsID = req.body.arsID;
   const url = "http://ws.bus.go.kr/api/rest/stationinfo/getRouteByStation";

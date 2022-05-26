@@ -4,7 +4,6 @@ import axios from 'axios';
 
 const StationListF = () => {
   const [station, setStation] = useState('');
-  const [searchStation, setSearchStation] = useState('');
   const [searchTitle, setSerchTitle] = useState('검색요망');
   const [busStation, setBusStation] = useState([]);
   const [searchStationList, setsearchStationList] = useState([]);
@@ -32,13 +31,13 @@ const StationListF = () => {
             if (Array.isArray(BusList[0])) {
               setBusStation(BusList[0]);
               BusList[0].map((item) => {
-                stationArray.push({x: item.tmX["_text"], y: item.tmY["_text"]})
+                stationArray.push({ x: item.tmX["_text"], y: item.tmY["_text"], stationName: item.stNm["_text"] })
               })
               setsearchStationList(stationArray)
             } else {
               setBusStation(BusList);
-              BusList[0].map((item) => {
-                stationArray.push({x: item.tmX["_text"], y: item.tmY["_text"]})
+              BusList.map((item) => {
+                stationArray.push({ x: item.tmX["_text"], y: item.tmY["_text"], stationName: item.stNm["_text"] })
               })
               setsearchStationList(stationArray)
             }
@@ -72,10 +71,6 @@ const StationListF = () => {
       });
   }
 
-  const clickPosInfo = async (position) => {
-    console.log(position)
-  }
-
   const handleStation = (e) => {
     setStation(e.target.value);
   }
@@ -91,14 +86,19 @@ const StationListF = () => {
           <button type="button" onClick={clickBus}>Bus 조회</button>
           {
             busStation.length !== 0 ?
-              <div>
-                <div><KakaoMapScript searchPlace={searchStationList} /></div>
+              <div style={{ width: "50%" }}>
+                <div className="map_wrap">
+                  <KakaoMapScript searchPlace={searchStationList} />
+                  {/* <div class="hAddr">
+                    <span class="title">지도중심기준 행정동 주소정보</span>
+                    <p id="centerAddr"></p>
+                  </div> */}
+                </div>
                 <table>
                   <thead>
                     <tr>
                       <th>정류소 명</th>
                       <th>정류소 고유번호</th>
-                      <th>정류소 위도, 경도</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -107,11 +107,6 @@ const StationListF = () => {
                         <tr key={parseInt(item.stId["_text"])}>
                           <td>{item.stNm["_text"]}</td>
                           <td><button onClick={() => clickStationInfo(item)}>{item.arsId["_text"]}</button></td>
-                          <td>
-                            <button onClick={() => clickPosInfo(item.tmY["_text"] + ", " + item.tmX["_text"])}>
-                              지도로 이동
-                            </button>
-                          </td>
                         </tr>
                       ))
                     }
