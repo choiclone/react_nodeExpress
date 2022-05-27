@@ -29,10 +29,10 @@ const KakaoMapScript = ({ searchPlace }) => {
                 clickable: true,
                 position: new kakao.maps.LatLng(place.y, place.x)
             });
-            kakao.maps.event.addListener(marker, 'click', (mouseEvent) => {
+            kakao.maps.event.addListener(marker, 'click', () => {
                 searchDetailAddrFromCoords(new kakao.maps.LatLng(place.y, place.x), function (result, status) {
                     if (status === kakao.maps.services.Status.OK) {
-                        let iwContent = '<div style="padding:5px; color:black;"><span style="font-size:15px; font-weight:bold;">버스 정류장</span><p style="font-size:15px;">' +
+                        let iwContent = '<div style="padding:5px; color:black;"><span style="font-size:15px; font-weight:bold;">버스 정류장 '+String(place.arsId)+'</span><p style="font-size:15px;">' +
                             String(place.stationName) +
                             '</p><p style="font-size:15px;"><a href="https://map.kakao.com/link/to/' +
                             String(place.stationName) + ', ' + String(place.y) + ', ' + String(place.x) +

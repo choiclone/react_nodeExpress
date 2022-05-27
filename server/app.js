@@ -18,6 +18,7 @@ https://www.data.go.kr/index.do
 여기서 로그인 하고 자신이 사용하고 있는 api 중에서 연장하거나 취소할 거 누르면 됨*/
 const dataApiKey = '1tTp/cC+ot3y4T1GDzqOKLS6171dZSkuH70eiqtN5Qt9SWDQkV2QTvPrttM1+neB9kCsSBS5FSOYR6OQ8InPUg==';
 
+/* 해당 정류소에 경유하는 노선 목록 조회 */
 app.post("/api/BusStationList", (req, res) => {
   let arsID = req.body.arsID;
   const url = "http://ws.bus.go.kr/api/rest/stationinfo/getRouteByStation";

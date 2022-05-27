@@ -32,13 +32,23 @@ const StationListF = () => {
             if (Array.isArray(BusList[0])) {
               setBusStation(BusList[0]);
               BusList[0].map((item) => {
-                stationArray.push({ x: item.tmX["_text"], y: item.tmY["_text"], stationName: item.stNm["_text"] })
+                stationArray.push({ 
+                  x: item.tmX["_text"], 
+                  y: item.tmY["_text"], 
+                  stationName: item.stNm["_text"], 
+                  arsId: item.arsId["_text"] 
+                })
               })
               setsearchStationList(stationArray)
             } else {
               setBusStation(BusList);
               BusList.map((item) => {
-                stationArray.push({ x: item.tmX["_text"], y: item.tmY["_text"], stationName: item.stNm["_text"] })
+                stationArray.push({ 
+                  x: item.tmX["_text"], 
+                  y: item.tmY["_text"], 
+                  stationName: item.stNm["_text"], 
+                  arsId: item.arsId["_text"] 
+                })
               })
               setsearchStationList(stationArray)
             }
@@ -92,7 +102,7 @@ const StationListF = () => {
                           <td><Link to="/BusInfo"
                             state = {{
                               stNm: item.stNm["_text"],
-                              arsId: item.arsId["_text"]
+                              arsId: item.arsId["_text"],
                             }}
                           >{item.arsId["_text"]}</Link></td>
                         </tr>
