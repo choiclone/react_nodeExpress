@@ -105,5 +105,27 @@ app.post("/api/BusStationApi", (req, res) => {
   });
 });
 
+/* 요청한 정류장 명과 가까운 정류장 명들의 목록을 반환 */
+app.post("/api/ArrInfoByRouteList", (req, res) => {
+  const busRouteId = req.body.busRouteId;
+  const url = 'http://ws.bus.go.kr/api/rest/arrive/getArrInfoByRouteAll';
+  let queryParams = '?' + encodeURIComponent('serviceKey') + '=' + encodeURIComponent(dataApiKey);
+  queryParams += '&' + encodeURIComponent('busRouteId') + '=' + encodeURIComponent(String(busRouteId));
+  request({
+    url: url + queryParams,
+    method: 'GET'
+  }, (err, response, body) => {
+    if (err) return res.json({ error: err })
+    else {
+      try {
+        let xmltoJson = convert.xml2json(body, { compact: true, spaces: 4 });
+        res.json({ allRoute: JSON.parse(xmltoJson), code:200 });
+      } catch (error) {
+        res.json({ allRoute: [], code: 400})
+      }
+    }
+  });
+});
+
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));

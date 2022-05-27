@@ -15,7 +15,6 @@ const BusArriveList = (props) => {
             .then((res) => {
                 if (res.data.code === 200) {
                     BusList.push(res.data.arrive["ServiceResult"]["msgBody"]["itemList"]);
-                    console.log(BusList)
                     if(Array.isArray(BusList[0])){
                         setArrive(BusList[0])
                     }else{

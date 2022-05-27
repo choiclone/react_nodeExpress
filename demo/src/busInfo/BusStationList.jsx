@@ -4,17 +4,35 @@ import axios from 'axios';
 const BusStationList = (props) => {
     const { arsId, busRouteType } = props;
     const [BusStation, setBusStation] = useState([]);
+    const [BusRoute, setBusRoute] = useState([]);
 
     useEffect(() => {
         clickStationInfo();
     }, [])
 
     const clickStationInfo = async (e) => {
+        let BusList = [];
         await axios.post("/api/BusStationList", { arsID: arsId })
             .then((res) => {
                 if (res.data.code === 200) {
-                    let a = res.data.stationList["ServiceResult"]["msgBody"]["itemList"];
-                    setBusStation(a)
+                    BusList.push(res.data.stationList["ServiceResult"]["msgBody"]["itemList"]);
+                    if(Array.isArray(BusList[0])) setBusStation(BusList[0])
+                    else setBusStation(BusList)
+                }
+            }).catch((err) => {
+                console.log(err)
+            })
+    }
+
+    const AllRoutedInfo = async (routeId) => {
+        let BusList = [];
+        await axios.post("/api/ArrInfoByRouteList", { busRouteId: routeId })
+            .then((res) => {
+                if (res.data.code === 200) {
+                    BusList.push(res.data.allRoute["ServiceResult"]["msgBody"]["itemList"]);
+                    if(Array.isArray(BusList[0])) setBusRoute(BusList[0])
+                    else setBusRoute(BusList)
+                    console.log(res.data.allRoute["ServiceResult"]["msgBody"]["itemList"])
                 }
             }).catch((err) => {
                 console.log(err)
@@ -44,13 +62,22 @@ const BusStationList = (props) => {
                                     {
                                         BusStation.map((item, key) => (
                                             <tr key={key}>
-                                                <td>{item.busRouteId["_text"]}</td>
+                                                <td><button onClick={() => AllRoutedInfo(item.busRouteId["_text"])}>{item.busRouteId["_text"]}</button></td>
                                                 <td>{item.busRouteNm["_text"]}</td>
                                                 <td>{item.length["_text"]}</td>
                                                 <td>{busRouteType[item.busRouteType["_text"]]}</td>
                                                 <td>{item.stBegin["_text"]}</td>
                                                 <td>{item.stEnd["_text"]}</td>
                                                 <td>{item.term["_text"]}</td>
+                                            </tr>
+                                        ))
+                                    }
+                                    {
+                                        BusRoute.map((item, key) => (
+                                            <tr key={key}>
+                                                <td>{item.stNm["_text"]}</td>
+                                                <td>{item.arrmsg1["_text"]}</td>
+                                                <td>{item.arrmsg2["_text"]}</td>
                                             </tr>
                                         ))
                                     }
