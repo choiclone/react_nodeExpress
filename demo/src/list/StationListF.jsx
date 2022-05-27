@@ -1,3 +1,4 @@
+/*global kakao*/
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import KakaoMapScript from '../script/KakaoMapScript';
@@ -72,6 +73,11 @@ const StationListF = () => {
     setStation(e.target.value);
   }
 
+  const moveLaton = async (y, x) => {
+    let kakaoMap = document.getElementById("map");
+    console.log(kakaoMap)
+  }
+
   return (
     <>
       <div className="App">
@@ -98,7 +104,7 @@ const StationListF = () => {
                     {
                       busStation.map(item => (
                         <tr key={parseInt(item.stId["_text"])}>
-                          <td>{item.stNm["_text"]}</td>
+                          <td onClick={() => moveLaton(item.tmY["_text"], item.tmX["_text"])}>{item.stNm["_text"]}</td>
                           <td><Link to="/BusInfo"
                             state = {{
                               stNm: item.stNm["_text"],

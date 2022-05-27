@@ -43,7 +43,7 @@ app.post("/api/BusStationList", (req, res) => {
 /* 도착하는 버스 목록 */
 app.post("/api/ArriveBusList", (req, res) => {
   let arsID = req.body.arsID;
-  const url = "http://ws.bus.go.kr/api/rest/stationinfo/getStationByUid";
+  const url = "http://ws.bus.go.kr/api/rest/stationinfo/getLowStationByUid";
   let queryParams = '?' + encodeURIComponent('serviceKey') + '=' + encodeURIComponent(dataApiKey);
   queryParams += '&' + encodeURIComponent('arsId') + '=' + encodeURIComponent(String(arsID));
   request({

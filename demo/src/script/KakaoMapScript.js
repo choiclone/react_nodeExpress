@@ -1,5 +1,5 @@
+/*global kakao*/
 import React, { useEffect } from 'react';
-const { kakao } = window; /* 카카오는 하루에 300000회 정도 호출 가능함 */
 
 const KakaoMapScript = ({ searchPlace }) => {
     useEffect(() => {
@@ -8,14 +8,13 @@ const KakaoMapScript = ({ searchPlace }) => {
             center: new kakao.maps.LatLng(37.555167, 126.970833),
             level: 3,
         };
-        const map = new kakao.maps.Map(container, options);
+        const map = new kakao.maps.Map(container, options); // 지도 생성
         const geocoder = new kakao.maps.services.Geocoder();
         // 장소 검색 객체를 생성
         const ps = new kakao.maps.services.Places();
 
         // 키워드로 장소를 검색
         ps.keywordSearch("서울역", placesSearchCB);
-
 
         function searchDetailAddrFromCoords(coords, callback) {
             // 좌표로 법정동 상세 주소 정보를 요청합니다
