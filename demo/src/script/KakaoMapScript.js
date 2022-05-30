@@ -1,18 +1,23 @@
 /*global kakao*/
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
 const KakaoMapScript = ({ searchPlace }) => {
     const busRouteType = {
       "1": "공항", "2": "마을", "3": "간선", "4": "지선", "5": "순환", "6": "광역", "7": "인천", "8": "경기", "9": "폐지", "0": "공용"
     }
+    const mapRef = useRef();
+    const infowindowRef = useRef();
+
     useEffect(() => {
         const container = document.getElementById('map');
         const options = {
             center: new kakao.maps.LatLng(37.555167, 126.970833),
             level: 3,
         };
-        const map = new kakao.maps.Map(container, options); // 지도 생성
+
+        mapRef.current = new kakao.maps.Map(container, options);
+        const map = mapRef.current;
         const geocoder = new kakao.maps.services.Geocoder();
         // 장소 검색 객체를 생성
         const ps = new kakao.maps.services.Places();
@@ -42,11 +47,12 @@ const KakaoMapScript = ({ searchPlace }) => {
                             '" style="color:blue" target="_blank">길찾기</a></p><p style="font-size:12px; padding:5px;">지번번호: '
                             + String(result[0].address.address_name)
                             + '</p></div>';
-                        let infowindow = new kakao.maps.InfoWindow({
+                            infowindowRef.current = new kakao.maps.InfoWindow({
                             position: new kakao.maps.LatLng(place.y, place.x),
                             content: iwContent,
                             removable: true,
                         })
+                        let infowindow = infowindowRef.current;
 
                         infowindow.open(map, marker);
                     }
@@ -72,6 +78,14 @@ const KakaoMapScript = ({ searchPlace }) => {
         }
     }, [searchPlace]);
 
+    const mapCurrent = (y, x) => {
+        const map = mapRef.current;
+        let infowindow = infowindowRef.current;
+        if(infowindow)
+            infowindow.close();
+        map.setCenter(new kakao.maps.LatLng(y, x));
+    }
+
     return (
         <div>
             <div id="map" style={{ width: '100%', height: "350px" }}></div>
@@ -86,7 +100,7 @@ const KakaoMapScript = ({ searchPlace }) => {
                     {
                         searchPlace.map((item, key) => (
                             <tr key={key}>
-                                <td>{item.stationName}</td>
+                                <td onClick={() => mapCurrent(item.y, item.x)}>{item.stationName}</td>
                                 <td><Link to="/BusInfo"
                                     state={{
                                         stNm: item.stationName,

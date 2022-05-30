@@ -95,10 +95,13 @@ app.post("/api/BusStationApi", (req, res) => {
   }, (err, response, body) => {
     if (err) return res.json({ error: err })
     else {
-      try {
-        let xmltoJson = convert.xml2json(body, { compact: true, spaces: 4 });
-        res.json({ station: JSON.parse(xmltoJson), code:200 });
-      } catch (error) {
+      if(station !== ''){
+        try {
+          let xmltoJson = convert.xml2json(body, { compact: true, spaces: 4 });
+          res.json({ station: JSON.parse(xmltoJson), code:200 });
+        } catch (error) {
+        }
+      }else{
         res.json({ station: [], code: 400})
       }
     }

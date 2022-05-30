@@ -58,7 +58,6 @@ const StationListF = () => {
           }
         } else {
           setSerchTitle("검색명 입력하라고 아 ㅋㅋㅋ");
-          console.log("400");
         }
       })
       .catch((err) => {

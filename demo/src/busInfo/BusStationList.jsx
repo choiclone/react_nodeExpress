@@ -6,6 +6,7 @@ const BusStationList = (props) => {
     const [BusStation, setBusStation] = useState([]);
     const [BusRoute, setBusRoute] = useState([]);
     const [stateTitle, setStateTitle] = useState('결과 없음');
+    const timerRef = useRef();
 
     useEffect(() => {
         clickStationInfo();
@@ -18,10 +19,10 @@ const BusStationList = (props) => {
             .then((res) => {
                 if (res.data.code === 200) {
                     BusList.push(res.data.stationList["ServiceResult"]["msgBody"]["itemList"]);
-                    if(Array.isArray(BusList[0])) setBusStation(BusList[0])
+                    if (Array.isArray(BusList[0])) setBusStation(BusList[0])
                     else setBusStation(BusList)
                     setStateTitle('검색완료');
-                }else{
+                } else {
                     setStateTitle('결과 없음');
                 }
             }).catch((err) => {
@@ -35,7 +36,7 @@ const BusStationList = (props) => {
             .then((res) => {
                 if (res.data.code === 200) {
                     BusList.push(res.data.allRoute["ServiceResult"]["msgBody"]["itemList"]);
-                    if(Array.isArray(BusList[0])) setBusRoute(BusList[0]);
+                    if (Array.isArray(BusList[0])) setBusRoute(BusList[0]);
                     else setBusRoute(BusList);
                 }
             }).catch((err) => {
