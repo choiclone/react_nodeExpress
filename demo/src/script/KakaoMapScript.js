@@ -1,7 +1,11 @@
 /*global kakao*/
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 const KakaoMapScript = ({ searchPlace }) => {
+    const busRouteType = {
+      "1": "공항", "2": "마을", "3": "간선", "4": "지선", "5": "순환", "6": "광역", "7": "인천", "8": "경기", "9": "폐지", "0": "공용"
+    }
     useEffect(() => {
         const container = document.getElementById('map');
         const options = {
@@ -31,13 +35,13 @@ const KakaoMapScript = ({ searchPlace }) => {
             kakao.maps.event.addListener(marker, 'click', () => {
                 searchDetailAddrFromCoords(new kakao.maps.LatLng(place.y, place.x), function (result, status) {
                     if (status === kakao.maps.services.Status.OK) {
-                        let iwContent = '<div style="padding:5px; color:black;"><span style="font-size:15px; font-weight:bold;">버스 정류장 '+String(place.arsId)+'</span><p style="font-size:15px;">' +
+                        let iwContent = '<div style="padding:5px; color:black;"><span style="font-size:15px; font-weight:bold;">버스 정류장 ' + String(place.arsId) + '</span><p style="font-size:15px;">' +
                             String(place.stationName) +
                             '</p><p style="font-size:15px;"><a href="https://map.kakao.com/link/to/' +
                             String(place.stationName) + ', ' + String(place.y) + ', ' + String(place.x) +
                             '" style="color:blue" target="_blank">길찾기</a></p><p style="font-size:12px; padding:5px;">지번번호: '
-                            +String(result[0].address.address_name)
-                            +'</p></div>';
+                            + String(result[0].address.address_name)
+                            + '</p></div>';
                         let infowindow = new kakao.maps.InfoWindow({
                             position: new kakao.maps.LatLng(place.y, place.x),
                             content: iwContent,
@@ -69,7 +73,33 @@ const KakaoMapScript = ({ searchPlace }) => {
     }, [searchPlace]);
 
     return (
-        <div id="map" style={{ width: '100%', height: "350px" }}></div>
+        <div>
+            <div id="map" style={{ width: '100%', height: "350px" }}></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>정류소 명</th>
+                        <th>정류소 고유번호</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {
+                        searchPlace.map((item, key) => (
+                            <tr key={key}>
+                                <td>{item.stationName}</td>
+                                <td><Link to="/BusInfo"
+                                    state={{
+                                        stNm: item.stationName,
+                                        arsId: item.arsId,
+                                        busRouteType: busRouteType
+                                    }}
+                                >{item.arsId}</Link></td>
+                            </tr>
+                        ))
+                    }
+                </tbody>
+            </table>
+        </div>
     )
 }
 

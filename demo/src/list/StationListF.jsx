@@ -1,6 +1,5 @@
 /*global kakao*/
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import KakaoMapScript from '../script/KakaoMapScript';
 import axios from 'axios';
 
@@ -9,10 +8,6 @@ const StationListF = () => {
   const [searchTitle, setSerchTitle] = useState('검색요망');
   const [busStation, setBusStation] = useState([]);
   const [searchStationList, setsearchStationList] = useState([]);
-
-  const busRouteType = {
-    "1": "공항", "2": "마을", "3": "간선", "4": "지선", "5": "순환", "6": "광역", "7": "인천", "8": "경기", "9": "폐지", "0": "공용"
-  }
 
   const clickBus = () => {
     axios.post("/api/BusApi")
@@ -77,11 +72,6 @@ const StationListF = () => {
     setStation(e.target.value);
   }
 
-  const moveLaton = async (y, x) => {
-    let kakaoMap = document.getElementById("map");
-    console.log(kakaoMap)
-  }
-
   return (
     <>
       <div className="App">
@@ -97,30 +87,6 @@ const StationListF = () => {
                 <div className="map_wrap">
                   <KakaoMapScript searchPlace={searchStationList} />
                 </div>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>정류소 명</th>
-                      <th>정류소 고유번호</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {
-                      busStation.map(item => (
-                        <tr key={parseInt(item.stId["_text"])}>
-                          <td onClick={() => moveLaton(item.tmY["_text"], item.tmX["_text"])}>{item.stNm["_text"]}</td>
-                          <td><Link to="/BusInfo"
-                            state={{
-                              stNm: item.stNm["_text"],
-                              arsId: item.arsId["_text"],
-                              busRouteType: busRouteType
-                            }}
-                          >{item.arsId["_text"]}</Link></td>
-                        </tr>
-                      ))
-                    }
-                  </tbody>
-                </table>
               </div>
               : <h5>{searchTitle}</h5>
           }

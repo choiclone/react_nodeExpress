@@ -47,7 +47,7 @@ const BusStationList = (props) => {
         <>
             <div className="App">
                 <header className="App-header">
-                    <h2>해당 정류소에 경유하는 버스 목록</h2>
+                    <h2>해당 정류소에 경유하는 버스 목록/경우 버스 개수: {BusStation.length}</h2>
                     {
                         BusStation.length !== 0 ?
                             <table>
