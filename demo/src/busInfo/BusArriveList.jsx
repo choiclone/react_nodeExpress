@@ -4,6 +4,7 @@ import axios from 'axios';
 const BusArriveList = (props) => {
     const { arsId, busRouteType } = props;
     const [arrive, setArrive] = useState([]);
+    const [stateTitle, setStateTitle] = useState('결과 없음');
 
     useEffect(() => {
         ArriveBusListInfo();
@@ -11,6 +12,7 @@ const BusArriveList = (props) => {
 
     const ArriveBusListInfo = async (e) => {
         let BusList = [];
+        setStateTitle('로딩 중...');
         await axios.post("/api/ArriveBusList", { arsID: arsId })
             .then((res) => {
                 if (res.data.code === 200) {
@@ -20,6 +22,9 @@ const BusArriveList = (props) => {
                     }else{
                         setArrive(BusList)
                     }
+                    setStateTitle('검색완료');
+                }else{
+                    setStateTitle('결과 없음');
                 }
             }).catch((err) => {
                 console.log(err)
@@ -61,7 +66,7 @@ const BusArriveList = (props) => {
                                     }
                                 </tbody>
                             </table>
-                            : <h5>ddd</h5>
+                            : <h5>{stateTitle}</h5>
                     }
                 </header>
             </div>

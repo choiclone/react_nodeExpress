@@ -5,6 +5,7 @@ const BusStationList = (props) => {
     const { arsId, busRouteType } = props;
     const [BusStation, setBusStation] = useState([]);
     const [BusRoute, setBusRoute] = useState([]);
+    const [stateTitle, setStateTitle] = useState('결과 없음');
 
     useEffect(() => {
         clickStationInfo();
@@ -12,12 +13,16 @@ const BusStationList = (props) => {
 
     const clickStationInfo = async (e) => {
         let BusList = [];
+        setStateTitle('로딩 중...');
         await axios.post("/api/BusStationList", { arsID: arsId })
             .then((res) => {
                 if (res.data.code === 200) {
                     BusList.push(res.data.stationList["ServiceResult"]["msgBody"]["itemList"]);
                     if(Array.isArray(BusList[0])) setBusStation(BusList[0])
                     else setBusStation(BusList)
+                    setStateTitle('검색완료');
+                }else{
+                    setStateTitle('결과 없음');
                 }
             }).catch((err) => {
                 console.log(err)
@@ -30,9 +35,8 @@ const BusStationList = (props) => {
             .then((res) => {
                 if (res.data.code === 200) {
                     BusList.push(res.data.allRoute["ServiceResult"]["msgBody"]["itemList"]);
-                    if(Array.isArray(BusList[0])) setBusRoute(BusList[0])
-                    else setBusRoute(BusList)
-                    console.log(res.data.allRoute["ServiceResult"]["msgBody"]["itemList"])
+                    if(Array.isArray(BusList[0])) setBusRoute(BusList[0]);
+                    else setBusRoute(BusList);
                 }
             }).catch((err) => {
                 console.log(err)
@@ -83,7 +87,7 @@ const BusStationList = (props) => {
                                     }
                                 </tbody>
                             </table>
-                            : <h5>ddd</h5>
+                            : <h5>{stateTitle}</h5>
                     }
                 </header>
             </div>

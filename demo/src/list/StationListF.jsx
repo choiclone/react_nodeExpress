@@ -10,6 +10,10 @@ const StationListF = () => {
   const [busStation, setBusStation] = useState([]);
   const [searchStationList, setsearchStationList] = useState([]);
 
+  const busRouteType = {
+    "1": "공항", "2": "마을", "3": "간선", "4": "지선", "5": "순환", "6": "광역", "7": "인천", "8": "경기", "9": "폐지", "0": "공용"
+  }
+
   const clickBus = () => {
     axios.post("/api/BusApi")
       .then((res) => {
@@ -33,22 +37,22 @@ const StationListF = () => {
             if (Array.isArray(BusList[0])) {
               setBusStation(BusList[0]);
               BusList[0].map((item) => {
-                stationArray.push({ 
-                  x: item.tmX["_text"], 
-                  y: item.tmY["_text"], 
-                  stationName: item.stNm["_text"], 
-                  arsId: item.arsId["_text"] 
+                stationArray.push({
+                  x: item.tmX["_text"],
+                  y: item.tmY["_text"],
+                  stationName: item.stNm["_text"],
+                  arsId: item.arsId["_text"]
                 })
               })
               setsearchStationList(stationArray)
             } else {
               setBusStation(BusList);
               BusList.map((item) => {
-                stationArray.push({ 
-                  x: item.tmX["_text"], 
-                  y: item.tmY["_text"], 
-                  stationName: item.stNm["_text"], 
-                  arsId: item.arsId["_text"] 
+                stationArray.push({
+                  x: item.tmX["_text"],
+                  y: item.tmY["_text"],
+                  stationName: item.stNm["_text"],
+                  arsId: item.arsId["_text"]
                 })
               })
               setsearchStationList(stationArray)
@@ -106,9 +110,10 @@ const StationListF = () => {
                         <tr key={parseInt(item.stId["_text"])}>
                           <td onClick={() => moveLaton(item.tmY["_text"], item.tmX["_text"])}>{item.stNm["_text"]}</td>
                           <td><Link to="/BusInfo"
-                            state = {{
+                            state={{
                               stNm: item.stNm["_text"],
                               arsId: item.arsId["_text"],
+                              busRouteType: busRouteType
                             }}
                           >{item.arsId["_text"]}</Link></td>
                         </tr>

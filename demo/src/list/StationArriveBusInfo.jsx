@@ -4,18 +4,36 @@ import BusArriveList from '../busInfo/BusArriveList';
 import { useLocation } from 'react-router';
 
 const StationArriveBusInfo = () => {
-    const { stNm, arsId } = useLocation().state;
+    const { stNm, arsId, busRouteType } = useLocation().state;
+    const [BusStation, setBusStation] = useState(<BusStationList arsId={arsId} busRouteType={busRouteType}></BusStationList>);
 
-    const busRouteType = {
-        "1": "공항", "2": "마을", "3": "간선", "4": "지선", "5": "순환", "6": "광역", "7": "인천", "8": "경기", "9": "폐지", "0": "공용"
+    const BusInfoFunc = (infoType) => {
+        const infoTypes = infoType;
+        switch(infoTypes){
+            case "busInfo": {
+                setBusStation(<BusStationList arsId={arsId} busRouteType={busRouteType}></BusStationList>);
+                break;
+            }
+            case "arriveInfo": {
+                setBusStation(<BusArriveList arsId={arsId} busRouteType={busRouteType}></BusArriveList>);
+                break;
+            }
+            default : {
+                alert("프론트앤드 에러다 미안하다");
+                break;
+            }
+        }
     }
 
     return (
         <>
             <div className="App">
                 <header className="App-header">
-                    <BusStationList arsId={arsId} busRouteType={busRouteType}/>
-                    <BusArriveList arsId={arsId} busRouteType={busRouteType}/>
+                    <div>
+                    <button type="button" onClick={() => BusInfoFunc("busInfo")}>버스 정보 목록</button>
+                    <button type="button" onClick={() => BusInfoFunc("arriveInfo")}>도착 버스 정보 목록</button>
+                        {BusStation}
+                    </div>
                 </header>
             </div>
         </>
