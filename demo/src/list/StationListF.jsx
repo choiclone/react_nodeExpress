@@ -106,7 +106,7 @@ const StationListF = () => {
     IntervalRef.current = setInterval(async () => {
       await BusRouteStatusList(routeId)
       console.log("dddd")
-    }, 3500)
+    }, 3000)
   }
 
   return (
