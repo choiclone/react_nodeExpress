@@ -10,6 +10,7 @@ const StationListF = () => {
   const [busStation, setBusStation] = useState([]);
   const [busRouteId, setBusRouteId] = useState([]);
   const [busRoute, setBusRoute] = useState([]);
+  const [busLocate, setBusLocate] = useState([]);
   const [searchStationList, setsearchStationList] = useState([]);
 
   const IntervalRef = useRef();
@@ -84,7 +85,6 @@ const StationListF = () => {
     setBusRouteId([]);
     clearInterval(IntervalRef.current)
     setBusName(e.target.value);
-
   }
 
   const BusRouteStatusList = (routeId) => {
@@ -101,8 +101,25 @@ const StationListF = () => {
       })
   }
 
+  const getBusPosByRtidList = (routeId) => {
+    let BusList = [];
+    axios.post("/api/getBusPosByRtidList", { busRouteId: routeId })
+      .then((res) => {
+        if (res.data.code === 200) {
+          BusList.push(res.data.BusLocate["ServiceResult"]["msgBody"]["itemList"]);
+          console.log(BusList)
+          if (Array.isArray(BusList[0])) setBusLocate(BusList[0]);
+          else setBusLocate(BusList);
+        }
+      }).catch((err) => {
+        console.log(err)
+      })
+  }
+
   const IntervalStationList = (routeId) => {
+    // console.log(routeId)
     BusRouteStatusList(routeId)
+    // getBusPosByRtidList(routeId)
     IntervalRef.current = setInterval(async () => {
       await BusRouteStatusList(routeId)
       console.log("dddd")

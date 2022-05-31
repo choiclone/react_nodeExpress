@@ -141,15 +141,42 @@ app.post("/api/BusListSearch", (req, res) => {
   const jsonData = xlsx.utils.sheet_to_json(firstSheet, { defval: "" });
   let routeId = [];
 
-  let index = jsonData.map((bus, idx) => String(bus["노선명"]).includes(String(BusName)) ? idx: '').filter(String);
-  try {
-    index.map((idx) => {
-      routeId.push(jsonData[idx])
-    })
-    res.json({ routeId: routeId, status: 200 })
-  } catch (error) {
+  if(BusName !== '') {
+    let index = jsonData.map((bus, idx) => String(bus["노선명"]).includes(String(BusName)) ? idx: '').filter(String);
+    try {
+      index.map((idx) => {
+        routeId.push(jsonData[idx])
+      })
+      res.json({ routeId: routeId, status: 200 })
+    } catch (error) {
+      res.json({ routeId: [], status: 404 })
+    }
+  }else{
     res.json({ routeId: [], status: 404 })
   }
+})
+
+app.post("/api/getBusPosByRtidList", (req, res) => {
+  const busRouteId = req.body.busRouteId;
+  console.log(busRouteId)
+  const url = 'http://ws.bus.go.kr/api/rest/buspos/getBusPosByRtid';
+  let queryParams = '?' + encodeURIComponent('serviceKey') + '=' + encodeURIComponent(dataApiKey);
+  queryParams += '&' + encodeURIComponent('busRouteId') + '=' + encodeURIComponent(String(busRouteId));
+
+  request({
+    url: url + queryParams,
+    method: 'GET'
+  }, (err, response, body) => {
+    if (err) return res.json({ error: err })
+    else {
+      try {
+        let xmltoJson = convert.xml2json(body, { compact: true, spaces: 4 });
+        res.json({ BusLocate: JSON.parse(xmltoJson), code: 200 });
+      } catch (error) {
+        res.json({ BusLocate: [], code: 400 })
+      }
+    }
+  });
 })
 
 const PORT = 3000;
