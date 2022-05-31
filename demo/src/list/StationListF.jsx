@@ -5,17 +5,25 @@ import axios from 'axios';
 
 const StationListF = () => {
   const [station, setStation] = useState('');
+  const [busName, setBusName] = useState('');
   const [searchTitle, setSerchTitle] = useState('검색요망');
   const [busStation, setBusStation] = useState([]);
+  const [busRouteId, setBusRouteId] = useState([]);
+  const [busRoute, setBusRoute] = useState([]);
   const [searchStationList, setsearchStationList] = useState([]);
 
-  const clickBus = () => {
-    axios.post("/api/BusApi")
+  const IntervalRef = useRef();
+
+  const clickBus = async (e) => {
+    e.preventDefault();
+    await axios.post("/api/BusListSearch", { BusName: busName })
       .then((res) => {
-        let BusResult = res.data["bus"]["ServiceResult"]
+        if (res.data.status === 200) {
+          setBusRouteId(res.data.routeId)
+        } else setBusRouteId(res.data.routeId)
       })
       .catch((err) => {
-        console.log(err)
+        setBusRouteId('')
       })
   }
 
@@ -71,6 +79,36 @@ const StationListF = () => {
     setStation(e.target.value);
   }
 
+  const handleBus = (e) => {
+    setBusRoute([]);
+    setBusRouteId([]);
+    clearInterval(IntervalRef.current)
+    setBusName(e.target.value);
+
+  }
+
+  const BusRouteStatusList = (routeId) => {
+    let BusList = [];
+    axios.post("/api/ArrInfoByRouteList", { busRouteId: routeId })
+      .then((res) => {
+        if (res.data.code === 200) {
+          BusList.push(res.data.allRoute["ServiceResult"]["msgBody"]["itemList"]);
+          if (Array.isArray(BusList[0])) setBusRoute(BusList[0]);
+          else setBusRoute(BusList);
+        }
+      }).catch((err) => {
+        console.log(err)
+      })
+  }
+
+  const IntervalStationList = (routeId) => {
+    BusRouteStatusList(routeId)
+    IntervalRef.current = setInterval(async () => {
+      await BusRouteStatusList(routeId)
+      console.log("dddd")
+    }, 3500)
+  }
+
   return (
     <>
       <div className="App">
@@ -79,7 +117,30 @@ const StationListF = () => {
             <input type="text" name='stationName' onChange={handleStation}></input>
             <button type="submit">BUS 정류장 조회</button>
           </form>
-          <button type="button" onClick={clickBus}>Bus 조회</button>
+          <form onSubmit={clickBus}>
+            <input type="text" name='busName' onChange={handleBus}></input>
+            <button type="submit">Bus 조회</button>
+          </form>
+          {busRouteId.length !== 0 ?
+            <div>
+              {
+                busRouteId.map((item, key) => (
+                  <ul key={key}>
+                    <li><button onClick={() => IntervalStationList(item["ROUTE_ID"])}>{item["노선명"]}</button></li>
+                  </ul>
+                ))
+              }
+            </div> : <h4>입력좀 ㄹㄹㄹ</h4>
+          }
+          {busRoute.length !== 0 ?
+            <div>
+              {
+                busRoute.map((route, key) => (
+                  <p key={key}>{route.stNm["_text"] + "/" + route.arrmsg1["_text"] + "/" + route.arrmsg2["_text"]}</p>
+                ))
+              }
+            </div> : <h4>아직 없다 ㄹㄹㄹ</h4>
+          }
           {
             busStation.length !== 0 ?
               <div style={{ width: "50%" }}>

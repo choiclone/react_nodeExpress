@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const maria = require("./DB/database");
 const bcrypt = require("bcrypt");
 const request = require("request");
+const xlsx = require("xlsx");
 const convert = require('xml-js');
 const jwt = require("jsonwebtoken");
 const app = express();
@@ -18,6 +19,8 @@ https://www.data.go.kr/index.do
 여기서 로그인 하고 자신이 사용하고 있는 api 중에서 연장하거나 취소할 거 누르면 됨*/
 const dataApiKey = '1tTp/cC+ot3y4T1GDzqOKLS6171dZSkuH70eiqtN5Qt9SWDQkV2QTvPrttM1+neB9kCsSBS5FSOYR6OQ8InPUg==';
 
+const DATA_PATH = path.join(__dirname, "../demo/src/data");
+
 /* 해당 정류소에 경유하는 노선 목록 조회 */
 app.post("/api/BusStationList", (req, res) => {
   let arsID = req.body.arsID;
@@ -32,9 +35,9 @@ app.post("/api/BusStationList", (req, res) => {
     else {
       try {
         let xmltoJson = convert.xml2json(body, { compact: true, spaces: 4 });
-        res.json({ stationList: JSON.parse(xmltoJson), code:200 });
+        res.json({ stationList: JSON.parse(xmltoJson), code: 200 });
       } catch (error) {
-        res.json({ stationList: [], code: 400})
+        res.json({ stationList: [], code: 400 })
       }
     }
   });
@@ -54,9 +57,9 @@ app.post("/api/ArriveBusList", (req, res) => {
     else {
       try {
         let xmltoJson = convert.xml2json(body, { compact: true, spaces: 4 });
-        res.json({ arrive: JSON.parse(xmltoJson), code:200 });
+        res.json({ arrive: JSON.parse(xmltoJson), code: 200 });
       } catch (error) {
-        res.json({ arrive: [], code: 400})
+        res.json({ arrive: [], code: 400 })
       }
     }
   });
@@ -95,14 +98,14 @@ app.post("/api/BusStationApi", (req, res) => {
   }, (err, response, body) => {
     if (err) return res.json({ error: err })
     else {
-      if(station !== ''){
+      if (station !== '') {
         try {
           let xmltoJson = convert.xml2json(body, { compact: true, spaces: 4 });
-          res.json({ station: JSON.parse(xmltoJson), code:200 });
+          res.json({ station: JSON.parse(xmltoJson), code: 200 });
         } catch (error) {
         }
-      }else{
-        res.json({ station: [], code: 400})
+      } else {
+        res.json({ station: [], code: 400 })
       }
     }
   });
@@ -122,13 +125,32 @@ app.post("/api/ArrInfoByRouteList", (req, res) => {
     else {
       try {
         let xmltoJson = convert.xml2json(body, { compact: true, spaces: 4 });
-        res.json({ allRoute: JSON.parse(xmltoJson), code:200 });
+        res.json({ allRoute: JSON.parse(xmltoJson), code: 200 });
       } catch (error) {
-        res.json({ allRoute: [], code: 400})
+        res.json({ allRoute: [], code: 400 })
       }
     }
   });
 });
+
+app.post("/api/BusListSearch", (req, res) => {
+  const BusName = req.body.BusName;
+  const excelFile = xlsx.readFile(path.join(DATA_PATH, "BusIdInfo.xlsx"));
+  const sheetName = excelFile.SheetNames[0];
+  const firstSheet = excelFile.Sheets[sheetName];
+  const jsonData = xlsx.utils.sheet_to_json(firstSheet, { defval: "" });
+  let routeId = [];
+
+  let index = jsonData.map((bus, idx) => String(bus["노선명"]).includes(String(BusName)) ? idx: '').filter(String);
+  try {
+    index.map((idx) => {
+      routeId.push(jsonData[idx])
+    })
+    res.json({ routeId: routeId, status: 200 })
+  } catch (error) {
+    res.json({ routeId: [], status: 404 })
+  }
+})
 
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));

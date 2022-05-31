@@ -61,7 +61,6 @@ const BusStationList = (props) => {
                     BusList.push(res.data.allRoute["ServiceResult"]["msgBody"]["itemList"]);
                     if (Array.isArray(BusList[0])) setBusRoute(BusList[0]);
                     else setBusRoute(BusList);
-                    setModalOpen(true);
                 }
             }).catch((err) => {
                 console.log(err)
@@ -105,7 +104,7 @@ const BusStationList = (props) => {
                             </table>
                             : <h5>{stateTitle}</h5>
                     }
-                    <BusRoutModal open={modalOpen} close={closeModal} reload={reloadModal} header="Bus Route List" BusRoute={BusRoute}/>
+                    <BusRoutModal open={modalOpen} close={closeModal} reload={reloadModal} header="Bus Route List" BusRoute={BusRoute} routeId={routeId} />
                 </header>
             </div>
         </>

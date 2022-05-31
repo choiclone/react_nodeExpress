@@ -69,13 +69,16 @@ const KakaoMapScript = ({ searchPlace }) => {
                 // 검색된 장소 위치를 기준으로 지도 범위를 재설정하기위해
                 // LatLngBounds 객체에 좌표를 추가
                 let bounds = new kakao.maps.LatLngBounds();
-
-                for (let i = 0; i < searchPlace.length; i++) {
-                    displayMarker(searchPlace[i]);
-                    bounds.extend(new kakao.maps.LatLng(searchPlace[i].y, searchPlace[i].x));
+                if(searchPlace.length !== 0){
+                    for (let i = 0; i < searchPlace.length; i++) {
+                        displayMarker(searchPlace[i]);
+                        bounds.extend(new kakao.maps.LatLng(searchPlace[i].y, searchPlace[i].x));
+                    }
+                    // 검색된 장소 위치를 기준으로 지도 범위를 재설정
+                    map.setBounds(bounds);
+                }else{
+                    return;
                 }
-                // 검색된 장소 위치를 기준으로 지도 범위를 재설정
-                map.setBounds(bounds);
             }
         }
     }, [searchPlace]);

@@ -3,9 +3,9 @@ import useInterval from './useInterval';
 import axios from 'axios';
 
 const BusRouteModal = (props) => {
-  const { open, close, reload, header, BusRoute } = props;
+  const { open, close, reload, header, BusRoute, routeId } = props;
+  const [BusRouteList, setBusRouteList] = useState([]);
   const reloadImg = require('../images/reload.png')
-  const [BusRouteList, setBusRouteList] = useState(BusRoute)
 
   return (
     // 모달이 열릴때 openModal 클래스가 생성된다.

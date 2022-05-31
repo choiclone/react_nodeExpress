@@ -13,7 +13,7 @@ const BusArriveList = (props) => {
 
     useInterval(() => {
         ArriveBusListInfo();
-    }, 2000);
+    }, 3000);
 
     const ArriveBusListInfo = async (e) => {
         let BusList = [];
