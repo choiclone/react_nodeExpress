@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import useInterval from '../script/useInterval';
 import axios from 'axios';
 
 const BusArriveList = (props) => {
@@ -8,7 +9,11 @@ const BusArriveList = (props) => {
 
     useEffect(() => {
         ArriveBusListInfo();
-    }, [])
+    }, []);
+
+    useInterval(() => {
+        ArriveBusListInfo();
+    }, 2000);
 
     const ArriveBusListInfo = async (e) => {
         let BusList = [];
@@ -16,14 +21,15 @@ const BusArriveList = (props) => {
         await axios.post("/api/ArriveBusList", { arsID: arsId })
             .then((res) => {
                 if (res.data.code === 200) {
+
                     BusList.push(res.data.arrive["ServiceResult"]["msgBody"]["itemList"]);
-                    if(Array.isArray(BusList[0])){
+                    if (Array.isArray(BusList[0])) {
                         setArrive(BusList[0])
-                    }else{
+                    } else {
                         setArrive(BusList)
                     }
                     setStateTitle('검색완료');
-                }else{
+                } else {
                     setStateTitle('결과 없음');
                 }
             }).catch((err) => {
@@ -35,7 +41,7 @@ const BusArriveList = (props) => {
         <>
             <div className="App">
                 <header className="App-header">
-                    <h2>정류소 고유번호에 해당하는 정류소의 저상버스 도착버스 정보 조회</h2>
+                    <h2>정류소 고유번호에 해당하는 정류소의 도착버스 정보 조회/도착 버스 개수: {arrive.length}</h2>
                     {
                         arrive.length !== 0 ?
                             <table>
@@ -55,8 +61,8 @@ const BusArriveList = (props) => {
                                         arrive.map((item, key) => (
                                             <tr key={key}>
                                                 {/* <td>{item.busRouteId["_text"]}</td> */}
-                                                <td>{item.rtNm["_text"]}버스</td>
-                                                <td>{item.stnNm["_text"]}</td>
+                                                <td>{item.rtNm["_text"]}</td>
+                                                <td>{item.stNm["_text"]}</td>
                                                 <td>{busRouteType[item.routeType["_text"]]}</td>
                                                 <td>{item.adirection["_text"]}</td>
                                                 <td>{item.arrmsg1["_text"]}</td>

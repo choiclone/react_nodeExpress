@@ -5,23 +5,13 @@ import { useLocation } from 'react-router';
 
 const StationArriveBusInfo = () => {
     const { stNm, arsId, busRouteType } = useLocation().state;
-    const [BusStation, setBusStation] = useState(
-        <div>
-            <button>새로고침</button>
-            <BusStationList arsId={arsId} busRouteType={busRouteType}></BusStationList>
-        </div>
-    );
+    const [BusStation, setBusStation] = useState(<BusStationList arsId={arsId} busRouteType={busRouteType}></BusStationList>);
 
     const BusInfoFunc = (infoType) => {
         const infoTypes = infoType;
         switch (infoTypes) {
             case "busInfo": {
-                setBusStation(
-                    <div>
-                        <button>새로고침</button>
-                        <BusStationList arsId={arsId} busRouteType={busRouteType}></BusStationList>
-                    </div>
-                );
+                setBusStation(<BusStationList arsId={arsId} busRouteType={busRouteType}></BusStationList>);
                 break;
             }
             case "arriveInfo": {

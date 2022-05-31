@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import BusRoutModal from '../script/BusRouteModal';
+import useInterval from '../script/useInterval';
 import axios from 'axios';
 
 const BusStationList = (props) => {
@@ -6,11 +8,12 @@ const BusStationList = (props) => {
     const [BusStation, setBusStation] = useState([]);
     const [BusRoute, setBusRoute] = useState([]);
     const [stateTitle, setStateTitle] = useState('결과 없음');
-    const timerRef = useRef();
+    const [modalOpen, setModalOpen] = useState(false);
+    const [routeId, setRouteId] = useState(0);
 
     useEffect(() => {
         clickStationInfo();
-    }, [])
+    }, []);
 
     const clickStationInfo = async (e) => {
         let BusList = [];
@@ -30,7 +33,27 @@ const BusStationList = (props) => {
             })
     }
 
-    const AllRoutedInfo = async (routeId) => {
+    const openModal = async (routeId) => {
+        let BusList = [];
+        await axios.post("/api/ArrInfoByRouteList", { busRouteId: routeId })
+            .then((res) => {
+                if (res.data.code === 200) {
+                    setRouteId(routeId)
+                    BusList.push(res.data.allRoute["ServiceResult"]["msgBody"]["itemList"]);
+                    if (Array.isArray(BusList[0])) setBusRoute(BusList[0]);
+                    else setBusRoute(BusList);
+                    setModalOpen(true);
+                }
+            }).catch((err) => {
+                console.log(err)
+            })
+    }
+
+    const closeModal = () => {
+        setModalOpen(false);
+    }
+
+    const reloadModal = async () => {
         let BusList = [];
         await axios.post("/api/ArrInfoByRouteList", { busRouteId: routeId })
             .then((res) => {
@@ -38,6 +61,7 @@ const BusStationList = (props) => {
                     BusList.push(res.data.allRoute["ServiceResult"]["msgBody"]["itemList"]);
                     if (Array.isArray(BusList[0])) setBusRoute(BusList[0]);
                     else setBusRoute(BusList);
+                    setModalOpen(true);
                 }
             }).catch((err) => {
                 console.log(err)
@@ -48,7 +72,7 @@ const BusStationList = (props) => {
         <>
             <div className="App">
                 <header className="App-header">
-                    <h2>해당 정류소에 경유하는 버스 목록/경우 버스 개수: {BusStation.length}</h2>
+                    <h2>해당 정류소에 경유하는 버스 목록/경유 버스 개수: {BusStation.length}</h2>
                     {
                         BusStation.length !== 0 ?
                             <table>
@@ -67,7 +91,7 @@ const BusStationList = (props) => {
                                     {
                                         BusStation.map((item, key) => (
                                             <tr key={key}>
-                                                <td><button onClick={() => AllRoutedInfo(item.busRouteId["_text"])}>{item.busRouteId["_text"]}</button></td>
+                                                <td><button onClick={() => openModal(item.busRouteId["_text"])}>{item.busRouteId["_text"]}</button></td>
                                                 <td>{item.busRouteNm["_text"]}</td>
                                                 <td>{item.length["_text"]}</td>
                                                 <td>{busRouteType[item.busRouteType["_text"]]}</td>
@@ -77,19 +101,11 @@ const BusStationList = (props) => {
                                             </tr>
                                         ))
                                     }
-                                    {
-                                        BusRoute.map((item, key) => (
-                                            <tr key={key}>
-                                                <td>{item.stNm["_text"]}</td>
-                                                <td>{item.arrmsg1["_text"]}</td>
-                                                <td>{item.arrmsg2["_text"]}</td>
-                                            </tr>
-                                        ))
-                                    }
                                 </tbody>
                             </table>
                             : <h5>{stateTitle}</h5>
                     }
+                    <BusRoutModal open={modalOpen} close={closeModal} reload={reloadModal} header="Bus Route List" BusRoute={BusRoute}/>
                 </header>
             </div>
         </>

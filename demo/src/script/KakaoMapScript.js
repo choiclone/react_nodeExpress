@@ -4,9 +4,10 @@ import { Link } from 'react-router-dom';
 
 const KakaoMapScript = ({ searchPlace }) => {
     const busRouteType = {
-      "1": "공항", "2": "마을", "3": "간선", "4": "지선", "5": "순환", "6": "광역", "7": "인천", "8": "경기", "9": "폐지", "0": "공용"
+        "1": "공항", "2": "마을", "3": "간선", "4": "지선", "5": "순환", "6": "광역", "7": "인천", "8": "경기", "9": "폐지", "0": "공용"
     }
     const mapRef = useRef();
+    const markerRef = useRef();
     const infowindowRef = useRef();
 
     useEffect(() => {
@@ -32,13 +33,14 @@ const KakaoMapScript = ({ searchPlace }) => {
 
         function displayMarker(place) {
             // 마커를 생성하고 지도에 표시
-            let marker = new kakao.maps.Marker({
+            markerRef.current = new kakao.maps.Marker({
                 map: map,
                 clickable: true,
                 position: new kakao.maps.LatLng(place.y, place.x)
             });
+            let marker = markerRef.current;
             kakao.maps.event.addListener(marker, 'click', () => {
-                searchDetailAddrFromCoords(new kakao.maps.LatLng(place.y, place.x), function (result, status) {
+                searchDetailAddrFromCoords(new kakao.maps.LatLng(place.y, place.x), (result, status) => {
                     if (status === kakao.maps.services.Status.OK) {
                         let iwContent = '<div style="padding:5px; color:black;"><span style="font-size:15px; font-weight:bold;">버스 정류장 ' + String(place.arsId) + '</span><p style="font-size:15px;">' +
                             String(place.stationName) +
@@ -47,7 +49,7 @@ const KakaoMapScript = ({ searchPlace }) => {
                             '" style="color:blue" target="_blank">길찾기</a></p><p style="font-size:12px; padding:5px;">지번번호: '
                             + String(result[0].address.address_name)
                             + '</p></div>';
-                            infowindowRef.current = new kakao.maps.InfoWindow({
+                        infowindowRef.current = new kakao.maps.InfoWindow({
                             position: new kakao.maps.LatLng(place.y, place.x),
                             content: iwContent,
                             removable: true,
@@ -78,12 +80,14 @@ const KakaoMapScript = ({ searchPlace }) => {
         }
     }, [searchPlace]);
 
-    const mapCurrent = (y, x) => {
+    const mapCurrent = (place) => {
         const map = mapRef.current;
         let infowindow = infowindowRef.current;
-        if(infowindow)
+        if (infowindow !== undefined) {
             infowindow.close();
-        map.setCenter(new kakao.maps.LatLng(y, x));
+            infowindowRef.current = undefined;
+        }
+        map.setCenter(new kakao.maps.LatLng(place.y, place.x));
     }
 
     return (
@@ -100,7 +104,7 @@ const KakaoMapScript = ({ searchPlace }) => {
                     {
                         searchPlace.map((item, key) => (
                             <tr key={key}>
-                                <td onClick={() => mapCurrent(item.y, item.x)}>{item.stationName}</td>
+                                <td onClick={() => mapCurrent(item)}>{item.stationName}</td>
                                 <td><Link to="/BusInfo"
                                     state={{
                                         stNm: item.stationName,
