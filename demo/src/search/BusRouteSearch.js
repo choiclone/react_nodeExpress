@@ -66,12 +66,13 @@ const BusRouteSearch = () => {
     }
 
     const IntervalStationList = (routeId) => {
-        clearInterval(IntervalRef.current);
-        BusRouteStatusList(routeId)
+        // clearInterval(IntervalRef.current);
+        console.log(routeId)
+        // BusRouteStatusList(routeId)
         getBusPosByRtidList(routeId)
-        IntervalRef.current = setInterval(async () => {
-            await BusRouteStatusList(routeId)
-        }, 3000)
+        // IntervalRef.current = setInterval(async () => {
+        //     await BusRouteStatusList(routeId)
+        // }, 3000)
     }
 
     return (
@@ -97,6 +98,15 @@ const BusRouteSearch = () => {
                                 {
                                     busRoute.map((route, key) => (
                                         <p key={key}>{route.stNm["_text"] + "/" + route.arrmsg1["_text"] + "/" + route.arrmsg2["_text"]}</p>
+                                    ))
+                                }
+                            </div> : stateTitle
+                        }
+                        {busLocate.length !== 0 ?
+                            <div>
+                                {
+                                    busLocate.map((locate, key) => (
+                                        <p key={key}>{locate.trnstnid["_text"]+"/"+locate.congetion["_text"]+"/"+locate.nextStId["_text"]}</p>
                                     ))
                                 }
                             </div> : stateTitle
