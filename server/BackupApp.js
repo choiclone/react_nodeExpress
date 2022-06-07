@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const maria = require("./DB/database");
 const bcrypt = require("bcrypt");
 const request = require("request");
+const xlsx = require("xlsx");
 const convert = require('xml-js');
 const jwt = require("jsonwebtoken");
 const app = express();
@@ -18,50 +19,9 @@ https://www.data.go.kr/index.do
 여기서 로그인 하고 자신이 사용하고 있는 api 중에서 연장하거나 취소할 거 누르면 됨*/
 const dataApiKey = '1tTp/cC+ot3y4T1GDzqOKLS6171dZSkuH70eiqtN5Qt9SWDQkV2QTvPrttM1+neB9kCsSBS5FSOYR6OQ8InPUg==';
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
-const SECRET_KEY = "MY-SECRET-KEY";
+const DATA_PATH = path.join(__dirname, "../demo/src/data");
 
-app.post("/api/test1", (req, res) => {
-  let pw = "1234red#";
-  maria.query("select * from Users where id=?", ["hyunclone@first2000.co.kr"], (err, rows, fields) => {
-    if (err) return res.json({ error: err });
-    if (rows.length === 0) return res.json({ error: err });
-    else {
-      const resultUser = bcrypt.compare(pw, rows[0].password);
-      if (resultUser) {
-        const token = jwt.sign(
-          {
-            type: "JWT",
-            id: rows[0].id,
-            isAdmin: rows[0].idx,
-          },
-          SECRET_KEY,
-          { expiresIn: "10m", issuer: "token" }
-        );
-        maria.query(
-          "UPDATE users SET token=? where id=?",
-          [token, rows[0].id],
-          async (err, dds, fields) => {
-            maria.query(
-              "SELECT * FROM Users WHERE id = ? ",
-              rows[0].id,
-              async function (err, rows, fields) {
-                res.json({
-                  code: 200,
-                  message: "Token Success",
-                  UserInfo: rows[0],
-                });
-              }
-            );
-          }
-        );
-      }
-    }
-  })
-});
-
+/* 해당 정류소에 경유하는 노선 목록 조회 */
 app.post("/api/BusStationList", (req, res) => {
   let arsID = req.body.arsID;
   const url = "http://ws.bus.go.kr/api/rest/stationinfo/getRouteByStation";
@@ -75,9 +35,9 @@ app.post("/api/BusStationList", (req, res) => {
     else {
       try {
         let xmltoJson = convert.xml2json(body, { compact: true, spaces: 4 });
-        res.json({ stationList: JSON.parse(xmltoJson), code:200 });
+        res.json({ stationList: JSON.parse(xmltoJson), code: 200 });
       } catch (error) {
-        res.json({ stationList: [], code: 400})
+        res.json({ stationList: [], code: 400 })
       }
     }
   });
@@ -97,9 +57,9 @@ app.post("/api/ArriveBusList", (req, res) => {
     else {
       try {
         let xmltoJson = convert.xml2json(body, { compact: true, spaces: 4 });
-        res.json({ arrive: JSON.parse(xmltoJson), code:200 });
+        res.json({ arrive: JSON.parse(xmltoJson), code: 200 });
       } catch (error) {
-        res.json({ arrive: [], code: 400})
+        res.json({ arrive: [], code: 400 })
       }
     }
   });
@@ -138,15 +98,86 @@ app.post("/api/BusStationApi", (req, res) => {
   }, (err, response, body) => {
     if (err) return res.json({ error: err })
     else {
-      try {
-        let xmltoJson = convert.xml2json(body, { compact: true, spaces: 4 });
-        res.json({ station: JSON.parse(xmltoJson), code:200 });
-      } catch (error) {
-        res.json({ station: [], code: 400})
+      if (station !== '') {
+        try {
+          let xmltoJson = convert.xml2json(body, { compact: true, spaces: 4 });
+          res.json({ station: JSON.parse(xmltoJson), code: 200 });
+        } catch (error) {
+        }
+      } else {
+        res.json({ station: [], code: 400 })
       }
     }
   });
 });
+
+/* 요청한 정류장 명과 가까운 정류장 명들의 목록을 반환 */
+app.post("/api/ArrInfoByRouteList", (req, res) => {
+  const busRouteId = req.body.busRouteId;
+  const url = 'http://ws.bus.go.kr/api/rest/arrive/getArrInfoByRouteAll';
+  let queryParams = '?' + encodeURIComponent('serviceKey') + '=' + encodeURIComponent(dataApiKey);
+  queryParams += '&' + encodeURIComponent('busRouteId') + '=' + encodeURIComponent(String(busRouteId));
+  request({
+    url: url + queryParams,
+    method: 'GET'
+  }, (err, response, body) => {
+    if (err) return res.json({ error: err })
+    else {
+      try {
+        let xmltoJson = convert.xml2json(body, { compact: true, spaces: 4 });
+        res.json({ allRoute: JSON.parse(xmltoJson), code: 200 });
+      } catch (error) {
+        res.json({ allRoute: [], code: 400 })
+      }
+    }
+  });
+});
+
+app.post("/api/BusListSearch", (req, res) => {
+  const BusName = req.body.BusName;
+  const excelFile = xlsx.readFile(path.join(DATA_PATH, "BusIdInfo.xlsx"));
+  const sheetName = excelFile.SheetNames[0];
+  const firstSheet = excelFile.Sheets[sheetName];
+  const jsonData = xlsx.utils.sheet_to_json(firstSheet, { defval: "" });
+  let routeId = [];
+
+  if(BusName !== '') {
+    let index = jsonData.map((bus, idx) => String(bus["노선명"]).includes(String(BusName)) ? idx: '').filter(String);
+    try {
+      index.map((idx) => {
+        routeId.push(jsonData[idx])
+      })
+      res.json({ routeId: routeId, status: 200 })
+    } catch (error) {
+      res.json({ routeId: [], status: 404 })
+    }
+  }else{
+    res.json({ routeId: [], status: 404 })
+  }
+})
+
+app.post("/api/getBusPosByRtidList", (req, res) => {
+  const busRouteId = req.body.busRouteId;
+  console.log(busRouteId)
+  const url = 'http://ws.bus.go.kr/api/rest/buspos/getBusPosByRtid';
+  let queryParams = '?' + encodeURIComponent('serviceKey') + '=' + encodeURIComponent(dataApiKey);
+  queryParams += '&' + encodeURIComponent('busRouteId') + '=' + encodeURIComponent(String(busRouteId));
+
+  request({
+    url: url + queryParams,
+    method: 'GET'
+  }, (err, response, body) => {
+    if (err) return res.json({ error: err })
+    else {
+      try {
+        let xmltoJson = convert.xml2json(body, { compact: true, spaces: 4 });
+        res.json({ BusLocate: JSON.parse(xmltoJson), code: 200 });
+      } catch (error) {
+        res.json({ BusLocate: [], code: 400 })
+      }
+    }
+  });
+})
 
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));

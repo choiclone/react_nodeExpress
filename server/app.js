@@ -158,7 +158,6 @@ app.post("/api/BusListSearch", (req, res) => {
 
 app.post("/api/getBusPosByRtidList", (req, res) => {
   const busRouteId = req.body.busRouteId;
-  console.log(busRouteId)
   const url = 'http://ws.bus.go.kr/api/rest/buspos/getBusPosByRtid';
   let queryParams = '?' + encodeURIComponent('serviceKey') + '=' + encodeURIComponent(dataApiKey);
   queryParams += '&' + encodeURIComponent('busRouteId') + '=' + encodeURIComponent(String(busRouteId));

@@ -3,10 +3,11 @@ import StationList from "./list/StationList";
 import StationArriveBusInfo from "./list/StationArriveBusInfo";
 import TestJ from "./list/StationListF";
 import './App.css';
+import "../src/css/Main.css"
 
 const App = () => {
   return (
-    <div className='App'>
+    <div className='main-fullScreen'>
       <Router>
         <Routes>
           <Route exact path='/list' element={<StationList/>} />
