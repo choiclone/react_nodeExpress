@@ -1,7 +1,8 @@
 # react_nodeExpress
 <h3>버스 및 지하철 시간 조회<h3>
   <div>
-    2022
+    start 2022/05/20 ~ 
+    Client[reactJs] + Server[NodeExpress] + DB[mariaDB] + OpenAPI[<a href="https://www.data.go.kr/">서울 공공 데이터</a>]
   </div>
 <br>
 <h5>제작자 정보</h5> 
