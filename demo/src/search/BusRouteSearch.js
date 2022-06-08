@@ -66,7 +66,7 @@ const BusRouteSearch = () => {
                 console.log(err)
             })
     }
-
+    
     const getBusArrInfo = async (arsId) => {
         let BusList = [];
         await axios.post("/api/ArriveBusList", { arsID: arsId })
