@@ -6,6 +6,13 @@
     <br>
     2022/05/30 => 실시간 버스 도착 정보 구현함<br>
     2022/06/08 => 실시간 버스 위치 추가함
+    <br>
+    <br>
+    Docker 실행 <br><br>
+      * docker build -t bus_api . <br>
+      * docker run -i -t -d --name testnode5 --rm -p 6000:80 bus_api <br>
+      * docker exec -it testnode5 /bin/bash <br>
+      * cd server && yarn start
   </div>
 <br>
 <h5>제작자 정보</h5> 
