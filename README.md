@@ -4,7 +4,7 @@
     Start Project => 2022/05/20 ~ <br>
     Client[reactJs] + Server[NodeExpress] + DB[mariaDB] + OpenAPI[<a href="https://www.data.go.kr/">서울 공공 데이터</a>]
     <br>
-    2022/05/30 => 실시간 버스 도착 정보 구현함
+    2022/05/30 => 실시간 버스 도착 정보 구현함<br>
     2022/06/08 => 실시간 버스 위치 추가함
   </div>
 <br>
