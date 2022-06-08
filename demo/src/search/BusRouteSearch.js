@@ -11,6 +11,10 @@ const BusRouteSearch = () => {
 
     const IntervalRef = useRef();
 
+    useEffect(() => {
+        return () => clearInterval(IntervalRef.current)
+    }, [])
+
     const clickBus = async (e) => {
         e.preventDefault();
         await axios.post("/api/BusListSearch", { BusName: busName })
@@ -25,23 +29,21 @@ const BusRouteSearch = () => {
     }
 
     const handleBus = (e) => {
+        setStateTitle("Click Bus")
         setBusRoute([]);
         setBusRouteId([]);
+        setBusLocate([]);
         clearInterval(IntervalRef.current)
         setBusName(e.target.value);
     }
 
     const BusRouteStatusList = async (routeId) => {
         let BusList = [];
-        console.log(routeId)
         setStateTitle("가져오는 중...")
         await axios.post("/api/ArrInfoByRouteList", { busRouteId: routeId })
             .then((res) => {
                 if (res.data.code === 200) {
-                    // res.data.allRoute["ServiceResult"]["msgBody"]["itemList"]
-
                     BusList.push(res.data.allRoute["ServiceResult"]["msgBody"]["itemList"]);
-                    console.log(BusList)
                     if (Array.isArray(BusList[0])) setBusRoute(BusList[0]);
                     else setBusRoute(BusList);
                 }
@@ -50,13 +52,12 @@ const BusRouteSearch = () => {
             })
     }
 
-    const getBusPosByRtidList = (routeId) => {
+    const getBusPosByRtidList = async (routeId) => {
         let BusList = [];
-        axios.post("/api/getBusPosByRtidList", { busRouteId: routeId })
+        await axios.post("/api/getBusPosByRtidList", { busRouteId: routeId })
             .then((res) => {
                 if (res.data.code === 200) {
                     BusList.push(res.data.BusLocate["ServiceResult"]["msgBody"]["itemList"]);
-                    console.log(BusList)
                     if (Array.isArray(BusList[0])) setBusLocate(BusList[0]);
                     else setBusLocate(BusList);
                 }
@@ -66,15 +67,14 @@ const BusRouteSearch = () => {
     }
 
     const IntervalStationList = (routeId) => {
-        // clearInterval(IntervalRef.current);
-        console.log(routeId)
-        // BusRouteStatusList(routeId)
+        setStateTitle("Click Bus")
+        clearInterval(IntervalRef.current);
+        BusRouteStatusList(routeId)
         getBusPosByRtidList(routeId)
         // IntervalRef.current = setInterval(async () => {
         //     await BusRouteStatusList(routeId)
         // }, 3000)
     }
-
     return (
         <>
             <div>
@@ -84,32 +84,36 @@ const BusRouteSearch = () => {
                         <button type="submit">Bus 조회</button>
                     </form>
                 </div>
+                {busLocate.length !== 0 ? busLocate.length + "개" : ""}
                 {busRouteId.length !== 0 ?
                     <div>
-                        <ol>
-                            {
-                                busRouteId.map((item, key) => (
-                                    <li key={key}><button onClick={() => IntervalStationList(item["ROUTE_ID"])}>{item["노선명"]}</button></li>
+                        <table>
+                            <thead><tr><th>버스명</th></tr></thead>
+                            <tbody>
+                                {
+                                    busRouteId.map((item, key) => (
 
-                                ))
-                            }</ol>
+                                        <tr key={key}>
+                                            <td><button onClick={() => IntervalStationList(item["ROUTE_ID"])}>{item["노선명"]}</button></td>
+                                        </tr>
+                                    ))
+                                }
+                            </tbody>
+                        </table>
                         {busRoute.length !== 0 ?
                             <div>
                                 {
                                     busRoute.map((route, key) => (
-                                        <p key={key}>{route.stNm["_text"] + "/" + route.arrmsg1["_text"] + "/" + route.arrmsg2["_text"]}</p>
+                                        <p key={key}>
+                                            {route.stNm["_text"] + "  "}
+                                            {
+                                                busLocate.findIndex(loc => loc.lastStnId["_text"] === route.stId["_text"]) !== -1 ?
+                                                    "버스 도착 정보: " + route.arrmsg1["_text"] + "/" + route.arrmsg2["_text"] : ""
+                                            }
+                                        </p>
                                     ))
                                 }
-                            </div> : stateTitle
-                        }
-                        {busLocate.length !== 0 ?
-                            <div>
-                                {
-                                    busLocate.map((locate, key) => (
-                                        <p key={key}>{locate.trnstnid["_text"]+"/"+locate.congetion["_text"]+"/"+locate.nextStId["_text"]}</p>
-                                    ))
-                                }
-                            </div> : stateTitle
+                            </div> : stateTitle + "/" + busRoute.length
                         }
                     </div> : ""
                 }

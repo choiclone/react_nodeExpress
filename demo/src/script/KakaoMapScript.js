@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
 const KakaoMapScript = ({ searchPlace }) => {
+    const [lastClickStation, setLastClickStation] = useState('');
     const busRouteType = {
         "1": "공항", "2": "마을", "3": "간선", "4": "지선", "5": "순환", "6": "광역", "7": "인천", "8": "경기", "9": "폐지", "0": "공용"
     }
@@ -83,7 +84,11 @@ const KakaoMapScript = ({ searchPlace }) => {
         }
     }, [searchPlace]);
 
-    const mapCurrent = (place) => {
+    const mapCurrent = (place, searchPlace, e) => {
+        console.log(e);
+        searchPlace.map((item, key) => {
+            document.getElementsByClassName(String(item.stationName+"_"+String(key)))[0].style.color="white"
+        })
         const map = mapRef.current;
         let infowindow = infowindowRef.current;
         if (infowindow !== undefined) {
@@ -91,11 +96,13 @@ const KakaoMapScript = ({ searchPlace }) => {
             infowindowRef.current = undefined;
         }
         map.setCenter(new kakao.maps.LatLng(place.y, place.x));
+        e.currentTarget.style.color = "green";
+        setLastClickStation(e.target.className);
     }
 
     return (
         <div>
-            <div id="map" style={{ width: '100%', height: "350px" }}></div>
+            <div id="map" style={{ width: '100%', height: "450px" }}></div>
             <table>
                 <thead>
                     <tr>
@@ -107,7 +114,7 @@ const KakaoMapScript = ({ searchPlace }) => {
                     {
                         searchPlace.map((item, key) => (
                             <tr key={key}>
-                                <td onClick={() => mapCurrent(item)}>{item.stationName}</td>
+                                <td className={String(item.stationName)+"_"+String(key)} onClick={(e) => mapCurrent(item, searchPlace, e)}>{item.stationName}</td>
                                 <td><Link to="/BusInfo"
                                     state={{
                                         stNm: item.stationName,
