@@ -63,7 +63,7 @@ const BusStationSearch = () => {
 
     const styleDict = {
         display: "inline-block", 
-        width: "50%"
+        width: "100%"
     };
 
     return (

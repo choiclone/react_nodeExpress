@@ -102,7 +102,7 @@ const KakaoMapScript = ({ searchPlace }) => {
 
     return (
         <div>
-            <div id="map" style={{ width: '100%', height: "450px" }}></div>
+            <div id="map" style={{ width: '100%', height: "350px" }}></div>
             <table>
                 <thead>
                     <tr>
