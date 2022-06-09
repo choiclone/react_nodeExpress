@@ -14,7 +14,7 @@ const fs = require("fs");
 const ImagePath = path.join(__dirname, "..", "images");
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use("/static/busImages", express.static(ImagePath));
+app.use("/staticFolder/busImages", express.static(ImagePath));
 app.use(bodyParser.json());
 
 /* 24개월(2년) 마다 현재 할당 받은 key 값은 사라지니 다시 받거나 기간 연장이 필요함

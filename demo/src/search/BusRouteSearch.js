@@ -146,7 +146,7 @@ const BusRouteSearch = () => {
                                             <button onClick={() => getBusArrInfo(route.arsId["_text"])}>{route.stNm["_text"] + "  " }</button>
                                             {
                                                 busLocate.findIndex(loc => loc.lastStnId["_text"] === route.stId["_text"]) !== -1 ?
-                                                <img src='../images/bus.png'></img> : route.stNm["_text"]
+                                                <img src='/static/busImages/bus.png'/> : route.stNm["_text"]
                                             }
                                         </p>
                                     ))

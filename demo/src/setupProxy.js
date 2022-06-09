@@ -8,9 +8,8 @@ module.exports = function (app) {
     })
   );
   app.use(
-    createProxyMiddleware('/statics', {
-      target: `http://172.30.1.80:6000`,
-      changeOrigin: true
+    createProxyMiddleware('/staticFolder', {
+      target: `http://172.30.1.80:6000/`
     })
   );
 };
