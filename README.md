@@ -10,7 +10,7 @@
     <br>
     Docker 실행 <br><br>
       * docker build -t bus_api . <br>
-      * docker run -i -t -d --name testnode5 --rm -p 6000:80 bus_api <br>
+      * docker run -i -t -d --name testnode5 --rm -p 6000:3000 bus_api <br>
       * docker exec -it testnode5 /bin/bash <br>
       * cd server && yarn start
   </div>

@@ -140,13 +140,13 @@ const BusRouteSearch = () => {
                         {busRoute.length !== 0 ?
                             <div style={styleSheet}>
                                 {
+                                    // {String(busRouteId[0]["노선명"]) + " / 도착 정보: " + route.arrmsg1["_text"] + "/" + route.arrmsg2["_text"]}
                                     busRoute.map((route, key) => (
                                         <p key={key}>
                                             <button onClick={() => getBusArrInfo(route.arsId["_text"])}>{route.stNm["_text"] + "  " }</button>
                                             {
                                                 busLocate.findIndex(loc => loc.lastStnId["_text"] === route.stId["_text"]) !== -1 ?
-                                                " / 버스 / 도착 정보: " + route.arrmsg1["_text"] + "/" + route.arrmsg2["_text"] : route.stNm["_text"] 
-                                                    // + " / 버스 / 도착 정보: " + route.arrmsg1["_text"] + "/" + route.arrmsg2["_text"]
+                                                <img src='../images/bus.png'></img> : route.stNm["_text"]
                                             }
                                         </p>
                                     ))
