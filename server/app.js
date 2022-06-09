@@ -157,7 +157,30 @@ app.post("/api/BusListSearch", (req, res) => {
   }else{
     res.json({ routeId: [], status: 404 })
   }
-})
+});
+
+app.post("/api/StationListSearch", (req, res) => {
+  const StationName = req.body.StationName;
+  const excelFile = xlsx.readFile(path.join(DATA_PATH, "StationList.xlsx"));
+  const sheetName = excelFile.SheetNames[0];
+  const firstSheet = excelFile.Sheets[sheetName];
+  const jsonData = xlsx.utils.sheet_to_json(firstSheet, { defval: "" });
+  let stationId = [];
+
+  if(StationName !== '') {
+    let index = jsonData.map((station, idx) => String(station["정류소명"]).includes(String(StationName)) ? idx: '').filter(String);
+    try {
+      index.map((idx) => {
+        stationId.push(jsonData[idx])
+      })
+      res.json({ stationId: stationId, status: 200 })
+    } catch (error) {
+      res.json({ stationId: [], status: 404 })
+    }
+  }else{
+    res.json({ stationId: [], status: 404 })
+  }
+});
 
 app.post("/api/getBusPosByRtidList", (req, res) => {
   const busRouteId = req.body.busRouteId;

@@ -3,7 +3,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
 const KakaoMapScript = ({ searchPlace }) => {
-    const [lastClickStation, setLastClickStation] = useState('');
     const busRouteType = {
         "1": "공항", "2": "마을", "3": "간선", "4": "지선", "5": "순환", "6": "광역", "7": "인천", "8": "경기", "9": "폐지", "0": "공용"
     }
@@ -15,7 +14,7 @@ const KakaoMapScript = ({ searchPlace }) => {
         const container = document.getElementById('map');
         const options = {
             center: new kakao.maps.LatLng(37.555167, 126.970833),
-            level: 3,
+            level: 10,
         };
 
         mapRef.current = new kakao.maps.Map(container, options);
@@ -85,7 +84,7 @@ const KakaoMapScript = ({ searchPlace }) => {
     }, [searchPlace]);
 
     const mapCurrent = (place, searchPlace, e) => {
-        console.log(e);
+        e.preventDefault();
         searchPlace.map((item, key) => {
             document.getElementsByClassName(String(item.stationName+"_"+String(key)))[0].style.color="white"
         })
@@ -96,21 +95,20 @@ const KakaoMapScript = ({ searchPlace }) => {
             infowindowRef.current = undefined;
         }
         map.setCenter(new kakao.maps.LatLng(place.y, place.x));
-        e.currentTarget.style.color = "green";
-        setLastClickStation(e.target.className);
+        e.currentTarget.style.color = "skyblue"
     }
 
     return (
-        <div>
+        <div className='map-search-station'>
             <div id="map" style={{ width: '100%', height: "350px" }}></div>
-            <table>
+            <table className='map-station-table'>
                 <thead>
                     <tr>
                         <th>정류소 명</th>
                         <th>정류소 고유번호</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="stationId">
                     {
                         searchPlace.map((item, key) => (
                             <tr key={key}>

@@ -7,17 +7,19 @@ const BusRouteSearch = () => {
     const [stateTitle, setStateTitle] = useState('Click Bus');
     const [busSearch, setBusSearch] = useState('');
     const [busRouteId, setBusRouteId] = useState([]);
+    const [busReloadInfo, setBusReloadInfo] = useState([]);
     const [busLocate, setBusLocate] = useState([]);
     const [busRoute, setBusRoute] = useState([]);
     const [arrive, setArrive] = useState([]);
 
     const IntervalRef = useRef();
 
-    const stationType = { 0: "공용 버스", 1: "일반형 시내/ 농어촌버스", 2:"좌석형 시내 / 농어촌버스", 3:"직행좌석형 시내 / 농어촌버스", 4:"일반형 시외버스", 5:"좌석형 시외버스", 6:"고속형 시외버스", 7: "마을버스"}
-    const routeType = {1:"공항", 2:"마을", 3:"간선", 4:"지선", 5:"순환", 6:"광역", 7:"인천", 8:"경기", 9:"폐지", 0:"공용"}
+    const stationType = { 0: "공용 버스", 1: "일반형 시내/ 농어촌버스", 2: "좌석형 시내 / 농어촌버스", 3: "직행좌석형 시내 / 농어촌버스", 4: "일반형 시외버스", 5: "좌석형 시외버스", 6: "고속형 시외버스", 7: "마을버스"}
+    const routeType = {1: "공항", 2: "마을", 3: "간선", 4: "지선", 5: "순환", 6: "광역", 7: "인천", 8: "경기", 9: "폐지", 0: "공용"}
+    
     useEffect(() => {
-        return () => clearInterval(IntervalRef.current)
-    }, [])
+        return () => clearInterval(IntervalRef.current);
+    }, []);
 
     const clickBus = async (e) => {
         e.preventDefault();
@@ -28,6 +30,7 @@ const BusRouteSearch = () => {
                 } else setBusRouteId(res.data.routeId)
             })
             .catch((err) => {
+                console.log(err)
                 setBusRouteId('')
             })
     }
@@ -36,6 +39,7 @@ const BusRouteSearch = () => {
         setStateTitle("Click Bus")
         setBusSearch("")
         setBusRoute([]);
+        setBusReloadInfo([]);
         setBusRouteId([]);
         setBusLocate([]);
         setArrive([]);
@@ -83,22 +87,23 @@ const BusRouteSearch = () => {
                     } else {
                         setArrive(BusList)
                     }
-                    console.log(BusList)
                 }
             }).catch((err) => {
                 console.log(err)
             })
     }
 
-    const IntervalStationList = (item) => {
-        setStateTitle("Click Bus")
-        setBusSearch(item["노선명"])
+    const IntervalStationList = (item, e) => {
         clearInterval(IntervalRef.current);
+        setStateTitle("Click Bus")
+        setBusReloadInfo(item);
+        setBusSearch(item["노선명"])
         BusRouteStatusList(item["ROUTE_ID"])
         getBusPosByRtidList(item["ROUTE_ID"])
-        // IntervalRef.current = setInterval(async () => {
-        //     await BusRouteStatusList(item["ROUTE_ID"])
-        // }, 3000)
+        IntervalRef.current = setInterval(async () => {
+            await BusRouteStatusList(item["ROUTE_ID"])
+            await getBusPosByRtidList(item["ROUTE_ID"])
+        }, 3000);
     }
 
     const styleSheet = {
@@ -144,7 +149,7 @@ const BusRouteSearch = () => {
                                     busRouteId.map((item, key) => (
 
                                         <tr key={key}>
-                                            <td><button onClick={() => IntervalStationList(item)}>{item["노선명"]}</button></td>
+                                            <td><button onClick={(e) => IntervalStationList(item, e)}>{item["노선명"]}</button></td>
                                         </tr>
                                     ))
                                 }
@@ -157,14 +162,19 @@ const BusRouteSearch = () => {
                                     {
                                         busRoute.map((route, key) => (
                                             <li key={key} style={verticalStyle}>
-                                                <button style={verticalStyle} onClick={() => getBusArrInfo(route.arsId["_text"])}>{route.stNm["_text"] + "  "}</button>
+                                                <button style={verticalStyle} onClick={() => getBusArrInfo(route.arsId["_text"])}>{route.stNm["_text"]}</button>
                                                 {
                                                     busLocate.findIndex(loc => loc.lastStnId["_text"] === route.stId["_text"]) !== -1 ?
-                                                        <img style={verticalStyle} src='/staticFolder/busImages/bus.png' width="50px" height="50px" /> : <span style={{ color: "white" }}>{route.stNm["_text"]}</span>
+                                                        <img style={verticalStyle} src='/staticFolder/busImages/bus.png' width="50px" height="50px"/> : <span style={{ color: "white" }}>{route.stNm["_text"]}</span>
                                                 }
                                             </li>
                                         ))
                                     }
+                                    <li>
+                                        <button onClick={(e) => IntervalStationList(busReloadInfo, e)}>
+                                            <img src="/staticFolder/busImages/reload.png" width="40px" height="40px"/>
+                                        </button>
+                                    </li>
                                 </ul> 
                             </div> : stateTitle
                         }

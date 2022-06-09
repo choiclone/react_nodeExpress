@@ -1,13 +1,14 @@
 /*global kakao*/
 import React, { useState, useEffect, useRef } from 'react';
 import KakaoMapScript from '../script/KakaoMapScript';
+import "../css/StationMap.css";
 import axios from 'axios';
 
 const BusStationSearch = () => {
     const [station, setStation] = useState('');
     const [searchTitle, setSerchTitle] = useState('검색요망');
     const [busStation, setBusStation] = useState([]);
-    const [searchStationList, setsearchStationList] = useState([]);
+    const [searchStationList, setSearchStationList] = useState([]);
 
     const clickBusStation = async (e) => {
         e.preventDefault();
@@ -29,7 +30,7 @@ const BusStationSearch = () => {
                                     arsId: item.arsId["_text"]
                                 })
                             })
-                            setsearchStationList(stationArray)
+                            setSearchStationList(stationArray)
                         } else {
                             setBusStation(BusList);
                             BusList.map((item) => {
@@ -40,7 +41,7 @@ const BusStationSearch = () => {
                                     arsId: item.arsId["_text"]
                                 })
                             })
-                            setsearchStationList(stationArray)
+                            setSearchStationList(stationArray)
                         }
                     } else {
                         setSerchTitle("검색하신 결과가 존재하지 않습니다.");
@@ -53,7 +54,7 @@ const BusStationSearch = () => {
             .catch((err) => {
                 setSerchTitle("서버가 돌아가셨습니다. ㅈㅅ");
                 setStation('');
-                console.log(err)
+                console.error(err)
             })
     }
 
@@ -61,15 +62,10 @@ const BusStationSearch = () => {
         setStation(e.target.value);
     }
 
-    const styleDict = {
-        display: "inline-block", 
-        width: "100%"
-    };
-
     return (
         <>
-            <div>
-                <div>
+            <div className='map-search'>
+                <div className='map-search-form'>
                     <form onSubmit={clickBusStation}>
                         <input type="text" name='stationName' onChange={handleStation}></input>
                         <button type="submit">BUS 정류장 조회</button>
@@ -77,10 +73,8 @@ const BusStationSearch = () => {
                 </div>
                 {
                     busStation.length !== 0 ?
-                        <div style={styleDict}>
-                            <div className="map_wrap">
-                                <KakaoMapScript searchPlace={searchStationList} />
-                            </div>
+                        <div className='map-search-map'>
+                            <KakaoMapScript searchPlace={searchStationList} />
                         </div>
                         : <h5>{searchTitle}</h5>
                 }

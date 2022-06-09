@@ -18,19 +18,33 @@ const BusStationList = (props) => {
     const clickStationInfo = async (e) => {
         let BusList = [];
         setStateTitle('로딩 중...');
-        await axios.post("/api/BusStationList", { arsID: arsId })
+        await axios.post("/api/StationListSearch", { arsID: arsId })
             .then((res) => {
                 if (res.data.code === 200) {
-                    BusList.push(res.data.stationList["ServiceResult"]["msgBody"]["itemList"]);
+                    BusList.push(res.data.stationId);
                     if (Array.isArray(BusList[0])) setBusStation(BusList[0])
                     else setBusStation(BusList)
                     setStateTitle('검색완료');
                 } else {
                     setStateTitle('결과 없음');
                 }
+                console.log(BusList)
             }).catch((err) => {
                 console.log(err)
             })
+        // await axios.post("/api/BusStationList", { arsID: arsId })
+        //     .then((res) => {
+        //         if (res.data.code === 200) {
+        //             BusList.push(res.data.stationList["ServiceResult"]["msgBody"]["itemList"]);
+        //             if (Array.isArray(BusList[0])) setBusStation(BusList[0])
+        //             else setBusStation(BusList)
+        //             setStateTitle('검색완료');
+        //         } else {
+        //             setStateTitle('결과 없음');
+        //         }
+        //     }).catch((err) => {
+        //         console.log(err)
+        //     })
     }
 
     const openModal = async (routeId) => {
