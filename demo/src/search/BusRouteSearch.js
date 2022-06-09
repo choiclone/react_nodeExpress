@@ -5,6 +5,7 @@ import axios from 'axios';
 const BusRouteSearch = () => {
     const [busName, setBusName] = useState('');
     const [stateTitle, setStateTitle] = useState('Click Bus');
+    const [busSearch, setBusSearch] = useState('');
     const [busRouteId, setBusRouteId] = useState([]);
     const [busLocate, setBusLocate] = useState([]);
     const [busRoute, setBusRoute] = useState([]);
@@ -33,6 +34,7 @@ const BusRouteSearch = () => {
 
     const handleBus = (e) => {
         setStateTitle("Click Bus")
+        setBusSearch("")
         setBusRoute([]);
         setBusRouteId([]);
         setBusLocate([]);
@@ -88,13 +90,14 @@ const BusRouteSearch = () => {
             })
     }
 
-    const IntervalStationList = (routeId) => {
+    const IntervalStationList = (item) => {
         setStateTitle("Click Bus")
+        setBusSearch(item["노선명"])
         clearInterval(IntervalRef.current);
-        BusRouteStatusList(routeId)
-        getBusPosByRtidList(routeId)
+        BusRouteStatusList(item["ROUTE_ID"])
+        getBusPosByRtidList(item["ROUTE_ID"])
         // IntervalRef.current = setInterval(async () => {
-        //     await BusRouteStatusList(routeId)
+        //     await BusRouteStatusList(item["ROUTE_ID"])
         // }, 3000)
     }
 
@@ -118,14 +121,14 @@ const BusRouteSearch = () => {
                     </form>
                 </div>
                 {busRouteId.length !== 0 ?
-                    <div><h5> {String(busRouteId[0]["노선명"])} 운행 개수: {busLocate.length !== 0 ? busLocate.length + "개" : ""}</h5>
+                    <div>
                         {
                             arrive.length !== 0 ?
                                 <div>
                                     {stationType[arrive[0].stationTp["_text"]]}
                                     {arrive.map((item, key) => (
                                         <ol key={key}>
-                                            <li>{String(busRouteId[0]["노선명"]) === String(item.rtNm["_text"]) ? 
+                                            <li>{String(busSearch) === String(item.rtNm["_text"]) ? 
                                                 <span style={{color:"red"}}>{item.rtNm["_text"]+"/"+routeType[item.routeType["_text"]]+"버스"}</span> 
                                                 : item.rtNm["_text"]+"/"+routeType[item.routeType["_text"]]+"버스"}</li>
                                             <li>{item.arrmsg1["_text"]}</li>
@@ -141,26 +144,29 @@ const BusRouteSearch = () => {
                                     busRouteId.map((item, key) => (
 
                                         <tr key={key}>
-                                            <td><button onClick={() => IntervalStationList(item["ROUTE_ID"])}>{item["노선명"]}</button></td>
+                                            <td><button onClick={() => IntervalStationList(item)}>{item["노선명"]}</button></td>
                                         </tr>
                                     ))
                                 }
                             </tbody>
                         </table>
                         {busRoute.length !== 0 ?
-                            <ul style={styleSheet}>
-                                {
-                                    busRoute.map((route, key) => (
-                                        <li key={key} style={verticalStyle}>
-                                            <button style={verticalStyle} onClick={() => getBusArrInfo(route.arsId["_text"])}>{route.stNm["_text"] + "  "}</button>
-                                            {
-                                                busLocate.findIndex(loc => loc.lastStnId["_text"] === route.stId["_text"]) !== -1 ?
-                                                    <img style={verticalStyle} src='/staticFolder/busImages/bus.png' width="50px" height="50px" /> : <span style={{ color: "white" }}>{route.stNm["_text"]}</span>
-                                            }
-                                        </li>
-                                    ))
-                                }
-                            </ul> : stateTitle + "/" + busRoute.length
+                            <div>
+                                <h5> {busSearch} 운행 개수: {busLocate.length !== 0 ? busLocate.length + "개" : ""}</h5>
+                                <ul style={styleSheet}>
+                                    {
+                                        busRoute.map((route, key) => (
+                                            <li key={key} style={verticalStyle}>
+                                                <button style={verticalStyle} onClick={() => getBusArrInfo(route.arsId["_text"])}>{route.stNm["_text"] + "  "}</button>
+                                                {
+                                                    busLocate.findIndex(loc => loc.lastStnId["_text"] === route.stId["_text"]) !== -1 ?
+                                                        <img style={verticalStyle} src='/staticFolder/busImages/bus.png' width="50px" height="50px" /> : <span style={{ color: "white" }}>{route.stNm["_text"]}</span>
+                                                }
+                                            </li>
+                                        ))
+                                    }
+                                </ul> 
+                            </div> : stateTitle
                         }
                     </div> : ""
                 }
