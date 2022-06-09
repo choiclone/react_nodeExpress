@@ -11,8 +11,8 @@ const app = express();
 const path = require("path");
 const fs = require("fs");
 
-const ImagePath = path.join(__dirname, "..", "images");
-
+const ImagePath = path.join(__dirname, "images");
+// console.log(ImagePath)
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/staticFolder/busImages", express.static(ImagePath));
 app.use(bodyParser.json());
