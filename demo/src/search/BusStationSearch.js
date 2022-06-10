@@ -14,6 +14,31 @@ const BusStationSearch = () => {
         e.preventDefault();
         let BusList = [];
         let stationArray = [];
+        /* 서울 공공 데이터에서 excel data로 불러올 경우 */
+        await axios.post("/api/StationListSearch", { StationName: station })
+            .then((res) => {
+                if (res.data.status === 200) {
+                    BusList.push(res.data.stationId);
+                    setBusStation(BusList[0])
+                    BusList[0].map((item) => {
+                        stationArray.push({
+                            x: item["좌표X"],
+                            y: item["좌표Y"],
+                            stationName: item["정류소명"],
+                            arsId: item["ARS-ID"]
+                        });
+                    });
+                    setSearchStationList(stationArray);
+                } else {
+                    setSerchTitle("검색하신 결과가 존재하지 않습니다.");
+                    setBusStation([]);
+                }
+            }).catch((err) => {
+                setSerchTitle("서버가 돌아가셨습니다. ㅈㅅ");
+                setStation('');
+                console.error(err)
+            })
+        /* 서울 공공 데이터에서 api로 정류장을 불러올 경우
         await axios.post("/api/BusStationApi", { station: station })
             .then((res) => {
                 if (res.data.code === 200) {
@@ -55,7 +80,7 @@ const BusStationSearch = () => {
                 setSerchTitle("서버가 돌아가셨습니다. ㅈㅅ");
                 setStation('');
                 console.error(err)
-            })
+            })*/
     }
 
     const handleStation = (e) => {

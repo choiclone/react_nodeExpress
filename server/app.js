@@ -172,7 +172,7 @@ app.post("/api/StationListSearch", (req, res) => {
     try {
       index.map((idx) => {
         stationId.push(jsonData[idx])
-      })
+      });
       res.json({ stationId: stationId, status: 200 })
     } catch (error) {
       res.json({ stationId: [], status: 404 })
