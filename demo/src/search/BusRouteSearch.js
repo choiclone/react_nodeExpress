@@ -1,5 +1,6 @@
 /*global kakao*/
 import React, { useState, useEffect, useRef } from 'react';
+import SearchComponent from '../search/searchComponent';
 import "../css/Search.css";
 import { createFuzzyMatcher } from '../module/consonantSearch';
 import axios from 'axios';
@@ -41,7 +42,7 @@ const BusRouteSearch = () => {
             })
     }
 
-    const SearchStation = async (e) => {
+    const SearchRoute = async (e) => {
         let busN = busName
         if (busN !== '') {
             let busNm = createFuzzyMatcher(busN);
@@ -69,6 +70,9 @@ const BusRouteSearch = () => {
         if (busName !== '') {
             let busN = createFuzzyMatcher(busName);
             let index = busRouted.filter((route, idx) => busN.test(route["노선명"]) ? route : '');
+            index = index.sort(function(a, b) { 
+                return a["노선명"] < b["노선명"] ? -1 : a["노선명"] > b["노선명"] ? 1 : 0;
+            });
             setBusRouteId(index.slice(0, 10))
         } else {
             setBusRouteId([])
@@ -149,21 +153,16 @@ const BusRouteSearch = () => {
     return (
         <>
             <div className='search-main'>
-                <div className='search-form'>
-                    <form onSubmit={SearchStation}>
-                        <input type="text" name='busName' onChange={handleBus}></input>
-                        <button type="submit">Bus 조회</button>
-                    </form>
-                    {busRouteId.length !== 0 ?
-                        <ul className='search-route-list'>
-                            {
-                                busRouteId.map((item, key) => (
-                                    <li key={key} onClick={(e) => IntervalStationList(item, e)}>{item["노선명"]}</li>
-                                ))
-                            }
-                        </ul> : ""
-                    }
-                </div>
+                <SearchComponent SearchInfo={SearchRoute} handleSearch={handleBus} buttonTitle={"노선명"} autoInfo={busRouteId}/>
+                {busRouteId.length !== 0 ?
+                    <ul className='search-route-list'>
+                        {
+                            busRouteId.map((item, key) => (
+                                <li key={key} onClick={(e) => IntervalStationList(item, e)}>{item["노선명"]}</li>
+                            ))
+                        }
+                    </ul> : ""
+                }
                 {
                     arrive.length !== 0 ?
                         <div>

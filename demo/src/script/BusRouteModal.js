@@ -36,7 +36,7 @@ const BusRouteModal = (props) => {
                       </li>
                     </ul>
                   ))}
-                </div> : <h4>아무것도 모다죠?</h4>
+                </div> : ""
             }
           </main>
         </section>

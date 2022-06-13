@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { createFuzzyMatcher } from '../module/consonantSearch';
+import SearchComponent from '../search/searchComponent';
 // import KakaoMapScript from '../script/KakaoMapScript';
 import "../css/StationMap.css";
 import axios from 'axios';
@@ -25,20 +26,18 @@ const BusStationSearch = () => {
                 if (res.data.status === 200) {
                     setBusStation(res.data.stationId);
                 } else {
-                    setSerchTitle("검색하신 결과가 존재하지 않습니다.");
                     setBusStation([]);
                 }
             }).catch((err) => {
-                setSerchTitle("서버가 돌아가셨습니다. ㅈㅅ");
                 setStation('');
             })
     }
 
-    const SearchStation = async (e) => {
+    const SearchInfo = async (e) => {
         let stationName = station
         if(stationName !== ''){
             let stationN = createFuzzyMatcher(stationName);
-            let index = busStation.filter((station) => stationN.test(station["정류소명"]) ? station: '');
+            let index = busStation.filter((station) => stationN.test(station["정류장"]) ? station: '');
             setSearchStationList(index.slice(0, 10));
             e.preventDefault();
         }else{
@@ -47,14 +46,14 @@ const BusStationSearch = () => {
         }
     }
 
-    const handleStation = (e) => {
+    const handleSearch = (e) => {
         const stationName = e.target.value;
         setStation(stationName);
         if(stationName !== ''){
             let stationN = createFuzzyMatcher(stationName);
-            let index = busStation.filter((station) => stationN.test(station["정류소명"]) ? station: '');
+            let index = busStation.filter((station) => stationN.test(station["정류장"]) ? station: '');
             index = index.sort(function(a, b) { 
-                return a["정류소명"] < b["정류소명"] ? -1 : a["정류소명"] > b["정류소명"] ? 1 : 0;
+                return a["정류장"] < b["정류장"] ? -1 : a["정류장"] > b["정류장"] ? 1 : 0;
             });
             setSearchStationList(index.slice(0, 10));
         }else{
@@ -65,13 +64,7 @@ const BusStationSearch = () => {
     return (
         <>
             <div className='map-search'>
-                <div className='map-search-form'>
-                    <form onSubmit={SearchStation}>
-                        <input type="text" name='stationName' onChange={handleStation}></input>
-                        <button type="submit">BUS 정류장 조회</button>
-                    </form>
-                </div>
-                {station}
+                <SearchComponent SearchInfo={SearchInfo} handleSearch={handleSearch} buttonTitle={"정류장"} autoInfo={searchStationList}/>
                 {
                     searchStationList.length !== 0 ?
                         <div className='map-search-map'>
@@ -87,10 +80,10 @@ const BusStationSearch = () => {
                                         {
                                             searchStationList.map((item, key) => (
                                                 <tr key={key}>
-                                                    <td className={String(item["정류소명"]) + "_" + String(key)}>{item["정류소명"]}</td>
+                                                    <td className={String(item["정류장"]) + "_" + String(key)}>{item["정류장"]}</td>
                                                     <td><Link to="/BusInfo"
                                                         state={{
-                                                            stNm: item["정류소명"],
+                                                            stNm: item["정류장"],
                                                             arsId: item["ARS-ID"],
                                                             busRouteType: busRouteType
                                                         }}
