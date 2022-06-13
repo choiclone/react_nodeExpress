@@ -9,9 +9,10 @@
     2022/05/30 => 실시간 버스 도착 정보 구현함<br>
     2022/06/08 => 실시간 버스 위치 추가함<br>
     2022/06/09 => 각 정류소 별 실시간 버스 위치 구현 및 도착 버스 정보 수정/추가 함<br>
+    2022/06/13 => 버스/정류장 검색창 자동완성 구현<br>
     <br>
     <br>
-    Docker 실행 <br><br>
+    Docker 실행 <br>
       * docker build -t bus_api . <br>
       * docker run -i -t -d --name testnode5 --rm -p 6000:3000 bus_api <br>
       * docker exec -it testnode5 /bin/bash <br>
