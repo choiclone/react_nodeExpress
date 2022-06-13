@@ -43,7 +43,7 @@ const ch2pattern = (ch) => {
 
 const createFuzzyMatcher = (input) => {
   const pattern = input.split("").map(ch2pattern).join(".*?");
-  return new RegExp("^"+pattern, "i");
+  return new RegExp("^"+pattern, "gi");
 }
 
 export {createFuzzyMatcher}

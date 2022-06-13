@@ -47,6 +47,9 @@ const BusRouteSearch = () => {
         if (busN !== '') {
             let busNm = createFuzzyMatcher(busN);
             let index = busRouted.filter((route, idx) => busNm.test(route["노선명"]) ? route : '');
+            index = index.sort(function(a, b) { 
+                return a["노선명"] < b["노선명"] ? -1 : a["노선명"] > b["노선명"] ? 1 : 0;
+            });
             setBusRouteId(index.slice(0, 10))
             e.preventDefault();
         } else {
