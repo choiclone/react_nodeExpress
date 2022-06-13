@@ -137,49 +137,29 @@ app.post("/api/ArrInfoByRouteList", (req, res) => {
 });
 
 app.post("/api/BusListSearch", (req, res) => {
-  const BusName = req.body.BusName;
-  const excelFile = xlsx.readFile(path.join(DATA_PATH, "BusIdInfo.xlsx"));
+  let excelFile;
+  try {
+    excelFile = xlsx.readFile(path.join(DATA_PATH, "BusIdInfo.xlsx"));
+  } catch (exception) {
+    res.json({ routeId: [], status: 404, searchStatus: false })
+  }
   const sheetName = excelFile.SheetNames[0];
   const firstSheet = excelFile.Sheets[sheetName];
   const jsonData = xlsx.utils.sheet_to_json(firstSheet, { defval: "" });
-  let routeId = [];
-
-  if(BusName !== '') {
-    let index = jsonData.map((bus, idx) => String(bus["노선명"]).includes(String(BusName)) ? idx: '').filter(String);
-    try {
-      index.map((idx) => {
-        routeId.push(jsonData[idx])
-      })
-      res.json({ routeId: routeId, status: 200 })
-    } catch (error) {
-      res.json({ routeId: [], status: 404 })
-    }
-  }else{
-    res.json({ routeId: [], status: 404 })
-  }
+  res.json({ routeId: jsonData, status: 200, searchStatus: true })
 });
 
 app.post("/api/StationListSearch", (req, res) => {
-  const StationName = req.body.StationName;
-  const excelFile = xlsx.readFile(path.join(DATA_PATH, "StationList.xlsx"));
+  let excelFile;
+  try {
+    excelFile = xlsx.readFile(path.join(DATA_PATH, "StationList.xlsx"));
+  } catch (exception) {
+    res.json({ stationId: [], status: 404, searchStatus: false })
+  }
   const sheetName = excelFile.SheetNames[0];
   const firstSheet = excelFile.Sheets[sheetName];
   const jsonData = xlsx.utils.sheet_to_json(firstSheet, { defval: "" });
-  let stationId = [];
-
-  if(StationName !== '') {
-    let index = jsonData.map((station, idx) => String(station["정류소명"]).includes(String(StationName)) ? idx: '').filter(String);
-    try {
-      index.map((idx) => {
-        stationId.push(jsonData[idx])
-      });
-      res.json({ stationId: stationId, status: 200 })
-    } catch (error) {
-      res.json({ stationId: [], status: 404 })
-    }
-  }else{
-    res.json({ stationId: [], status: 404 })
-  }
+  res.json({ stationId: jsonData, status: 200, searchStatus: true })
 });
 
 app.post("/api/getBusPosByRtidList", (req, res) => {

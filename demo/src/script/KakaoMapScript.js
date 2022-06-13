@@ -14,7 +14,7 @@ const KakaoMapScript = ({ searchPlace }) => {
         const container = document.getElementById('map');
         const options = {
             center: new kakao.maps.LatLng(37.555167, 126.970833),
-            level: 10,
+            level: 3,
         };
 
         mapRef.current = new kakao.maps.Map(container, options);

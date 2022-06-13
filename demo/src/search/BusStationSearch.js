@@ -1,34 +1,29 @@
 /*global kakao*/
 import React, { useState, useEffect, useRef } from 'react';
-import KakaoMapScript from '../script/KakaoMapScript';
+import { Link } from 'react-router-dom';
+import { createFuzzyMatcher } from '../module/consonantSearch';
+// import KakaoMapScript from '../script/KakaoMapScript';
 import "../css/StationMap.css";
 import axios from 'axios';
 
 const BusStationSearch = () => {
+    const busRouteType = {
+        "1": "공항", "2": "마을", "3": "간선", "4": "지선", "5": "순환", "6": "광역", "7": "인천", "8": "경기", "9": "폐지", "0": "공용"
+    }
     const [station, setStation] = useState('');
     const [searchTitle, setSerchTitle] = useState('검색요망');
     const [busStation, setBusStation] = useState([]);
     const [searchStationList, setSearchStationList] = useState([]);
 
-    const clickBusStation = async (e) => {
-        e.preventDefault();
-        let BusList = [];
-        let stationArray = [];
-        /* 서울 공공 데이터에서 excel data로 불러올 경우 */
+    useEffect(() => {
+        clickBusStation();
+    }, [])
+
+    const clickBusStation = async () => {
         await axios.post("/api/StationListSearch", { StationName: station })
             .then((res) => {
                 if (res.data.status === 200) {
-                    BusList.push(res.data.stationId);
-                    setBusStation(BusList[0])
-                    BusList[0].map((item) => {
-                        stationArray.push({
-                            x: item["좌표X"],
-                            y: item["좌표Y"],
-                            stationName: item["정류소명"],
-                            arsId: item["ARS-ID"]
-                        });
-                    });
-                    setSearchStationList(stationArray);
+                    setBusStation(res.data.stationId);
                 } else {
                     setSerchTitle("검색하신 결과가 존재하지 않습니다.");
                     setBusStation([]);
@@ -36,72 +31,74 @@ const BusStationSearch = () => {
             }).catch((err) => {
                 setSerchTitle("서버가 돌아가셨습니다. ㅈㅅ");
                 setStation('');
-                console.error(err)
             })
-        /* 서울 공공 데이터에서 api로 정류장을 불러올 경우
-        await axios.post("/api/BusStationApi", { station: station })
-            .then((res) => {
-                if (res.data.code === 200) {
-                    let body = res.data["station"]["ServiceResult"]["msgBody"]
-                    if ("itemList" in body) {
-                        BusList.push(body.itemList)
-                        if (Array.isArray(BusList[0])) {
-                            setBusStation(BusList[0]);
-                            BusList[0].map((item) => {
-                                stationArray.push({
-                                    x: item.tmX["_text"],
-                                    y: item.tmY["_text"],
-                                    stationName: item.stNm["_text"],
-                                    arsId: item.arsId["_text"]
-                                })
-                            })
-                            setSearchStationList(stationArray)
-                        } else {
-                            setBusStation(BusList);
-                            BusList.map((item) => {
-                                stationArray.push({
-                                    x: item.tmX["_text"],
-                                    y: item.tmY["_text"],
-                                    stationName: item.stNm["_text"],
-                                    arsId: item.arsId["_text"]
-                                })
-                            })
-                            setSearchStationList(stationArray)
-                        }
-                    } else {
-                        setSerchTitle("검색하신 결과가 존재하지 않습니다.");
-                        setBusStation([]);
-                    }
-                } else {
-                    setSerchTitle("검색명 입력하라고 아 ㅋㅋㅋ");
-                }
-            })
-            .catch((err) => {
-                setSerchTitle("서버가 돌아가셨습니다. ㅈㅅ");
-                setStation('');
-                console.error(err)
-            })*/
+    }
+
+    const SearchStation = async (e) => {
+        let stationName = station
+        if(stationName !== ''){
+            let stationN = createFuzzyMatcher(stationName);
+            let index = busStation.filter((station, idx) => stationN.test(station["정류소명"]) ? station: '');
+            setSearchStationList(index.slice(0, 40))
+            e.preventDefault();
+        }else{
+            setSearchStationList([])
+            e.preventDefault();
+        }
     }
 
     const handleStation = (e) => {
-        setStation(e.target.value);
+        const stationName = e.target.value;
+        setStation(stationName);
+        if(stationName !== ''){
+            let stationN = createFuzzyMatcher(stationName);
+            let index = busStation.filter((station, idx) => stationN.test(station["정류소명"]) ? station: '');
+            setSearchStationList(index.slice(0, 10))
+        }else{
+            setSearchStationList([])
+        }
     }
 
     return (
         <>
             <div className='map-search'>
                 <div className='map-search-form'>
-                    <form onSubmit={clickBusStation}>
+                    <form onSubmit={SearchStation}>
                         <input type="text" name='stationName' onChange={handleStation}></input>
                         <button type="submit">BUS 정류장 조회</button>
                     </form>
                 </div>
+                {station}
                 {
-                    busStation.length !== 0 ?
+                    searchStationList.length !== 0 ?
                         <div className='map-search-map'>
-                            <KakaoMapScript searchPlace={searchStationList} />
-                        </div>
-                        : <h5>{searchTitle}</h5>
+                            <div className='map-search-station'>
+                                <table className='map-station-table'>
+                                    <thead>
+                                        <tr>
+                                            <th>정류소 명</th>
+                                            <th>정류소 고유번호</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="stationId">
+                                        {
+                                            searchStationList.map((item, key) => (
+                                                <tr key={key}>
+                                                    <td className={String(item["정류소명"]) + "_" + String(key)}>{item["정류소명"]}</td>
+                                                    <td><Link to="/BusInfo"
+                                                        state={{
+                                                            stNm: item["정류소명"],
+                                                            arsId: item["ARS-ID"],
+                                                            busRouteType: busRouteType
+                                                        }}
+                                                    >{item["ARS-ID"]}</Link></td>
+                                                </tr>
+                                            ))
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div> : ""
                 }
             </div>
         </>

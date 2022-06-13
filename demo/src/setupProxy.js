@@ -1,6 +1,8 @@
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
 module.exports = function (app) {
+  /*
+  // 도커 서버 api
   app.use(
     createProxyMiddleware('/api', { 
       target: `http://172.30.1.80:6000`,
@@ -12,7 +14,9 @@ module.exports = function (app) {
       target: `http://172.30.1.80:6000/`
     })
   );
-  /* 로컬 서버 api
+  */
+
+  /* 로컬 서버 api*/
   app.use(
     createProxyMiddleware('/api', { 
       target: `http://localhost:3000`,
@@ -23,5 +27,5 @@ module.exports = function (app) {
     createProxyMiddleware('/staticFolder', {
       target: `http://localhost:3000/`
     })
-  );*/
+  );
 };
