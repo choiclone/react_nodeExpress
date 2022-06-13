@@ -17,7 +17,7 @@ const BusStationSearch = () => {
 
     useEffect(() => {
         clickBusStation();
-    }, [])
+    }, []);
 
     const clickBusStation = async () => {
         await axios.post("/api/StationListSearch", { StationName: station })
@@ -38,11 +38,11 @@ const BusStationSearch = () => {
         let stationName = station
         if(stationName !== ''){
             let stationN = createFuzzyMatcher(stationName);
-            let index = busStation.filter((station, idx) => stationN.test(station["정류소명"]) ? station: '');
-            setSearchStationList(index.slice(0, 40))
+            let index = busStation.filter((station) => stationN.test(station["정류소명"]) ? station: '');
+            setSearchStationList(index.slice(0, 10));
             e.preventDefault();
         }else{
-            setSearchStationList([])
+            setSearchStationList([]);
             e.preventDefault();
         }
     }
@@ -52,10 +52,13 @@ const BusStationSearch = () => {
         setStation(stationName);
         if(stationName !== ''){
             let stationN = createFuzzyMatcher(stationName);
-            let index = busStation.filter((station, idx) => stationN.test(station["정류소명"]) ? station: '');
-            setSearchStationList(index.slice(0, 10))
+            let index = busStation.filter((station) => stationN.test(station["정류소명"]) ? station: '');
+            index = index.sort(function(a, b) { 
+                return a["정류소명"] < b["정류소명"] ? -1 : a["정류소명"] > b["정류소명"] ? 1 : 0;
+            });
+            setSearchStationList(index.slice(0, 10));
         }else{
-            setSearchStationList([])
+            setSearchStationList([]);
         }
     }
 
