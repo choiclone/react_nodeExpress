@@ -13,6 +13,23 @@
 .search-main > .search-route-list {
     list-style: none;
 }
+
+
+.map-search {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.map-search > .map-search-station > .map-station-table {
+    position: relative;
+    display: inline-block;
+    font-size: 20px;
+}
+
+.map-search > .map-search-station > .map-station-table > tbody > tr > td > .highlight {
+    color: red;
+}
 /* 
 .search-station-list {
 

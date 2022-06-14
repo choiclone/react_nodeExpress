@@ -42,11 +42,10 @@ const BusRouteSearch = () => {
             })
     }
 
-    const SearchRoute = async (e) => {
+    const SearchRoute = (e) => {
         let busN = busName
         if (busN !== '') {
-            let busNm = createFuzzyMatcher(busN);
-            let index = busRouted.filter((route, idx) => busNm.test(route["노선명"]) ? route : '');
+            let index = busRouted.filter((route, idx) => new RegExp("^"+busName, "gi").test(route["노선명"]) ? route : '');
             index = index.sort(function(a, b) { 
                 return a["노선명"] < b["노선명"] ? -1 : a["노선명"] > b["노선명"] ? 1 : 0;
             });
@@ -71,8 +70,7 @@ const BusRouteSearch = () => {
         setBusName(e.target.value);
         let busName = e.target.value
         if (busName !== '') {
-            let busN = createFuzzyMatcher(busName);
-            let index = busRouted.filter((route, idx) => busN.test(route["노선명"]) ? route : '');
+            let index = busRouted.filter((route, idx) => new RegExp("^"+busName, "gi").test(route["노선명"]) ? route : '');
             index = index.sort(function(a, b) { 
                 return a["노선명"] < b["노선명"] ? -1 : a["노선명"] > b["노선명"] ? 1 : 0;
             });
@@ -161,7 +159,15 @@ const BusRouteSearch = () => {
                     <ul className='search-route-list'>
                         {
                             busRouteId.map((item, key) => (
-                                <li key={key} onClick={(e) => IntervalStationList(item, e)}>{item["노선명"]}</li>
+                                <li key={key} onClick={(e) => IntervalStationList(item, e)}>
+                                    {
+                                        String(item["노선명"]).split(new RegExp("^"+ `(${busName})`, "gi")).map((part, i) => 
+                                            <span key={i} style={part.toLowerCase() === busName.toLowerCase() ? {color: 'green'}: {}}>
+                                                {part}
+                                            </span>
+                                        )
+                                    }
+                                </li>
                             ))
                         }
                     </ul> : ""

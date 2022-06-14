@@ -3,7 +3,7 @@ import escapeRegExp from "lodash.escaperegexp";
 const ch2pattern = (ch) => {
   const offset = 44032; /* '가'의 코드 */
   // 한국어 음절
-  if (/[가-힣|\\s]/i.test(ch)) {
+  if (/[가-힣]/i.test(ch)) {
     const chCode = ch.charCodeAt(0) - offset;
     // 종성이 있으면 문자 그대로를 찾는다.
     if (chCode % 28 > 0) {
@@ -16,7 +16,7 @@ const ch2pattern = (ch) => {
   }
 
   // 한글 자음
-  if (/[ㄱ-ㅎ|ㅏ-ㅣ|\\s]/i.test(ch)) {
+  if (/[ㄱ-ㅎ]/i.test(ch)) {
     const con2syl = {
       ㄱ: "가".charCodeAt(0),
       ㄲ: "까".charCodeAt(0),
@@ -43,7 +43,7 @@ const ch2pattern = (ch) => {
 
 const createFuzzyMatcher = (input) => {
   const pattern = input.split("").map(ch2pattern).join(".*?");
-  return new RegExp("^"+pattern, "gi");
+  return new RegExp("^"+pattern, "gmi");
 }
 
 export {createFuzzyMatcher}
