@@ -12,11 +12,16 @@ const BusStationSearch = () => {
     }
     const [station, setStation] = useState('');
     const [busStation, setBusStation] = useState([]);
+    const [stations, setStations] = useState(JSON.parse(localStorage.getItem('stations') || '[]'));
     const [searchStationList, setSearchStationList] = useState([]);
 
     useEffect(() => {
         clickBusStation();
     }, []);
+
+    useEffect(() => {
+        localStorage.setItem('stations', JSON.stringify(stations))
+    }, [stations])
 
     const clickBusStation = async () => {
         await axios.post("/api/StationListSearch", { StationName: station })
@@ -33,6 +38,14 @@ const BusStationSearch = () => {
 
     const SearchInfo = (e) => {
         let stationName = station
+        const newKeyword = {
+            id: Math.random().toString(36).substr(2, 16),
+            Nm: String(stationName)
+        }
+        const distinctStation = stations.filter((rmStation) => {
+            return rmStation.Nm === String(stationName)
+        })
+        if (distinctStation.length === 0) setStations([newKeyword, ...stations]);
         if (stationName !== '') {
             let stationN = createFuzzyMatcher(stationName);
             let index = busStation.filter((station) => stationN.test(station["정류장"]) ? station : '');
@@ -40,11 +53,11 @@ const BusStationSearch = () => {
                 return a["정류장"] < b["정류장"] ? -1 : a["정류장"] > b["정류장"] ? 1 : 0;
             });
             setSearchStationList(index.slice(0, 10));
-            e.preventDefault();
+            setStations([newKeyword, ...stations])
         } else {
             setSearchStationList([]);
-            e.preventDefault();
         }
+        e.preventDefault();
     }
 
     const handleSearch = (e) => {
@@ -57,17 +70,31 @@ const BusStationSearch = () => {
             index = index.sort(function (a, b) {
                 return a["정류장"] < b["정류장"] ? -1 : a["정류장"] > b["정류장"] ? 1 : 0;
             });
-            console.log(index)
             setSearchStationList(index.slice(0, 10));
         } else {
             setSearchStationList([]);
         }
     }
 
+    const allRemoveStorage = () => {
+        localStorage.removeItem("stations")
+        setStations([])
+    }
+
+    const singleRemoveStorage = (id) => {
+        const removeStation = stations.filter((rmStation) => {
+            return rmStation.id !== id
+        })
+        setStations(removeStation)
+    }
+
     return (
         <>
             <div className='map-search'>
-                <SearchComponent SearchInfo={SearchInfo} handleSearch={handleSearch} buttonTitle={"정류장"} autoInfo={searchStationList} />
+                <SearchComponent SearchInfo={SearchInfo} handleSearch={handleSearch}
+                    buttonTitle={"정류장"} autoInfo={stations}
+                    allRemoveStorage={allRemoveStorage}
+                    singleRemoveStorage={singleRemoveStorage} />
                 {
                     searchStationList.length !== 0 ?
                         <div className='map-search-station'>
@@ -84,20 +111,23 @@ const BusStationSearch = () => {
                                             <tr key={key}>
                                                 <td>
                                                     {
-                                                        (String(item["정류장"]).split(new RegExp(`(${station})`, "gi"))).map((part, i) => 
-                                                            <span key={i} style={part.toLowerCase() === station.toLowerCase() ? {color: 'green'}: {}}>
+                                                        (String(item["정류장"]).split(new RegExp(`(${station})`, "gi"))).map((part, i) =>
+                                                            <span key={i} style={part.toLowerCase() === station.toLowerCase() ? { color: 'green' } : {}}>
                                                                 {part}
                                                             </span>
                                                         )
                                                     }
                                                 </td>
-                                                <td><Link to="/BusInfo"
-                                                    state={{
-                                                        stNm: item["정류장"],
-                                                        arsId: item["ARS-ID"],
-                                                        busRouteType: busRouteType
-                                                    }}
-                                                >{item["ARS-ID"]}</Link></td>
+                                                <td>
+                                                    <Link
+                                                        to="/BusInfo"
+                                                        state={{
+                                                            stNm: item["정류장"],
+                                                            arsId: item["ARS-ID"],
+                                                            busRouteType: busRouteType
+                                                        }}
+                                                    ><span>{item["ARS-ID"]}</span></Link>
+                                                </td>
                                             </tr>
                                         ))
                                     }

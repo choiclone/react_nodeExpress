@@ -15,6 +15,7 @@ const BusRouteSearch = () => {
     const [busLocate, setBusLocate] = useState([]);
     const [busRoute, setBusRoute] = useState([]);
     const [arrive, setArrive] = useState([]);
+    const [routes, setRoutes] = useState(JSON.parse(localStorage.getItem('routes') || '[]'));
 
     const IntervalRef = useRef();
 
@@ -22,14 +23,18 @@ const BusRouteSearch = () => {
     const routeType = { 1: "공항", 2: "마을", 3: "간선", 4: "지선", 5: "순환", 6: "광역", 7: "인천", 8: "경기", 9: "폐지", 0: "공용" }
 
     useEffect(() => {
-        clickBus()
+        BusInfoList()
     }, []);
+
+    useEffect(() => {
+        localStorage.setItem('routes', JSON.stringify(routes))
+    }, [routes])
 
     useEffect(() => {
         return () => clearInterval(IntervalRef.current);
     }, []);
 
-    const clickBus = async () => {
+    const BusInfoList = async () => {
         await axios.post("/api/BusListSearch", { BusName: busName })
             .then((res) => {
                 if (res.data.status === 200) {
@@ -44,17 +49,24 @@ const BusRouteSearch = () => {
 
     const SearchRoute = (e) => {
         let busN = busName
+        const newKeyword = {
+            id: Math.random().toString(36).substr(2, 16),
+            Nm: busN
+        }
         if (busN !== '') {
             let index = busRouted.filter((route, idx) => new RegExp("^"+busName, "gi").test(route["노선명"]) ? route : '');
             index = index.sort(function(a, b) { 
                 return a["노선명"] < b["노선명"] ? -1 : a["노선명"] > b["노선명"] ? 1 : 0;
             });
             setBusRouteId(index.slice(0, 10))
-            e.preventDefault();
+            const distinctRoute = routes.filter((rmRoute) => {
+                return rmRoute.Nm === busN;
+            })
+            if(distinctRoute.length === 0) setRoutes([newKeyword, ...routes]);
         } else {
             setBusRouteId([])
-            e.preventDefault();
         }
+        e.preventDefault();
     }
 
     const handleBus = async (e) => {
@@ -70,7 +82,7 @@ const BusRouteSearch = () => {
         setBusName(e.target.value);
         let busName = e.target.value
         if (busName !== '') {
-            let index = busRouted.filter((route, idx) => new RegExp("^"+busName, "gi").test(route["노선명"]) ? route : '');
+            let index = busRouted.filter((route, idx) => new RegExp(busName, "gi").test(route["노선명"]) ? route : '');
             index = index.sort(function(a, b) { 
                 return a["노선명"] < b["노선명"] ? -1 : a["노선명"] > b["노선명"] ? 1 : 0;
             });
@@ -128,6 +140,14 @@ const BusRouteSearch = () => {
 
     const IntervalStationList = (item, e) => {
         clearInterval(IntervalRef.current);
+        const newKeyword = {
+            id: Math.random().toString(36).substr(2, 16),
+            Nm: item["노선명"]
+        };
+        const distinctRoute = routes.filter((rmRoute) => {
+            return rmRoute.Nm === item["노선명"]
+        })
+        if(distinctRoute.length === 0) setRoutes([newKeyword, ...routes]);
         setBusRouteId([]);
         setStateTitle("Click Bus")
         setBusReloadInfo(item);
@@ -139,6 +159,18 @@ const BusRouteSearch = () => {
         //     await getBusPosByRtidList(item["ROUTE_ID"])
         //     console.log("dddd")
         // }, 3000);
+    }
+
+    const allRemoveStorage = () => {
+        localStorage.removeItem("routes")
+        setRoutes([]);
+    }
+
+    const singleRemoveStorage = (id) => {
+        const removeRoute = routes.filter((rmRoute) => {
+            return rmRoute.id !== id
+        })
+        setRoutes(removeRoute)
     }
 
     const styleSheet = {
@@ -154,7 +186,10 @@ const BusRouteSearch = () => {
     return (
         <>
             <div className='search-main'>
-                <SearchComponent SearchInfo={SearchRoute} handleSearch={handleBus} buttonTitle={"노선명"} autoInfo={busRouteId}/>
+                <SearchComponent SearchInfo={SearchRoute} handleSearch={handleBus} 
+                                buttonTitle={"노선명"} autoInfo={routes} 
+                                allRemoveStorage={allRemoveStorage}
+                                singleRemoveStorage={singleRemoveStorage}/>
                 {busRouteId.length !== 0 ?
                     <ul className='search-route-list'>
                         {
