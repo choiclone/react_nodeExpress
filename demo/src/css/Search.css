@@ -1,24 +1,70 @@
-/* .search-main {
-
-}
-
-.search-form {
-
-}
-
-.search-route {
-
-} */
-
-.search-main > .search-route-list {
-    list-style: none;
-}
-
-
 .map-search {
     position: relative;
     display: inline-block;
     width: 100%;
+}
+
+.map-search > .search-route-list {
+    list-style: none;
+}
+
+.map-search > .map-search-main > form > .map-search-form {
+    position: relative;
+    display: inline-block;
+    height: 40px;
+    width: 400px;
+    border: 1px solid #1b5ac2;
+    background: #ffffff;
+}
+
+.map-search > .map-search-main > form > .map-search-form > .map-search-form-list{
+    height: 100%;
+}
+
+.map-search > .map-search-main > form > .map-search-form > .map-search-form-list ul{
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    display: inline-block;
+    background: #ffffff;
+}
+
+.map-search > .map-search-main > form > .map-search-form > .map-search-form-list ul li {
+    list-style: none;
+    font-size: 20px;
+    color: black;
+}
+
+.map-search > .map-search-main > form > .map-search-form > input[type="text"]{
+    font-size: 16px;
+    width: 325px;
+    padding: 10px;
+    border: 0px;
+    outline: none;
+    float: left;
+}
+
+.map-search > .map-search-main > form > .map-search-form > button[type="submit"]{
+    width: 55px;
+    height: 100%;
+    border: 0px;
+    background: #1b5ac2;
+    outline: none;
+    float: right;
+    color: #ffffff;
+}
+
+.map-search > .map-search-main > .map-search-form > input:-ms-input-placeholder { color: #a8a8a8; }
+.map-search > .map-search-main > .map-search-form > input::-webkit-input-placeholder { color: #a8a8a8; }
+.map-search > .map-search-main > .map-search-form > input::-moz-input-placeholder { color: #a8a8a8; }
+
+.map-search > .map-search-main > div > .open {
+    display: block;
+}
+
+.map-search > .map-search-main > div > .close {
+    display: none;
 }
 
 .map-search > .map-search-station > .map-station-table {
@@ -30,7 +76,3 @@
 .map-search > .map-search-station > .map-station-table > tbody > tr > td > .highlight {
     color: red;
 }
-/* 
-.search-station-list {
-
-} */

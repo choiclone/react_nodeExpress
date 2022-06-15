@@ -9,9 +9,11 @@ body {
 }
 
 .main-fullScreen {
+    position: fixed;
     text-align: center;
     width: 100%;
     height: auto;
+    margin-top: 20px;
 }
 
 .main-header {
@@ -20,7 +22,7 @@ body {
     right: 0;
     left: 0;
     z-index: 99;
-    min-height: 75px;
+    min-height: 70px;
     background-color: darkgray;
     display: flex;
     position: fixed;

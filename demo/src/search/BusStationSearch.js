@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createFuzzyMatcher } from '../module/consonantSearch';
-import SearchComponent from '../search/searchComponent';
+import SearchComponent from './SearchComponent';
 // import KakaoMapScript from '../script/KakaoMapScript';
 import axios from 'axios';
 
@@ -98,8 +98,10 @@ const BusStationSearch = () => {
                     buttonTitle={"정류장"} autoInfo={stations}
                     allRemoveStorage={allRemoveStorage}
                     singleRemoveStorage={singleRemoveStorage}
-                    intervalInfo={busInfoFunc} />
-                {
+                    intervalInfo={busInfoFunc}
+                    autoCompleteList={searchStationList}
+                    searchTitle={station} />
+                {/* {
                     searchStationList.length !== 0 ?
                         <div className='map-search-station'>
                             <table className='map-station-table'>
@@ -139,7 +141,7 @@ const BusStationSearch = () => {
                                 </tbody>
                             </table>
                         </div> : ""
-                }
+                } */}
             </div>
         </>
     );

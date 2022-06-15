@@ -1,6 +1,6 @@
 /*global kakao*/
 import React, { useState, useEffect, useRef } from 'react';
-import SearchComponent from '../search/searchComponent';
+import SearchComponent from './SearchComponent';
 import "../css/Search.css";
 import axios from 'axios';
 
@@ -182,12 +182,14 @@ const BusRouteSearch = () => {
 
     return (
         <>
-            <div className='search-main'>
+            <div className='map-search'>
                 <SearchComponent SearchInfo={SearchRoute} handleSearch={handleBus} 
                                 buttonTitle={"노선명"} autoInfo={routes} 
                                 allRemoveStorage={allRemoveStorage}
                                 singleRemoveStorage={singleRemoveStorage}
-                                intervalInfo={IntervalStationList}/>
+                                intervalInfo={IntervalStationList}
+                                autoCompleteList={busRouteId}
+                                searchTitle={busName}/>
                 {busRouteId.length !== 0 ?
                     <ul className='search-route-list'>
                         {

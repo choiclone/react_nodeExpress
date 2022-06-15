@@ -7,7 +7,7 @@ import "../src/css/Main.css"
 
 const App = () => {
   return (
-    <div className='main-fullScreen'>
+    <div>
       <Router>
         <Routes>
           <Route exact path='/list' element={<StationList/>} />
