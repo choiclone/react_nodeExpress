@@ -136,7 +136,7 @@ app.post("/api/ArrInfoByRouteList", (req, res) => {
   });
 });
 
-app.post("/api/BusListSearch", (req, res) => {
+app.get("/api/BusListSearch", (req, res) => {
   let excelFile;
   try {
     excelFile = xlsx.readFile(path.join(DATA_PATH, "BusIdInfo.xlsx"));
@@ -149,7 +149,7 @@ app.post("/api/BusListSearch", (req, res) => {
   res.json({ routeId: jsonData, status: 200, searchStatus: true })
 });
 
-app.post("/api/StationListSearch", (req, res) => {
+app.get("/api/StationListSearch", (req, res) => {
   let excelFile;
   try {
     excelFile = xlsx.readFile(path.join(DATA_PATH, "StationList.xlsx"));

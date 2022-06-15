@@ -1,12 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 const searchComponent = (props) => {
-    const { SearchInfo, handleSearch, buttonTitle, autoInfo, allRemoveStorage, singleRemoveStorage } = props;
+    const { SearchInfo, handleSearch, buttonTitle, autoInfo, allRemoveStorage, singleRemoveStorage, intervalInfo } = props;
+
+    // useEffect(() => {
+
+    // })
 
     return (
         <div className='map-search-form'>
             <form onSubmit={SearchInfo}>
-                <input type="text" name='stationName' onChange={handleSearch}></input>
+                <input type="text" name='stationName' onChange={handleSearch} autoComplete="off"></input>
                 <button type="submit">BUS {buttonTitle} 조회</button>
             </form>
             <div>
@@ -14,7 +18,7 @@ const searchComponent = (props) => {
                 <ul style={{listStyle: "none"}}>
                 {
                     autoInfo.length !== 0 ? autoInfo.map((item, i) => (
-                        <li key={i}>{String(item["Nm"])}<i className='fa fa-close' onClick={(e) => singleRemoveStorage(item["id"], e)}/></li>
+                        <li key={i}><span onClick={() => intervalInfo(item.Nm, item.id)}>{String(item.Nm)}</span><i className='fa fa-close' onClick={(e) => singleRemoveStorage(item["id"], e)}/></li>
                     )) : "검색결과가 존재하지 않습니다."
                 }
                 </ul>

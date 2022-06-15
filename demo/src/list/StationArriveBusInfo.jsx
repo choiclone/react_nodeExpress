@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import BusStationList from '../busInfo/BusStationList';
 import BusArriveList from '../busInfo/BusArriveList';
 import { useLocation } from 'react-router';
@@ -6,6 +6,23 @@ import { useLocation } from 'react-router';
 const StationArriveBusInfo = () => {
     const { stNm, arsId, busRouteType } = useLocation().state;
     const [BusStation, setBusStation] = useState(<BusStationList arsId={arsId} busRouteType={busRouteType}></BusStationList>);
+
+    useEffect(() => {
+        if (stNm !== "") {
+            let stations = JSON.parse(localStorage.getItem('stations') || '[]')
+            const newKeyword = {
+                id: arsId,
+                Nm: String(stNm)
+            }
+            const distinctStation = stations.filter((rmStation) => {
+                return rmStation.Nm === String(stNm)
+            });
+            if (distinctStation.length === 0) {
+                stations.push(newKeyword)
+                localStorage.setItem('stations', JSON.stringify(stations))
+            }
+        }
+    }, [])
 
     const BusInfoFunc = (infoType) => {
         const infoTypes = infoType;

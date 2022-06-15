@@ -11,7 +11,8 @@ const App = () => {
       <Router>
         <Routes>
           <Route exact path='/list' element={<StationList/>} />
-          <Route exact path='/BusInfo' element={<StationArriveBusInfo/>} />
+          <Route exact path='/RouteInfo' element={<StationArriveBusInfo/>} />
+          <Route exact path='/StationInfo' element={<StationArriveBusInfo/>} />
           <Route exact path='/' element={<TestJ/>} />
         </Routes>
       </Router>

@@ -1,8 +1,8 @@
 /*global kakao*/
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import BusRouteSearch from '../search/BusRouteSearch';
 import BusStationSearch from '../search/BusStationSearch';
-import axios from 'axios';
 
 const StationListF = () => {
   const [infoType, setInfoType] = useState('Bus');

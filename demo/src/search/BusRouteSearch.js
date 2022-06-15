@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import SearchComponent from '../search/searchComponent';
 import "../css/Search.css";
-import { createFuzzyMatcher } from '../module/consonantSearch';
 import axios from 'axios';
 
 const BusRouteSearch = () => {
@@ -35,7 +34,7 @@ const BusRouteSearch = () => {
     }, []);
 
     const BusInfoList = async () => {
-        await axios.post("/api/BusListSearch", { BusName: busName })
+        await axios.get("/api/BusListSearch", { BusName: busName })
             .then((res) => {
                 if (res.data.status === 200) {
                     setBusRouted(res.data.routeId)
@@ -49,27 +48,19 @@ const BusRouteSearch = () => {
 
     const SearchRoute = (e) => {
         let busN = busName
-        const newKeyword = {
-            id: Math.random().toString(36).substr(2, 16),
-            Nm: busN
-        }
         if (busN !== '') {
             let index = busRouted.filter((route, idx) => new RegExp("^"+busName, "gi").test(route["노선명"]) ? route : '');
             index = index.sort(function(a, b) { 
                 return a["노선명"] < b["노선명"] ? -1 : a["노선명"] > b["노선명"] ? 1 : 0;
             });
             setBusRouteId(index.slice(0, 10))
-            const distinctRoute = routes.filter((rmRoute) => {
-                return rmRoute.Nm === busN;
-            })
-            if(distinctRoute.length === 0) setRoutes([newKeyword, ...routes]);
         } else {
             setBusRouteId([])
         }
         e.preventDefault();
     }
 
-    const handleBus = async (e) => {
+    const handleBus = (e) => {
         if (e.target.value !== '') setStateTitle("Click Bus")
         else setStateTitle("")
         setBusSearch("")
@@ -138,26 +129,32 @@ const BusRouteSearch = () => {
             })
     }
 
-    const IntervalStationList = (item, e) => {
+    const IntervalStationList = (routeNm, itemId, e) => {
         clearInterval(IntervalRef.current);
+        const Nm = routeNm;
+        let id = itemId;
+        if(id === undefined){
+            const index = busRouted.findIndex(i => i["노선명"] === Nm);
+            id = busRouted[index]["ROUTE_ID"]
+            setBusRoute([]);
+        }
         const newKeyword = {
-            id: Math.random().toString(36).substr(2, 16),
-            Nm: item["노선명"]
+            id: itemId,
+            Nm: Nm
         };
         const distinctRoute = routes.filter((rmRoute) => {
-            return rmRoute.Nm === item["노선명"]
+            return rmRoute.id === itemId
         })
         if(distinctRoute.length === 0) setRoutes([newKeyword, ...routes]);
         setBusRouteId([]);
-        setStateTitle("Click Bus")
-        setBusReloadInfo(item);
-        setBusSearch(item["노선명"])
-        BusRouteStatusList(item["ROUTE_ID"])
-        getBusPosByRtidList(item["ROUTE_ID"])
+        setBusReloadInfo({"노선명": Nm, "ROUTE_ID":id});
+        setBusSearch(Nm)
+        BusRouteStatusList(id)
+        getBusPosByRtidList(id)
         // IntervalRef.current = setInterval(async () => {
-        //     await BusRouteStatusList(item["ROUTE_ID"])
-        //     await getBusPosByRtidList(item["ROUTE_ID"])
-        //     console.log("dddd")
+        //     await BusRouteStatusList(id)
+        //     await getBusPosByRtidList(id)
+        //     console.log("ddd")
         // }, 3000);
     }
 
@@ -189,12 +186,13 @@ const BusRouteSearch = () => {
                 <SearchComponent SearchInfo={SearchRoute} handleSearch={handleBus} 
                                 buttonTitle={"노선명"} autoInfo={routes} 
                                 allRemoveStorage={allRemoveStorage}
-                                singleRemoveStorage={singleRemoveStorage}/>
+                                singleRemoveStorage={singleRemoveStorage}
+                                intervalInfo={IntervalStationList}/>
                 {busRouteId.length !== 0 ?
                     <ul className='search-route-list'>
                         {
                             busRouteId.map((item, key) => (
-                                <li key={key} onClick={(e) => IntervalStationList(item, e)}>
+                                <li key={key} onClick={(e) => IntervalStationList(item["노선명"], item["ROUTE_ID"], e)}>
                                     {
                                         String(item["노선명"]).split(new RegExp("^"+ `(${busName})`, "gi")).map((part, i) => 
                                             <span key={i} style={part.toLowerCase() === busName.toLowerCase() ? {color: 'green'}: {}}>
@@ -238,7 +236,7 @@ const BusRouteSearch = () => {
                                 ))
                             }
                             <li>
-                                <button onClick={(e) => IntervalStationList(busReloadInfo, e)}>
+                                <button onClick={(e) => IntervalStationList(busReloadInfo["노선명"], busReloadInfo["ROUTE_ID"], e)}>
                                     <img src="/staticFolder/busImages/reload.png" width="40px" height="40px" />
                                 </button>
                             </li>
