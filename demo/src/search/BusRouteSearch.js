@@ -17,6 +17,7 @@ const BusRouteSearch = () => {
     const [routes, setRoutes] = useState(JSON.parse(localStorage.getItem('routes') || '[]'));
 
     const IntervalRef = useRef();
+    const inputRef = useRef();
 
     const stationType = { 0: "공용 버스", 1: "일반형 시내/ 농어촌버스", 2: "좌석형 시내 / 농어촌버스", 3: "직행좌석형 시내 / 농어촌버스", 4: "일반형 시외버스", 5: "좌석형 시외버스", 6: "고속형 시외버스", 7: "마을버스" }
     const routeType = { 1: "공항", 2: "마을", 3: "간선", 4: "지선", 5: "순환", 6: "광역", 7: "인천", 8: "경기", 9: "폐지", 0: "공용" }
@@ -129,7 +130,7 @@ const BusRouteSearch = () => {
             })
     }
 
-    const IntervalStationList = (routeNm, itemId, e) => {
+    const IntervalStationList = (routeNm, itemId) => {
         clearInterval(IntervalRef.current);
         setBusRoute([]);
         const Nm = routeNm;
@@ -151,6 +152,11 @@ const BusRouteSearch = () => {
             await BusRouteStatusList(id)
             await getBusPosByRtidList(id)
         }, 3000);
+    }
+
+    const allRemoveStorage = (id) => {
+        localStorage.removeItem("routes");
+        setRoutes([]);
     }
 
     const singleRemoveStorage = (id) => {
@@ -178,11 +184,13 @@ const BusRouteSearch = () => {
                     handleSearch={handleBus} 
                     buttonTitle={"노선명"} 
                     autoInfo={routes} 
+                    allRemoveStorage={allRemoveStorage}
                     singleRemoveStorage={singleRemoveStorage}
                     intervalInfo={IntervalStationList}
                     autoCompleteList={busRouteId}
                     searchTitle={busName}
-                    searchIdType={"ROUTE_ID"}/>
+                    searchIdType={"ROUTE_ID"}
+                />
                 {
                     arrive.length !== 0 ?
                         <div>

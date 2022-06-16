@@ -14,6 +14,7 @@
       2022/06/14 => - 검색 자동완성 수정 및 검색 하이라이팅 기능 구현
                     - 최근 검색어 기능 추가(localstorage에 저장함)
       2022/06/15 => 최근 검색어 기능 수정
+      2022/06/16 => 최근 검색어 기능 수정 및 검색 디자인 추가
     </pre>
     <br>
     Docker 실행 <br>
@@ -21,7 +22,9 @@
       * docker run -i -t -d --name bus_data_web --rm -p 6000:3000 bus_api <br>
       * docker run -i -t -d --name bus_data_client --rm -p 80:3000 bus_api <br>
       * docker exec -it bus_data_web /bin/bash <br>
+      * docker exec -it bus_data_client /bin/bash <br>
       * cd server && yarn start
+      * cd demo && yarn start
   </div>
 <br>
 <h5>제작자 정보</h5> 

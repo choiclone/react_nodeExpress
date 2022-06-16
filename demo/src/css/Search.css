@@ -30,12 +30,12 @@
     background: #ffffff;
 }
 
-.map-search > .map-search-main > form > .map-search-form > .map-search-form-list ul li {
-    list-style: none;
-    font-size: 15px;
-    text-align: left;
-    color: black;
-    padding: 5px 0px 5px 10px;
+.map-search > .map-search-main > form > .map-search-form > .map-search-form-list ul > .activate {
+    display: flow-root;
+}
+
+.map-search > .map-search-main > form > .map-search-form > .map-search-form-list ul > .deactivate {
+    display: none;
 }
 
 .map-search > .map-search-main > form > .map-search-form > .map-search-form-list ul > .empty-search-history {
@@ -85,4 +85,12 @@
 
 .map-search > .map-search-station > .map-station-table > tbody > tr > td > .highlight {
     color: red;
+}
+
+.activate {
+    display: block;
+}
+
+.deactivate {
+    display: none;
 }

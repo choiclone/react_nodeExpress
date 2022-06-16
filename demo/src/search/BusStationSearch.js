@@ -1,5 +1,5 @@
 /*global kakao*/
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createFuzzyMatcher } from '../module/consonantSearch';
 import SearchComponent from './ComponentSearch';
@@ -15,6 +15,8 @@ const BusStationSearch = () => {
     const [busStation, setBusStation] = useState([]);
     const [stations, setStations] = useState(JSON.parse(localStorage.getItem('stations') || '[]'));
     const [searchStationList, setSearchStationList] = useState([]);
+
+    const inputRef = useRef();
 
     useEffect(() => {
         clickBusStation();
@@ -68,6 +70,11 @@ const BusStationSearch = () => {
         }
     }
 
+    const allRemoveStorage = (id) => {
+        localStorage.removeItem("stations");
+        setStations([]);
+    }
+
     const singleRemoveStorage = (id) => {
         const removeStation = stations.filter((rmStation) => {
             return rmStation.id !== id;
@@ -94,11 +101,13 @@ const BusStationSearch = () => {
                     handleSearch={handleSearch}
                     buttonTitle={"정류장"} 
                     autoInfo={stations}
+                    allRemoveStorage={allRemoveStorage}
                     singleRemoveStorage={singleRemoveStorage}
                     intervalInfo={busInfoFunc}
                     autoCompleteList={searchStationList}
                     searchTitle={station}
-                    searchIdType={"ARS-ID"} />
+                    searchIdType={"ARS-ID"}
+                />
             </div>
         </>
     );
