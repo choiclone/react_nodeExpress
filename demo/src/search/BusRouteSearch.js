@@ -131,13 +131,9 @@ const BusRouteSearch = () => {
 
     const IntervalStationList = (routeNm, itemId, e) => {
         clearInterval(IntervalRef.current);
+        setBusRoute([]);
         const Nm = routeNm;
         let id = itemId;
-        if(id === undefined){
-            const index = busRouted.findIndex(i => i["노선명"] === Nm);
-            id = busRouted[index]["ROUTE_ID"]
-            setBusRoute([]);
-        }
         const newKeyword = {
             id: itemId,
             Nm: Nm
@@ -151,16 +147,10 @@ const BusRouteSearch = () => {
         setBusSearch(Nm)
         BusRouteStatusList(id)
         getBusPosByRtidList(id)
-        // IntervalRef.current = setInterval(async () => {
-        //     await BusRouteStatusList(id)
-        //     await getBusPosByRtidList(id)
-        //     console.log("ddd")
-        // }, 3000);
-    }
-
-    const allRemoveStorage = () => {
-        localStorage.removeItem("routes")
-        setRoutes([]);
+        IntervalRef.current = setInterval(async () => {
+            await BusRouteStatusList(id)
+            await getBusPosByRtidList(id)
+        }, 3000);
     }
 
     const singleRemoveStorage = (id) => {
@@ -183,30 +173,16 @@ const BusRouteSearch = () => {
     return (
         <>
             <div className='map-search'>
-                <SearchComponent SearchInfo={SearchRoute} handleSearch={handleBus} 
-                                buttonTitle={"노선명"} autoInfo={routes} 
-                                allRemoveStorage={allRemoveStorage}
-                                singleRemoveStorage={singleRemoveStorage}
-                                intervalInfo={IntervalStationList}
-                                autoCompleteList={busRouteId}
-                                searchTitle={busName}/>
-                {busRouteId.length !== 0 ?
-                    <ul className='search-route-list'>
-                        {
-                            busRouteId.map((item, key) => (
-                                <li key={key} onClick={(e) => IntervalStationList(item["노선명"], item["ROUTE_ID"], e)}>
-                                    {
-                                        String(item["노선명"]).split(new RegExp("^"+ `(${busName})`, "gi")).map((part, i) => 
-                                            <span key={i} style={part.toLowerCase() === busName.toLowerCase() ? {color: 'green'}: {}}>
-                                                {part}
-                                            </span>
-                                        )
-                                    }
-                                </li>
-                            ))
-                        }
-                    </ul> : ""
-                }
+                <SearchComponent 
+                    SearchInfo={SearchRoute} 
+                    handleSearch={handleBus} 
+                    buttonTitle={"노선명"} 
+                    autoInfo={routes} 
+                    singleRemoveStorage={singleRemoveStorage}
+                    intervalInfo={IntervalStationList}
+                    autoCompleteList={busRouteId}
+                    searchTitle={busName}
+                    searchIdType={"ROUTE_ID"}/>
                 {
                     arrive.length !== 0 ?
                         <div>

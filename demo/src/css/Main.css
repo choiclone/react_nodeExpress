@@ -9,7 +9,7 @@ body {
 }
 
 .main-fullScreen {
-    position: fixed;
+    position: absolute;
     text-align: center;
     width: 100%;
     height: auto;

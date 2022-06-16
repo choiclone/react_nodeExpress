@@ -1,6 +1,5 @@
 /*global kakao*/
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import BusRouteSearch from '../search/BusRouteSearch';
 import BusStationSearch from '../search/BusStationSearch';
 

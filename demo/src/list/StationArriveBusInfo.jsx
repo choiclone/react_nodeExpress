@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import BusStationList from '../busInfo/BusStationList';
 import BusArriveList from '../busInfo/BusArriveList';
 import { useLocation } from 'react-router';
+import { createBrowserHistory } from "history"
 
 const StationArriveBusInfo = () => {
-    const { stNm, arsId, busRouteType } = useLocation().state;
+    const { stNm, arsId, busRouteType, searchType } = useLocation().state;
+    const history = createBrowserHistory();
     const [BusStation, setBusStation] = useState(<BusStationList arsId={arsId} busRouteType={busRouteType}></BusStationList>);
 
     useEffect(() => {
@@ -15,7 +17,7 @@ const StationArriveBusInfo = () => {
                 Nm: String(stNm)
             }
             const distinctStation = stations.filter((rmStation) => {
-                return rmStation.Nm === String(stNm)
+                return rmStation.id === arsId
             });
             if (distinctStation.length === 0) {
                 stations.push(newKeyword)
@@ -27,11 +29,11 @@ const StationArriveBusInfo = () => {
     const BusInfoFunc = (infoType) => {
         const infoTypes = infoType;
         switch (infoTypes) {
-            case "busInfo": {
+            case 0: {
                 setBusStation(<BusStationList arsId={arsId} busRouteType={busRouteType}></BusStationList>);
                 break;
             }
-            case "arriveInfo": {
+            case 1: {
                 setBusStation(<BusArriveList arsId={arsId} busRouteType={busRouteType}></BusArriveList>);
                 break;
             }
@@ -47,8 +49,8 @@ const StationArriveBusInfo = () => {
             <div className="App">
                 <header className="App-header">
                     <div>
-                        <button type="button" onClick={() => BusInfoFunc("busInfo")}>버스 정보 목록</button>
-                        <button type="button" onClick={() => BusInfoFunc("arriveInfo")}>도착 버스 정보 목록</button>
+                        <button type="button" onClick={() => BusInfoFunc(0)}>버스 정보 목록</button>
+                        <button type="button" onClick={() => BusInfoFunc(1)}>도착 버스 정보 목록</button>
                         {BusStation}
                     </div>
                 </header>
