@@ -19,6 +19,7 @@
     Docker 실행 <br>
       * docker build -t bus_api . <br>
       * docker run -i -t -d --name bus_data_web --rm -p 6000:3000 bus_api <br>
+      * docker run -i -t -d --name bus_data_client --rm -p 80:3000 bus_api <br>
       * docker exec -it bus_data_web /bin/bash <br>
       * cd server && yarn start
   </div>

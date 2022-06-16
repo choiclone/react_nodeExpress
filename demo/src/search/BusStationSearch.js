@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createFuzzyMatcher } from '../module/consonantSearch';
-import SearchComponent from './SearchComponent';
+import SearchComponent from './ComponentSearch';
 // import KakaoMapScript from '../script/KakaoMapScript';
 import axios from 'axios';
 

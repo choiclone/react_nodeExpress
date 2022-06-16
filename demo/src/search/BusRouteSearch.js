@@ -1,6 +1,6 @@
 /*global kakao*/
 import React, { useState, useEffect, useRef } from 'react';
-import SearchComponent from './SearchComponent';
+import SearchComponent from './ComponentSearch';
 import "../css/Search.css";
 import axios from 'axios';
 
