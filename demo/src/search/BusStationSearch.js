@@ -83,11 +83,11 @@ const BusStationSearch = () => {
         setStations(removeStation);
     }
 
-    const busInfoFunc = (Nm, id) => {
+    const busInfoFunc = (item) => {
         navigate("/StationInfo", {
             state: {
-                stNm: Nm,
-                arsId: id,
+                stNm: item.Nm,
+                arsId: item.Id,
                 busRouteType: busRouteType,
                 searchType: "station",
             }

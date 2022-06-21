@@ -118,7 +118,7 @@ app.post("/api/ArrInfoByRouteList", (req, res) => {
 app.get("/api/BusListSearch", (req, res) => {
   let excelFile;
   try {
-    excelFile = xlsx.readFile(path.join(DATA_PATH, "BusInfo.xlsx"));
+    excelFile = xlsx.readFile(path.join(DATA_PATH, "BusIdInfo.xlsx"));
   } catch (exception) {
     res.json({ routeId: [], status: 404, searchStatus: false })
   }

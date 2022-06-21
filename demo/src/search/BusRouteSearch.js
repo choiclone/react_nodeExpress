@@ -130,23 +130,25 @@ const BusRouteSearch = () => {
             })
     }
 
-    const IntervalStationList = (routeNm, itemId) => {
+    const IntervalStationList = (item, state=undefined) => {
         clearInterval(IntervalRef.current);
-        setBusRoute([]);
+        if(state!=="reload") setBusRoute([]);
         setArrive([]);
-        const Nm = routeNm;
-        let id = itemId;
+        const Nm = item.Nm;
+        let id = item.Id;
         const newKeyword = {
-            id: itemId,
-            Nm: Nm
+            id: id,
+            Nm: Nm,
+            "기점": item.Begin,
+            "종점": item.End
         };
         const distinctRoute = routes.filter((rmRoute) => {
-            return rmRoute.id === itemId
+            return rmRoute.id === id
         })
         if(distinctRoute.length === 0) setRoutes([newKeyword, ...routes]);
         setBusName('');
         setBusRouteId([]);
-        setBusReloadInfo({"노선명": Nm, "ROUTE_ID":id});
+        setBusReloadInfo({"노선명": Nm, "ROUTE_ID":id, "기점": item.Begin, "종점": item.End});
         setBusSearch(Nm)
         BusRouteStatusList(id)
         getBusPosByRtidList(id)
@@ -169,6 +171,17 @@ const BusRouteSearch = () => {
         setRoutes(removeRoute)
     }
 
+    const ReloadRoute = (Nm, id, itemList) => {
+        let item = [];
+        item.push({
+            Nm: Nm, 
+            Id: id,
+            Begin: itemList["기점"],
+            End: itemList["종점"]
+        });
+        IntervalStationList(item[0], "reload");
+    }
+
     const styleSheet = {
         fontSize: "15px",
         color: "green",
@@ -185,7 +198,7 @@ const BusRouteSearch = () => {
                 <SearchComponent 
                     SearchInfo={SearchRoute} 
                     handleSearch={handleBus} 
-                    buttonTitle={"노선번호"} 
+                    buttonTitle={"노선명"} 
                     autoInfo={routes} 
                     allRemoveStorage={allRemoveStorage}
                     singleRemoveStorage={singleRemoveStorage}
@@ -225,7 +238,7 @@ const BusRouteSearch = () => {
                                 ))
                             }
                             <li>
-                                <button onClick={(e) => IntervalStationList(busReloadInfo["노선번호"], busReloadInfo["ROUTE_ID"], e)}>
+                                <button onClick={(e) => ReloadRoute(busReloadInfo["노선명"], busReloadInfo["ROUTE_ID"], busReloadInfo)}>
                                     <img src="/staticFolder/busImages/reload.png" width="40px" height="40px" />
                                 </button>
                             </li>
