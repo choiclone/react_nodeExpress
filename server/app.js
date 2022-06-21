@@ -68,28 +68,7 @@ app.post("/api/ArriveBusList", (req, res) => {
   });
 });
 
-/* 버스 정보 목록 */
-app.post("/api/BusApi", (req, res) => {
-  // const url = 'http://ws.bus.go.kr/api/rest/arrive/getArrInfoByRouteAll';
-  const url = 'http://ws.bus.go.kr/api/rest/arrive/getLowArrInfoByStId';
-  let queryParams = '?' + encodeURIComponent('serviceKey') + '=' + encodeURIComponent(dataApiKey);
-  // queryParams += '&' + encodeURIComponent('busRouteId') + '=' + encodeURIComponent('100100016');
-  queryParams += '&' + encodeURIComponent('stId') + '=' + encodeURIComponent('107000070');
-  /* 08160 */
-
-  request({
-    url: url + queryParams,
-    method: 'GET'
-  }, (err, response, body) => {
-    if (err) return res.json({ error: err })
-    else {
-      let xmltoJson = convert.xml2json(body, { compact: true, spaces: 4 });
-      res.json({ bus: JSON.parse(xmltoJson) });
-    }
-  });
-});
-
-/* 요청한 정류장 명과 가까운 정류장 명들의 목록을 반환 */
+/* 명칭별 정류소 목록 조회 */
 app.post("/api/BusStationApi", (req, res) => {
   const station = req.body.station;
   const url = 'http://ws.bus.go.kr/api/rest/stationinfo/getStationByName';
@@ -139,7 +118,7 @@ app.post("/api/ArrInfoByRouteList", (req, res) => {
 app.get("/api/BusListSearch", (req, res) => {
   let excelFile;
   try {
-    excelFile = xlsx.readFile(path.join(DATA_PATH, "BusIdInfo.xlsx"));
+    excelFile = xlsx.readFile(path.join(DATA_PATH, "BusInfo.xlsx"));
   } catch (exception) {
     res.json({ routeId: [], status: 404, searchStatus: false })
   }

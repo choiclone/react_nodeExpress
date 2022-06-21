@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createFuzzyMatcher } from '../module/consonantSearch';
+import { debounce } from 'lodash';
 import SearchComponent from './ComponentSearch';
 // import KakaoMapScript from '../script/KakaoMapScript';
 import axios from 'axios';
@@ -26,8 +27,8 @@ const BusStationSearch = () => {
         localStorage.setItem('stations', JSON.stringify(stations))
     }, [stations]);
 
-    const clickBusStation = () => {
-        axios.get("/api/StationListSearch", { StationName: station })
+    const clickBusStation = async () => {
+        await axios.get("/api/StationListSearch", { StationName: station })
             .then((res) => {
                 if (res.data.status === 200) {
                     setBusStation(res.data.stationId);
@@ -55,16 +56,16 @@ const BusStationSearch = () => {
     }
 
     const handleSearch = (e) => {
-        const stationName = String(e.target.value).replace(/<(\/)?([a-zA-Z]*)(\s[a-zA-Z]*=[^>]*)?(\s)*(\/)?>/ig, "");
+        const stationName = String(e.target.value);
         setStation(stationName);
         if (stationName !== '') {
             let stationN = createFuzzyMatcher(stationName);
-            let index = busStation.filter((station) => stationN.test(station["정류장"]) ? station : ''); // 초성 검색 가능
+            let indexN = busStation.map((station) => stationN.test(station["정류장"]) ? station : '').filter(String); // 초성 검색 가능
             // let index = busStation.filter((station) => new RegExp("^"+stationName, "gi").test(station["정류장"]) ? station : ''); // 초성 검색 제외
-            index = index.sort(function (a, b) {
+            indexN = indexN.sort((a, b) => {
                 return a["정류장"] < b["정류장"] ? -1 : a["정류장"] > b["정류장"] ? 1 : 0;
             });
-            setSearchStationList(index.slice(0, 10));
+            setSearchStationList(indexN.slice(0, 10));
         } else {
             setSearchStationList([]);
         }
@@ -96,10 +97,10 @@ const BusStationSearch = () => {
     return (
         <>
             <div className='map-search'>
-                <SearchComponent 
-                    SearchInfo={SearchInfo} 
+                <SearchComponent
+                    SearchInfo={SearchInfo}
                     handleSearch={handleSearch}
-                    buttonTitle={"정류장"} 
+                    buttonTitle={"정류장"}
                     autoInfo={stations}
                     allRemoveStorage={allRemoveStorage}
                     singleRemoveStorage={singleRemoveStorage}

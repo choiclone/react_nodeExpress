@@ -7,7 +7,7 @@ import { createBrowserHistory } from "history"
 const StationArriveBusInfo = () => {
     const { stNm, arsId, busRouteType, searchType } = useLocation().state;
     const history = createBrowserHistory();
-    const [BusStation, setBusStation] = useState(<BusStationList arsId={arsId} busRouteType={busRouteType}></BusStationList>);
+    const [BusStation, setBusStation] = useState(<BusArriveList arsId={arsId} busRouteType={busRouteType}></BusArriveList>);
 
     useEffect(() => {
         if (stNm !== "") {
@@ -49,7 +49,7 @@ const StationArriveBusInfo = () => {
             <div className="App">
                 <header className="App-header">
                     <div>
-                        <button type="button" onClick={() => BusInfoFunc(0)}>버스 정보 목록</button>
+                        {/* <button type="button" onClick={() => BusInfoFunc(0)}>버스 정보 목록</button> */}
                         <button type="button" onClick={() => BusInfoFunc(1)}>도착 버스 정보 목록</button>
                         {BusStation}
                     </div>

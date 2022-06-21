@@ -23,12 +23,12 @@ const BusRouteSearch = () => {
     const routeType = { 1: "공항", 2: "마을", 3: "간선", 4: "지선", 5: "순환", 6: "광역", 7: "인천", 8: "경기", 9: "폐지", 0: "공용" }
 
     useEffect(() => {
-        BusInfoList()
+        BusInfoList();
     }, []);
 
     useEffect(() => {
-        localStorage.setItem('routes', JSON.stringify(routes))
-    }, [routes])
+        localStorage.setItem('routes', JSON.stringify(routes));
+    }, [routes]);
 
     useEffect(() => {
         return () => clearInterval(IntervalRef.current);
@@ -38,13 +38,13 @@ const BusRouteSearch = () => {
         await axios.get("/api/BusListSearch", { BusName: busName })
             .then((res) => {
                 if (res.data.status === 200) {
-                    setBusRouted(res.data.routeId)
-                } else setBusRouted(res.data.routeId)
+                    setBusRouted(res.data.routeId);
+                } else setBusRouted(res.data.routeId);
             })
             .catch((err) => {
-                console.log(err)
-                setBusRouted([])
-            })
+                console.log(err);
+                setBusRouted([]);
+            });
     }
 
     const SearchRoute = (e) => {
@@ -54,33 +54,33 @@ const BusRouteSearch = () => {
             index = index.sort(function(a, b) { 
                 return a["노선명"] < b["노선명"] ? -1 : a["노선명"] > b["노선명"] ? 1 : 0;
             });
-            setBusRouteId(index.slice(0, 10))
+            setBusRouteId(index.slice(0, 10));
         } else {
-            setBusRouteId([])
+            setBusRouteId([]);
         }
         e.preventDefault();
     }
 
     const handleBus = (e) => {
-        if (e.target.value !== '') setStateTitle("Click Bus")
-        else setStateTitle("")
-        setBusSearch("")
+        if (e.target.value !== '') setStateTitle("Click Bus");
+        else setStateTitle("");
+        setBusSearch("");
         setBusRoute([]);
         setBusReloadInfo([]);
         setBusRouteId([]);
         setBusLocate([]);
         setArrive([]);
-        clearInterval(IntervalRef.current)
+        clearInterval(IntervalRef.current);
         setBusName(e.target.value);
-        let busName = e.target.value
+        let busName = e.target.value;
         if (busName !== '') {
             let index = busRouted.filter((route, idx) => new RegExp(busName, "gi").test(route["노선명"]) ? route : '');
             index = index.sort(function(a, b) { 
                 return a["노선명"] < b["노선명"] ? -1 : a["노선명"] > b["노선명"] ? 1 : 0;
             });
-            setBusRouteId(index.slice(0, 10))
+            setBusRouteId(index.slice(0, 10));
         } else {
-            setBusRouteId([])
+            setBusRouteId([]);
         }
     }
 
@@ -133,6 +133,7 @@ const BusRouteSearch = () => {
     const IntervalStationList = (routeNm, itemId) => {
         clearInterval(IntervalRef.current);
         setBusRoute([]);
+        setArrive([]);
         const Nm = routeNm;
         let id = itemId;
         const newKeyword = {
@@ -143,15 +144,17 @@ const BusRouteSearch = () => {
             return rmRoute.id === itemId
         })
         if(distinctRoute.length === 0) setRoutes([newKeyword, ...routes]);
+        setBusName('');
         setBusRouteId([]);
         setBusReloadInfo({"노선명": Nm, "ROUTE_ID":id});
         setBusSearch(Nm)
         BusRouteStatusList(id)
         getBusPosByRtidList(id)
-        IntervalRef.current = setInterval(async () => {
-            await BusRouteStatusList(id)
-            await getBusPosByRtidList(id)
-        }, 3000);
+        getBusPosByRtidList(id)
+        // IntervalRef.current = setInterval(async () => {
+        //     await BusRouteStatusList(id)
+        //     await getBusPosByRtidList(id)
+        // }, 3000);
     }
 
     const allRemoveStorage = (id) => {
@@ -182,7 +185,7 @@ const BusRouteSearch = () => {
                 <SearchComponent 
                     SearchInfo={SearchRoute} 
                     handleSearch={handleBus} 
-                    buttonTitle={"노선명"} 
+                    buttonTitle={"노선번호"} 
                     autoInfo={routes} 
                     allRemoveStorage={allRemoveStorage}
                     singleRemoveStorage={singleRemoveStorage}
@@ -222,7 +225,7 @@ const BusRouteSearch = () => {
                                 ))
                             }
                             <li>
-                                <button onClick={(e) => IntervalStationList(busReloadInfo["노선명"], busReloadInfo["ROUTE_ID"], e)}>
+                                <button onClick={(e) => IntervalStationList(busReloadInfo["노선번호"], busReloadInfo["ROUTE_ID"], e)}>
                                     <img src="/staticFolder/busImages/reload.png" width="40px" height="40px" />
                                 </button>
                             </li>
