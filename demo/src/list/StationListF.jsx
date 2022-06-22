@@ -38,7 +38,7 @@ const StationListF = () => {
       <div className='main-fullScreen'>
         <section className='main-content'>
             {
-              infoType === "Bus" ? <BusRouteSearch /> : infoType === "Station" ? <BusStationSearch /> : ""
+              infoType === "Bus" ? <BusRouteSearch /> : infoType === "Station" ? <BusStationSearch /> : <SubwaySearch />
             }
         </section>
       </div>

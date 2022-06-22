@@ -37,7 +37,7 @@ const BusStationSearch = () => {
                 }
             }).catch((err) => {
                 setStation('');
-            })
+            });
     }
 
     const SearchInfo = (e) => {

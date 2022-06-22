@@ -141,6 +141,19 @@ app.get("/api/StationListSearch", (req, res) => {
   res.json({ stationId: jsonData, status: 200, searchStatus: true })
 });
 
+app.get("/api/SubwayListSearch", (req, res) => {
+  let excelFile;
+  try {
+    excelFile = xlsx.readFile(path.join(DATA_PATH, "SubwayInfoList.xlsx"));
+  } catch (exception) {
+    res.json({ subwayId: [], status: 404, searchStatus: false })
+  }
+  const sheetName = excelFile.SheetNames[0];
+  const firstSheet = excelFile.Sheets[sheetName];
+  const jsonData = xlsx.utils.sheet_to_json(firstSheet, { defval: "" });
+  res.json({ subwayId: jsonData, status: 200, searchStatus: true })
+});
+
 app.post("/api/getBusPosByRtidList", (req, res) => {
   const busRouteId = req.body.busRouteId;
   const url = 'http://ws.bus.go.kr/api/rest/buspos/getBusPosByRtid';

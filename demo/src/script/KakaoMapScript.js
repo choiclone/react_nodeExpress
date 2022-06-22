@@ -1,6 +1,5 @@
 /*global kakao*/
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
 
 const KakaoMapScript = ({ searchPlace }) => {
     const busRouteType = {
@@ -83,48 +82,24 @@ const KakaoMapScript = ({ searchPlace }) => {
         }
     }, [searchPlace]);
 
-    const mapCurrent = (place, searchPlace, e) => {
-        e.preventDefault();
-        searchPlace.map((item, key) => {
-            document.getElementsByClassName(String(item.stationName+"_"+String(key)))[0].style.color="white"
-        })
-        const map = mapRef.current;
-        let infowindow = infowindowRef.current;
-        if (infowindow !== undefined) {
-            infowindow.close();
-            infowindowRef.current = undefined;
-        }
-        map.setCenter(new kakao.maps.LatLng(place.y, place.x));
-        e.currentTarget.style.color = "skyblue"
-    }
+    // const mapCurrent = (place, searchPlace, e) => {
+    //     e.preventDefault();
+    //     searchPlace.map((item, key) => {
+    //         document.getElementsByClassName(String(item.stationName+"_"+String(key)))[0].style.color="white"
+    //     })
+    //     const map = mapRef.current;
+    //     let infowindow = infowindowRef.current;
+    //     if (infowindow !== undefined) {
+    //         infowindow.close();
+    //         infowindowRef.current = undefined;
+    //     }
+    //     map.setCenter(new kakao.maps.LatLng(place.y, place.x));
+    //     e.currentTarget.style.color = "skyblue"
+    // }
 
     return (
         <div className='map-search-station'>
             <div id="map" style={{ width: '100%', height: "350px" }}></div>
-            <table className='map-station-table'>
-                <thead>
-                    <tr>
-                        <th>정류소 명</th>
-                        <th>정류소 고유번호</th>
-                    </tr>
-                </thead>
-                <tbody id="stationId">
-                    {
-                        searchPlace.map((item, key) => (
-                            <tr key={key}>
-                                <td className={String(item.stationName)+"_"+String(key)} onClick={(e) => mapCurrent(item, searchPlace, e)}>{item.stationName}</td>
-                                <td><Link to="/BusInfo"
-                                    state={{
-                                        stNm: item.stationName,
-                                        arsId: item.arsId,
-                                        busRouteType: busRouteType
-                                    }}
-                                >{item.arsId}</Link></td>
-                            </tr>
-                        ))
-                    }
-                </tbody>
-            </table>
         </div>
     )
 }

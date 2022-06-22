@@ -18,7 +18,7 @@ const SearchComponent = (props) => {
     useEffect(() => {
         let handleSearhDown = window.addEventListener("mousedown", (e) => {
             const container = document.getElementById("map-search-form");
-            if(container === null) return () => window.removeEventListener('mousedown', handleSearhDown);
+            if (container === null) return () => window.removeEventListener('mousedown', handleSearhDown);
             if (!container.contains(e.target)) {
                 const formList = document.getElementById("map-search-form-list");
                 const recentList = document.getElementById("map-search-recent-list");
@@ -62,9 +62,11 @@ const SearchComponent = (props) => {
         recentList.style.display = "block";
         formList.style.display = "none";
         if (Object.keys(tem).includes('기점') && Object.keys(tem).includes('종점')) {
-            item.push({ Nm: Nm, Id: Id, Begin: tem["기점"], End: tem["종점"] })
+            item.push({ Nm: Nm, Id: Id, Begin: tem["기점"], End: tem["종점"] });
+        } else if (Object.keys(tem).includes('호선')) {
+            item.push({ Nm: Nm, Id: Id, Line: tem["호선"] });
         } else {
-            item.push({ Nm: Nm, Id: Id })
+            item.push({ Nm: Nm, Id: Id });
         }
         setFocusState(false);
         intervalInfo(item[0]);
@@ -124,6 +126,7 @@ const SearchComponent = (props) => {
                                                     )}
                                                     {buttonTitle === "정류장" ? <SpansArs>{"  " + String(item.id)}</SpansArs> : ""}
                                                     {buttonTitle === "노선명" ? <SpansArs>{"(" + String(item["기점"]) + "~" + String(item["종점"]) + ")"}</SpansArs> : ""}
+                                                    {buttonTitle === "전철역명" ? <SpansArs>{"(" + String(item["호선"]) + ")"}</SpansArs> : ""}
                                                 </span>
                                                 <CloseListIcon className='fa fa-close' onClick={(e) => singleRemoveStorage(item["id"], e)} />
                                             </SearchList>
@@ -143,6 +146,7 @@ const SearchComponent = (props) => {
                                             <span>
                                                 {buttonTitle === "정류장" ? <SpansArs>{"  " + String(item[searchIdType])}</SpansArs> : ""}
                                                 {buttonTitle === "노선명" ? <SpansArs>{"(" + String(item["기점"]) + "~" + String(item["종점"]) + ")"}</SpansArs> : ""}
+                                                {buttonTitle === "전철역명" ? <SpansArs>{"(" + String(item["호선"]) + ")"}</SpansArs> : ""}
                                             </span>
                                         </SearchList>
                                     ))
@@ -163,6 +167,7 @@ const SearchComponent = (props) => {
                                                 <span onClick={() => buttonTitle === "정류장" ? StationDetailInfo(item.Nm, item.id) : ClickInterval(item.Nm, item.id, item)}>{String(item.Nm)}
                                                     {buttonTitle === "정류장" ? <SpansArs>{"  " + String(item.id)}</SpansArs> : ""}
                                                     {buttonTitle === "노선명" ? <SpansArs>{"(" + String(item["기점"]) + "~" + String(item["종점"]) + ")"}</SpansArs> : ""}
+                                                    {buttonTitle === "전철역명" ? <SpansArs>{"(" + String(item["호선"]) + ")"}</SpansArs> : ""}
                                                 </span>
                                                 <CloseListIcon className='fa fa-close' onClick={(e) => singleRemoveStorage(item["id"], e)} />
                                             </SearchList>
@@ -181,6 +186,7 @@ const SearchComponent = (props) => {
                                 <span onClick={() => buttonTitle === "정류장" ? StationDetailInfo(item.Nm, item.id) : ClickInterval(item.Nm, item.id, item)}>{String(item.Nm)}
                                     {buttonTitle === "정류장" ? <SpansArs>{"  " + String(item.id)}</SpansArs> : ""}
                                     {buttonTitle === "노선명" ? <SpansArs>{"(" + String(item["기점"]) + "~" + String(item["종점"]) + ")"}</SpansArs> : ""}
+                                    {buttonTitle === "전철역명" ? <SpansArs>{"(" + String(item["호선"]) + ")"}</SpansArs> : ""}
                                 </span>
                                 <i className='fa fa-close' onClick={(e) => singleRemoveStorage(item["id"], e)} />
                             </li>
