@@ -18,7 +18,7 @@ const BusStationModal = (props) => {
                     <DetailList>
                         {
                             // String(detailStation["nxtStn"]["_text"])
-                            detailStation["nxtStn"]["_text"]
+                            String(detailStation)+"방면"
                         }
                         <button onClick={() => intervalInfo(stationInfo)}>눌러</button>
                     </DetailList>

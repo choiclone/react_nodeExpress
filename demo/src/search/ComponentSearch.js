@@ -6,7 +6,7 @@ import BusStationModal from '../script/BusStationModal';
 const SearchComponent = (props) => {
     const { SearchInfo, handleSearch, buttonTitle, autoInfo, allRemoveStorage, singleRemoveStorage, intervalInfo, autoCompleteList, searchTitle, searchIdType } = props;
     const [autoList, setAutoList] = useState(autoCompleteList);
-    const [detailStation, setDetailStation] = useState([]);
+    const [detailStation, setDetailStation] = useState("");
     const [stationBusInfo, setStationBusInfo] = useState({
         Nm: '', Id: ''
     });
@@ -15,21 +15,37 @@ const SearchComponent = (props) => {
 
     const inputRef = useRef();
 
-    document.addEventListener("mousedown", (e) => {
-        const container = document.getElementById("map-search-form");
-        if (!container.contains(e.target)) {
-            const formList = document.getElementById("map-search-form-list");
-            const recentList = document.getElementById("map-search-recent-list");
-            formList.style.display = "none";
-            recentList.style.display = "block";
-        }
-    });
+    useEffect(() => {
+        let handleSearhDown = window.addEventListener("mousedown", (e) => {
+            const container = document.getElementById("map-search-form");
+            if(container === null) return () => window.removeEventListener('mousedown', handleSearhDown);
+            if (!container.contains(e.target)) {
+                const formList = document.getElementById("map-search-form-list");
+                const recentList = document.getElementById("map-search-recent-list");
+                formList.style.display = "none";
+                recentList.style.display = "block";
+            }
+        });
+    }, []);
 
     useEffect(() => {
         setAutoList(autoCompleteList);
     }, [autoList]);
 
-    useEffect(() => {}, [detailStation]);
+    useEffect(() => { }, [detailStation]);
+
+    useEffect(() => {
+        const handleKeyDown = e => {
+            if (e.keyCode === 27) {
+                setModalOpen(false);
+            }
+        };
+        window.addEventListener('keyup', handleKeyDown);
+
+        return () => {
+            window.removeEventListener('keyup', handleKeyDown);
+        }
+    }, [])
 
     const FocusSearchInput = () => {
         const formList = document.getElementById("map-search-form-list");
@@ -56,15 +72,22 @@ const SearchComponent = (props) => {
 
     const StationDetailInfo = (name, id) => {
         let detail = [];
-        setStationBusInfo({...stationBusInfo, Nm:name, Id:id});
+        let detailCount = new Object();
+        setStationBusInfo({ ...stationBusInfo, Nm: name, Id: id });
         axios.post("/api/ArriveBusList", { arsID: id })
             .then((res) => {
                 if (res.data.code === 200) {
                     detail.push(res.data.arrive["ServiceResult"]["msgBody"]["itemList"]);
                     if (Array.isArray(detail[0])) {
-                        setDetailStation(detail[0][detail[0].length - 1]);
+                        detail[0].map((item, idx) => {
+                            detailCount[item["nxtStn"]["_text"]] = detailCount[item["nxtStn"]["_text"]] ? detailCount[item["nxtStn"]["_text"]] + 1 : 1
+                        });
+                        for (const [key, value] of Object.entries(detailCount)) {
+                            if (Math.max.apply(null, Object.values(detailCount)) === value)
+                                setDetailStation(key);
+                        }
                     } else {
-                        setDetailStation(detail[0]);
+                        setDetailStation(detail[0]["nxtStn"]["_text"]);
                     }
                     setModalOpen(true);
                 }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import "../css/Modal.css";
 import useInterval from './useInterval';
 import axios from 'axios';
 
