@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createFuzzyMatcher } from '../module/consonantSearch';
 import SearchComponent from './ComponentSearch';
+import ImageZoomInOut from '../module/ImageZoomInOut';
 import "../css/Search.css";
 import axios from 'axios';
 
@@ -57,7 +58,7 @@ const SubwaySearch = () => {
         } else {
             setSearchSubwayList([]);
         }
-    } 
+    }
 
     const allRemoveStorage = (id) => {
         localStorage.removeItem("subways");
@@ -80,7 +81,7 @@ const SubwaySearch = () => {
         const distinctSubway = subways.filter((rmSubway) => {
             return rmSubway.id === item.Id;
         })
-        if(distinctSubway.length === 0) setSubways([newKeyword, ...subways]);
+        if (distinctSubway.length === 0) setSubways([newKeyword, ...subways]);
     }
 
     return (
@@ -98,6 +99,7 @@ const SubwaySearch = () => {
                     searchTitle={subwayTitle}
                     searchIdType={"전철역코드"}
                 />
+                <ImageZoomInOut></ImageZoomInOut>
             </div>
         </>
     );
