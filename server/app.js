@@ -133,12 +133,12 @@ app.get("/api/StationListSearch", (req, res) => {
   try {
     excelFile = xlsx.readFile(path.join(DATA_PATH, "StationList.xlsx"));
   } catch (exception) {
-    res.json({ stationId: [], status: 404, searchStatus: false })
+    res.json({ stationId: [], status: 404, searchStatus: false });
   }
   const sheetName = excelFile.SheetNames[0];
   const firstSheet = excelFile.Sheets[sheetName];
   const jsonData = xlsx.utils.sheet_to_json(firstSheet, { defval: "" });
-  res.json({ stationId: jsonData, status: 200, searchStatus: true })
+  res.json({ stationId: jsonData, status: 200, searchStatus: true });
 });
 
 app.get("/api/SubwayListSearch", (req, res) => {
@@ -146,12 +146,12 @@ app.get("/api/SubwayListSearch", (req, res) => {
   try {
     excelFile = xlsx.readFile(path.join(DATA_PATH, "SubwayInfoList.xlsx"));
   } catch (exception) {
-    res.json({ subwayId: [], status: 404, searchStatus: false })
+    res.json({ subwayId: [], status: 404, searchStatus: false });
   }
   const sheetName = excelFile.SheetNames[0];
   const firstSheet = excelFile.Sheets[sheetName];
   const jsonData = xlsx.utils.sheet_to_json(firstSheet, { defval: "" });
-  res.json({ subwayId: jsonData, status: 200, searchStatus: true })
+  res.json({ subwayId: jsonData, status: 200, searchStatus: true });
 });
 
 app.post("/api/getBusPosByRtidList", (req, res) => {
@@ -164,7 +164,7 @@ app.post("/api/getBusPosByRtidList", (req, res) => {
     url: url + queryParams,
     method: 'GET'
   }, (err, response, body) => {
-    if (err) return res.json({ error: err })
+    if (err) return res.json({ error: err });
     else {
       try {
         let xmltoJson = convert.xml2json(body, { compact: true, spaces: 4 });
@@ -174,7 +174,26 @@ app.post("/api/getBusPosByRtidList", (req, res) => {
       }
     }
   });
-})
+});
+
+app.post("/api/AddLinePos", (req, res) => {
+  const { x, y } = req.body;
+  const sql = "INSERT INTO subwayline (x, y) values (?, ?)";
+
+  maria.query(sql, [x, y], (err, rows, fields) => {
+    if(err) return res.json({error: err});
+    res.json({test: true});
+  });
+});
+
+app.get("/api/ReadLinePos", (req, res) => {
+  const sql = "SELECT * from subwayline";
+  maria.query(sql, (err, rows, fields) => {
+    if(err) return res.json({error: err});
+    if(rows.length === 0) return res.json({test: rows})
+    res.json({test: rows});
+  });
+});
 
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
