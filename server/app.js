@@ -178,7 +178,7 @@ app.post("/api/getBusPosByRtidList", (req, res) => {
 
 app.post("/api/AddLinePos", (req, res) => {
   const { x, y } = req.body;
-  const sql = "INSERT INTO subwayline (x, y) values (?, ?)";
+  const sql = "INSERT INTO subwaypos (x, y) values (?, ?)";
 
   maria.query(sql, [x, y], (err, rows, fields) => {
     if(err) return res.json({error: err});
@@ -187,7 +187,7 @@ app.post("/api/AddLinePos", (req, res) => {
 });
 
 app.get("/api/ReadLinePos", (req, res) => {
-  const sql = "SELECT * from subwayline";
+  const sql = "SELECT l.lineName, l.lineColor, p.idx, p.subwayStation, p.subwayCode, p.PosX, p.PosY from subwayline as l left join subwaypos as p on l.idx=p.subwayLine WHERE p.idx IS NOT null";
   maria.query(sql, (err, rows, fields) => {
     if(err) return res.json({error: err});
     if(rows.length === 0) return res.json({test: rows})

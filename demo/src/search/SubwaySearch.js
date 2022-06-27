@@ -1,16 +1,19 @@
-/*global kakao*/
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { createFuzzyMatcher } from '../module/consonantSearch';
+
 import SearchComponent from './ComponentSearch';
-import ImageZoomInOut from '../module/ImageZoomInOut';
-import "../css/Search.css";
 import axios from 'axios';
+
+import "../css/Search.css";
+
+const ImageZoomInOut = lazy(() => import('../module/ImageZoomInOut'));
 
 const SubwaySearch = () => {
     const [subwayTitle, setSubwayTitle] = useState("");
     const [subways, setSubways] = useState(JSON.parse(localStorage.getItem('subways') || '[]'));
     const [searchSubwayList, setSearchSubwayList] = useState([]);
     const [subway, setSubway] = useState([]);
+    const [data, setData] = useState([]);
 
     useEffect(() => {
         axios.get("/api/SubwayListSearch")
@@ -22,7 +25,7 @@ const SubwaySearch = () => {
                 }
             }).catch((err) => {
                 setSubway([]);
-                console.error(err)
+                console.error(err);
             })
     }, []);
 
@@ -80,26 +83,28 @@ const SubwaySearch = () => {
         };
         const distinctSubway = subways.filter((rmSubway) => {
             return rmSubway.id === item.Id;
-        })
+        });
         if (distinctSubway.length === 0) setSubways([newKeyword, ...subways]);
     }
 
     return (
         <>
             <div className='map-search'>
-                <SearchComponent
-                    SearchInfo={SearchInfo}
-                    handleSearch={handleSearch}
-                    buttonTitle={"전철역명"}
-                    autoInfo={subways}
-                    allRemoveStorage={allRemoveStorage}
-                    singleRemoveStorage={singleRemoveStorage}
-                    intervalInfo={busInfoFunc}
-                    autoCompleteList={searchSubwayList}
-                    searchTitle={subwayTitle}
-                    searchIdType={"전철역코드"}
-                />
-                <ImageZoomInOut></ImageZoomInOut>
+                <Suspense fallback={<div>...loading</div>}>
+                    <SearchComponent
+                        SearchInfo={SearchInfo}
+                        handleSearch={handleSearch}
+                        buttonTitle={"전철역명"}
+                        autoInfo={subways}
+                        allRemoveStorage={allRemoveStorage}
+                        singleRemoveStorage={singleRemoveStorage}
+                        intervalInfo={busInfoFunc}
+                        autoCompleteList={searchSubwayList}
+                        searchTitle={subwayTitle}
+                        searchIdType={"전철역코드"}
+                    />
+                    <ImageZoomInOut></ImageZoomInOut>
+                </Suspense>
             </div>
         </>
     );
