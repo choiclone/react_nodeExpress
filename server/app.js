@@ -177,21 +177,50 @@ app.post("/api/getBusPosByRtidList", (req, res) => {
 });
 
 app.post("/api/AddLinePos", (req, res) => {
-  const { x, y } = req.body;
-  const sql = "INSERT INTO subwaypos (x, y) values (?, ?)";
+  const { x, y, line } = req.body;
+  const sql = "INSERT INTO subwaypos (PosX, PosY, subwayLine) values (?, ?, ?)";
 
-  maria.query(sql, [x, y], (err, rows, fields) => {
+  maria.query(sql, [x, y, line], (err, rows, fields) => {
     if(err) return res.json({error: err});
     res.json({test: true});
   });
 });
+
+function getKeyIndex(arr, obj) {
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i].subwayStation === obj.subwayStation) {
+      return i;
+    }
+  }
+  return -1;
+}
 
 app.get("/api/ReadLinePos", (req, res) => {
   const sql = "SELECT l.lineName, l.lineColor, p.idx, p.subwayStation, p.subwayCode, p.PosX, p.PosY from subwayline as l left join subwaypos as p on l.idx=p.subwayLine WHERE p.idx IS NOT null";
   maria.query(sql, (err, rows, fields) => {
     if(err) return res.json({error: err});
     if(rows.length === 0) return res.json({test: rows})
-    res.json({test: rows});
+    let resultArr = [];
+    for(var i in rows){
+      let idx = getKeyIndex(resultArr, rows[i]);
+
+      if (idx > -1) {
+        resultArr[idx].lineName += "," + rows[i].lineName;
+        resultArr[idx].subwayCode += "," + rows[i].subwayCode;
+      } else {
+        resultArr.push(rows[i]);
+      }
+    }
+    for (var i in resultArr) {
+      resultArr[i].lineName = String(resultArr[i].lineName).split(
+        ","
+      );
+      resultArr[i].subwayCode = String(resultArr[i].subwayCode).split(
+        ","
+      );
+    }
+    console.log(resultArr.length)
+    res.json({test: resultArr});
   });
 });
 

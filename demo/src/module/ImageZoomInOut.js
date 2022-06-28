@@ -162,7 +162,7 @@ const ImageZoomInOut = (props) => {
                     var pt = ctx.transformedPoint(lastX, lastY);
                     for (var i = 0; i < arcs.length; i++) {
                         if (arcs[i].isPointInside(pt.x, pt.y)) {
-                            clicked += arcs[i].name + "_"+ arcs[i].code + "_" + arcs[i].line;
+                            clicked += arcs[i].name + "_"+ arcs[i].code + "_" + arcs[i].line+"_";
                         }
                     }
                     if (clicked.length > 0) {
@@ -272,10 +272,22 @@ const ImageZoomInOut = (props) => {
     }
 
     const ImagePosition = async (e) => {
-        console.log(e)
+        const subwayName = e.split("_")[0];
+        const subwayCode = e.split("_")[1].split(",");
+        const subwayLine = e.split("_")[2].split(",");
+
+        for(let i in subwayCode){
+            console.log(subwayCode[i], i)
+            console.log(subwayLine[i], i)
+        }
+
+        // console.log("subwayName: ", subwayName)
+        // console.log("subwayCode: ", subwayCode)
+        // console.log("subwayLine: ", subwayLine)
         // const x = e.pageX;
         // const y = e.pageY-90;
-        // await axios.post("/api/AddLinePos", { x: x, y, y })
+        // console.log(x, y)
+        // await axios.post("/api/AddLinePos", { x: x, y: y, line:1 })
         //     .then((res) => {
         //         console.log(res.data.test);
         //     }).catch((err) => {
