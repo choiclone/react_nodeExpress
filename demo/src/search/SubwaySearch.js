@@ -75,7 +75,7 @@ const SubwaySearch = () => {
         setSubways(removeSubway);
     }
 
-    const busInfoFunc = (item) => {
+    const subwayInfoFunc = (item) => {
         const newKeyword = {
             id: item.Id,
             Nm: item.Nm,
@@ -85,6 +85,12 @@ const SubwaySearch = () => {
             return rmSubway.id === item.Id;
         });
         if (distinctSubway.length === 0) setSubways([newKeyword, ...subways]);
+        axios.get("/api/readSubway", { params: { name: item.Nm, id: item.Id }})
+            .then((res) => {
+                console.log(res.data.list)
+            }).catch((err) => {
+                console.log(err)
+            });
     }
 
     return (
@@ -98,7 +104,7 @@ const SubwaySearch = () => {
                         autoInfo={subways}
                         allRemoveStorage={allRemoveStorage}
                         singleRemoveStorage={singleRemoveStorage}
-                        intervalInfo={busInfoFunc}
+                        intervalInfo={subwayInfoFunc}
                         autoCompleteList={searchSubwayList}
                         searchTitle={subwayTitle}
                         searchIdType={"전철역코드"}

@@ -12,10 +12,9 @@ const path = require("path");
 const fs = require("fs");
 
 const ImagePath = path.join(__dirname, "images");
-// console.log(ImagePath)
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use("/staticFolder/busImages", express.static(ImagePath));
 app.use(bodyParser.json());
+app.use("/staticFolder/busImages", express.static(ImagePath));
 
 /* 24개월(2년) 마다 현재 할당 받은 key 값은 사라지니 다시 받거나 기간 연장이 필요함
 https://www.data.go.kr/index.do
@@ -222,6 +221,17 @@ app.get("/api/ReadLinePos", (req, res) => {
     res.json({test: resultArr});
   });
 });
+
+app.get("/api/readSubway", (req, res) => {
+  const {name, id} = req.query;
+  const sql = "SELECT * from subwaypos where subwayCode=? and subwayStation=?"
+
+  maria.query(sql, [id, name], (err, rows, fields) => {
+    if(err) return res.json({status: 500, list: []})
+    if(rows.length === 0) return res.json({status:200, list: []})
+    return res.json({status:200, list:rows})
+  });
+})
 
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));

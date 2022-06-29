@@ -2,14 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import styled from 'styled-components';
 
-const ImageZoomInOut = (props) => {
+const ImageZoomInOut = () => {
     const [subInfo, setSubInfo] = useState([]);
     const [openModal, setOpenModal] = useState(false);
 
     const canvasRef = useRef();
 
     useEffect(() => {
-        if (!canvasRef) return;
+        if (canvasRef.current === undefined) return;
 
         let gkhead = new Image();
 
@@ -24,12 +24,14 @@ const ImageZoomInOut = (props) => {
         gkhead.onload = () => {
             ctx.drawImage(gkhead, canvas.width - gkhead.width / 2, canvas.height - gkhead.height / 2);
         }
+
         axios.get("/api/ReadLinePos")
             .then((res) => {
                 let arcs = [];
                 const Data = res.data.test;
-                const imgPosX = canvas.width - gkhead.width / 2;
-                const imgPosY = canvas.height - gkhead.height / 2;
+        
+                let imgPosX = canvas.width - gkhead.width / 2;
+                let imgPosY = canvas.height - gkhead.height / 2;
                 // gkhead.src = 'https://gingernews.co.kr/wp-content/uploads/2022/05/img_subway.png';
 
                 gkhead.onload = () => {
@@ -93,9 +95,8 @@ const ImageZoomInOut = (props) => {
 
                 let dragStart, dragged;
 
-                function redraw() {
+                function redraw(x, y) {
                     arcs = [];
-                    // Clear the entire canvas
                     let p1 = ctx.transformedPoint(0, 0);
                     let p2 = ctx.transformedPoint(canvas.width, canvas.height);
                     ctx.clearRect(p1.x, p1.y, p2.x - p1.x, p2.y - p1.y);
@@ -105,9 +106,16 @@ const ImageZoomInOut = (props) => {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     ctx.restore();
 
-                    ctx.drawImage(gkhead, imgPosX, imgPosY);
+                    let posX = imgPosX;
+                    let posY = imgPosY;
+                    if(x !== undefined && y !== undefined){
+                        posX = x;
+                        posY = y;
+                    }
+
+                    ctx.drawImage(gkhead, posX, posY);
                     Data.map((item, key) => {
-                        arcs.push(new arc(item.subwayCode, item.subwayStation, (item.PosX + imgPosX), (item.PosY + imgPosY), item.lineName));
+                        arcs.push(new arc(item.subwayCode, item.subwayStation, (item.PosX + posX), (item.PosY + posY), item.lineName));
                     })
                     ctx.closePath();
                 }
@@ -171,7 +179,11 @@ const ImageZoomInOut = (props) => {
                         }
                     }
                     if (clicked.length > 0) {
-                        ImagePosition(clicked)
+                        console.log(pt.x, pt.y)
+                        imgPosX = parseInt(pt.x);
+                        imgPosY = parseInt(pt.y);
+                        redraw(parseInt(pt.x), parseInt(pt.y));
+                        ImagePosition(clicked);
                     }
                 }, false);
 
@@ -270,10 +282,10 @@ const ImageZoomInOut = (props) => {
         console.log(x, y);
     }
 
-    const ImagePosition = async (e) => {
-        const subwayName = e.split("_")[0];
-        const subwayCode = e.split("_")[1].split(",");
-        const subwayLine = e.split("_")[2].split(",");
+    const ImagePosition = async (clickList) => {
+        const subwayName = clickList.split("_")[0];
+        const subwayCode = clickList.split("_")[1].split(",");
+        const subwayLine = clickList.split("_")[2].split(",");
 
         let list = [];
         list.push({
@@ -295,12 +307,12 @@ const ImageZoomInOut = (props) => {
     }
 
     const LineInfo = (code) => {
-        console.log(code)
+        console.log(code);
     }
 
     return (
         <>
-            <div className='map-subway-div'>
+            <div className={'map-subway-div'}>
                 <canvas className='map-canvasImg' ref={canvasRef}></canvas>
                 {
                     openModal ?

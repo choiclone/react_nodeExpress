@@ -29,7 +29,7 @@
 }
 
 .map-search > .map-subway-div > .canvas-modal-back > .canvas-modal-front{
-    background: white;
+    position: absolute;
     width: 50%;
     height: 70%;
     left: 0;
@@ -37,7 +37,8 @@
     right: 0;
     bottom: 0;
     margin: auto;
-    position: absolute;
+    border: 5px solid rgb(0, 0, 0);
+    background: white;
 }
 
 .map-search > .map-subway-div > div > div > .map-header-modal{
