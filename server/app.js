@@ -196,7 +196,7 @@ function getKeyIndex(arr, obj) {
 }
 
 app.get("/api/ReadLinePos", (req, res) => {
-  const sql = "SELECT l.lineName, l.lineColor, p.idx, p.subwayStation, p.subwayCode, p.PosX, p.PosY from subwayline as l left join subwaypos as p on l.idx=p.subwayLine WHERE p.idx IS NOT null";
+  const sql = "SELECT l.lineName, p.subwayStation, p.subwayCode, p.PosX, p.PosY from subwayline as l left join subwaypos as p on l.idx=p.subwayLine WHERE p.idx IS NOT null";
   maria.query(sql, (err, rows, fields) => {
     if(err) return res.json({error: err});
     if(rows.length === 0) return res.json({test: rows})
@@ -219,7 +219,6 @@ app.get("/api/ReadLinePos", (req, res) => {
         ","
       );
     }
-    console.log(resultArr.length)
     res.json({test: resultArr});
   });
 });

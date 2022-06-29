@@ -8,6 +8,43 @@
     list-style: none;
 }
 
+.map-search > .map-subway-div > .map-canvasImg {
+    position: absolute;
+    display: block;
+    left: 0;
+    right: 0;
+    margin: auto;
+    border: 4px solid #1b5ac2;
+}
+
+.map-search > .map-subway-div > .canvas-modal-back {
+    position: relative;
+    color: black;
+    margin: auto;
+    left: 0;
+    width: 808px;
+    min-height: 608px;
+    right: 0;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.map-search > .map-subway-div > .canvas-modal-back > .canvas-modal-front{
+    background: white;
+    width: 50%;
+    height: 70%;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    position: absolute;
+}
+
+.map-search > .map-subway-div > div > div > .map-header-modal{
+    width: 95%;
+    text-align: right;
+}
+
 .map-search > .map-search-main > form > .map-search-form {
     position: relative;
     display: inline-block;
