@@ -3,6 +3,7 @@ import { createFuzzyMatcher } from '../module/consonantSearch';
 
 import SearchComponent from './ComponentSearch';
 import axios from 'axios';
+import styled from 'styled-components';
 
 import "../css/Search.css";
 
@@ -14,6 +15,7 @@ const SubwaySearch = () => {
     const [searchSubwayList, setSearchSubwayList] = useState([]);
     const [subway, setSubway] = useState([]);
     const [data, setData] = useState([]);
+    const [openModal, setOpenModal] = useState(false);
 
     useEffect(() => {
         axios.get("/api/SubwayListSearch")
@@ -75,7 +77,8 @@ const SubwaySearch = () => {
         setSubways(removeSubway);
     }
 
-    const subwayInfoFunc = (item) => {
+    const subwayInfoFunc = async (item) => {
+        await setData([]);
         const newKeyword = {
             id: item.Id,
             Nm: item.Nm,
@@ -85,9 +88,10 @@ const SubwaySearch = () => {
             return rmSubway.id === item.Id;
         });
         if (distinctSubway.length === 0) setSubways([newKeyword, ...subways]);
-        axios.get("/api/readSubway", { params: { name: item.Nm, id: item.Id }})
+        axios.get("/api/readSubway", { params: { name: item.Nm, id: item.Id } })
             .then((res) => {
-                console.log(res.data.list)
+                setData(res.data.list);
+                setOpenModal(true)
             }).catch((err) => {
                 console.log(err)
             });
@@ -109,11 +113,62 @@ const SubwaySearch = () => {
                         searchTitle={subwayTitle}
                         searchIdType={"전철역코드"}
                     />
-                    <ImageZoomInOut></ImageZoomInOut>
+                    {data.length !== 0 ?<ImageZoomInOut SubData={data} ModalStatus={openModal}/>:<ImageZoomInOut/>}
+                    {
+                        openModal ?
+                            <ModalDiv>
+                                {
+                                    data.length !== 0 ?
+                                        data.map((item, key) => (
+                                            <BackModal key={key}>
+                                                <CloseDiv>
+                                                    <i className='fa fa-close' onClick={() => setOpenModal(false)} />
+                                                </CloseDiv>
+                                                <div>
+                                                    <span>{item.subwayStation}</span>
+                                                    <button onClick={() => console.log(item)}>{item.lineName}</button>
+                                                </div>
+                                            </BackModal>
+                                        ))
+                                        : ""
+                                }
+                            </ModalDiv>
+                            : ""
+                    }
                 </Suspense>
             </div>
         </>
     );
 }
+
+const ModalDiv = styled.div`
+    z-index: 99;
+    position: relative;
+    background: rgba(0, 0, 0, 0.3);
+    width: 808px;
+    height: 608px;
+    left: 0;
+    right: 0;
+    margin: auto;
+    color: black;
+`
+
+const BackModal = styled.div`
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    width: 50%;
+    height: 70%;
+    background: white;
+    border: 5px solid black;
+`
+
+const CloseDiv = styled.div`
+    text-align: right;
+    width: 95%;
+`
 
 export default SubwaySearch;

@@ -1,20 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import styled from 'styled-components';
 
-const ImageZoomInOut = () => {
+const ImageZoomInOut = (props) => {
     const [subInfo, setSubInfo] = useState([]);
+    const { SubData, ModalStatus } = props;
     const [openModal, setOpenModal] = useState(false);
 
     const canvasRef = useRef();
 
     useEffect(() => {
         if (canvasRef.current === undefined) return;
-
         let gkhead = new Image();
-
         let canvas = canvasRef.current;
-
         canvas.width = 800;
         canvas.height = 600;
 
@@ -29,7 +26,7 @@ const ImageZoomInOut = () => {
             .then((res) => {
                 let arcs = [];
                 const Data = res.data.test;
-        
+
                 let imgPosX = canvas.width - gkhead.width / 2;
                 let imgPosY = canvas.height - gkhead.height / 2;
                 // gkhead.src = 'https://gingernews.co.kr/wp-content/uploads/2022/05/img_subway.png';
@@ -108,7 +105,7 @@ const ImageZoomInOut = () => {
 
                     let posX = imgPosX;
                     let posY = imgPosY;
-                    if(x !== undefined && y !== undefined){
+                    if (x !== undefined && y !== undefined) {
                         posX = x;
                         posY = y;
                     }
@@ -179,10 +176,6 @@ const ImageZoomInOut = () => {
                         }
                     }
                     if (clicked.length > 0) {
-                        console.log(pt.x, pt.y)
-                        imgPosX = parseInt(pt.x);
-                        imgPosY = parseInt(pt.y);
-                        redraw(parseInt(pt.x), parseInt(pt.y));
                         ImagePosition(clicked);
                     }
                 }, false);
@@ -322,17 +315,30 @@ const ImageZoomInOut = () => {
                                     <i className='fa fa-close' onClick={() => setOpenModal(false)} />
                                 </div>
                                 {
-                                    Object.keys(subInfo).map((item, key) => (
-                                        <div key={key}>
-                                            {subInfo[item].name}
-                                            <div>{
-                                                subInfo[item].codes.map((i, key) => (
-                                                    <button key={key} onClick={() => LineInfo(subInfo[item].codes[key])}>{subInfo[item].lines[key]}</button>
-                                                ))
-                                            }</div>
-                                        </div>
-                                    ))
+                                    subInfo.length !== 0 ?
+                                        Object.keys(subInfo).map((item, key) => (
+                                            <div key={key}>
+                                                {subInfo[item].name}
+                                                <div>{
+                                                    subInfo[item].codes.map((i, key) => (
+                                                        <button key={key} onClick={() => LineInfo(subInfo[item].codes[key])}>{subInfo[item].lines[key]}</button>
+                                                    ))
+                                                }</div>
+                                            </div>
+                                        )) : ""
                                 }
+                                {/* {
+                                    SubData.length !== 0 ?
+                                        SubData.map((item, key) => (
+                                            <div key={key}>
+                                                <div>
+                                                    <span>{item.subwayStation}</span>/<span style={{ fontSize: '18px', fontWeight: 'bold' }}>{item.lineName}</span>
+                                                    <button onClick={() => console.log(item)}>{item.lineName}</button>
+                                                </div>
+                                            </div>
+                                        ))
+                                    : ""
+                                } */}
                             </div>
                         </div> :
                         ""

@@ -224,9 +224,11 @@ app.get("/api/ReadLinePos", (req, res) => {
 
 app.get("/api/readSubway", (req, res) => {
   const {name, id} = req.query;
-  const sql = "SELECT * from subwaypos where subwayCode=? and subwayStation=?"
+  console.log(String(id).padStart(4, '0'), name)
+  const data = [String(id).padStart(4, '0'), name]
+  const sql = "SELECT l.lineName, p.subwayStation, p.subwayCode, p.PosX, p.PosY from subwayline as l left join subwaypos as p on l.idx=p.subwayLine WHERE subwayCode=? and subwayStation=?"
 
-  maria.query(sql, [id, name], (err, rows, fields) => {
+  maria.query(sql, data, (err, rows, fields) => {
     if(err) return res.json({status: 500, list: []})
     if(rows.length === 0) return res.json({status:200, list: []})
     return res.json({status:200, list:rows})
