@@ -1,25 +1,29 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import axios from 'axios';
 
 const ImageZoomInOut = (props) => {
     const [subInfo, setSubInfo] = useState([]);
-    const { SubData, ModalStatus } = props;
+    const image = "https://upload.wikimedia.org/wikipedia/commons/8/85/Seoul_subway_linemap_ko.svg"
     const [openModal, setOpenModal] = useState(false);
 
-    const canvasRef = useRef();
+    const canvasRef = useRef(null);
+    const gkhead = useMemo(() => new Image(), [image]);
+
+    const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
+
+    useEffect(() => {
+    }, [gkhead]);
 
     useEffect(() => {
         if (canvasRef.current === undefined) return;
-        let gkhead = new Image();
         let canvas = canvasRef.current;
-        canvas.width = 800;
-        canvas.height = 600;
-
-        gkhead.src = 'https://upload.wikimedia.org/wikipedia/commons/8/85/Seoul_subway_linemap_ko.svg';
         let ctx = canvas.getContext('2d');
+        gkhead.src = image;
 
         gkhead.onload = () => {
-            ctx.drawImage(gkhead, canvas.width - gkhead.width / 2, canvas.height - gkhead.height / 2);
+            const x = canvas.width - gkhead.width / 2
+            const y = canvas.height - gkhead.height / 2
+            ctx.drawImage(gkhead, x, y);
         }
 
         axios.get("/api/ReadLinePos")
@@ -29,7 +33,6 @@ const ImageZoomInOut = (props) => {
 
                 let imgPosX = canvas.width - gkhead.width / 2;
                 let imgPosY = canvas.height - gkhead.height / 2;
-                // gkhead.src = 'https://gingernews.co.kr/wp-content/uploads/2022/05/img_subway.png';
 
                 gkhead.onload = () => {
                     arcs = [];
@@ -74,9 +77,9 @@ const ImageZoomInOut = (props) => {
                         ctx.beginPath();
                         ctx.fillStyle = this.fill;
                         ctx.strokeStyle = stroke;
-                        ctx.lineWidth = 10;
-                        // ctx.arc(this.x+10, this.y+10, 15, 0, Math.PI * 2, true);
-                        ctx.rect(this.x, this.y, this.width, this.height);
+                        ctx.lineWidth = 5;
+                        ctx.arc(this.x+10, this.y+10, 15, 0, Math.PI * 2, true);
+                        // ctx.rect(this.x, this.y, this.width, this.height);
                         ctx.stroke();
                         ctx.fill();
                     }
@@ -119,7 +122,6 @@ const ImageZoomInOut = (props) => {
                 redraw();
 
                 canvas.addEventListener('mousedown', (evt) => {
-                    // evt = evt || window.event;
                     document.body.style.mozUserSelect = document.body.style.webkitUserSelect = document.body.style.userSelect = 'none';
                     lastX = evt.offsetX || (evt.pageX - canvas.offsetLeft);
                     lastY = evt.offsetY || (evt.pageY - canvas.offsetTop);
@@ -133,9 +135,7 @@ const ImageZoomInOut = (props) => {
                     }
                 }, false);
 
-                canvas.addEventListener('contextmenu', (evt) => {
-                    evt.preventDefault();
-                });
+                canvas.addEventListener('contextmenu', (evt) => evt.preventDefault());
 
                 canvas.addEventListener("mouseleave", (evt) => {
                     dragStart = null;
@@ -161,9 +161,7 @@ const ImageZoomInOut = (props) => {
                     }
                 }, false);
 
-                canvas.addEventListener('mouseup', (evt) => {
-                    dragStart = null;
-                }, false);
+                canvas.addEventListener('mouseup', () => { dragStart = null }, false);
 
                 canvas.addEventListener('click', (evt) => {
                     var clicked = "";
@@ -180,20 +178,21 @@ const ImageZoomInOut = (props) => {
                     }
                 }, false);
 
-                var scaleFactor = 1.1;
-
-                function zoom(clicks) {
+                const zoom = (factors) => {
                     var pt = ctx.transformedPoint(lastX, lastY);
                     ctx.translate(pt.x, pt.y);
-                    var factor = Math.pow(scaleFactor, clicks);
-                    ctx.scale(factor, factor);
+                    ctx.scale(factors, factors);
+                    console.log(pt.x, pt.y)
                     ctx.translate(-pt.x, -pt.y);
                     redraw();
                 }
 
-                function handleScroll(evt) {
+                const handleScroll = (evt) => {
+                    const SCROLL_SENSITIVITY = 0.0005;
+                    const MAX_ZOOM = 5;
+                    const MIN_ZOOM = 0.5;
                     var delta = evt.wheelDelta ? evt.wheelDelta / 40 : evt.detail ? -evt.detail : 0;
-                    if (delta) zoom(delta);
+                    if (delta) zoom(clamp((1 + evt.wheelDelta * SCROLL_SENSITIVITY), MIN_ZOOM, MAX_ZOOM));
                     return evt.preventDefault() && false;
                 };
 
@@ -286,8 +285,10 @@ const ImageZoomInOut = (props) => {
             codes: subwayCode,
             lines: subwayLine
         });
-        setSubInfo(list);
-        setOpenModal(true);
+        await setTimeout(() => {
+            setSubInfo(list);
+            setOpenModal(true);
+        }, 100);
         // const x = e.pageX;
         // const y = e.pageY-90;
         // console.log(x, y)
@@ -306,7 +307,12 @@ const ImageZoomInOut = (props) => {
     return (
         <>
             <div className={'map-subway-div'}>
-                <canvas className='map-canvasImg' ref={canvasRef}></canvas>
+                <canvas
+                    className='map-canvasImg'
+                    ref={canvasRef}
+                    width={1000}
+                    height={700}
+                />
                 {
                     openModal ?
                         <div className='canvas-modal-back'>
@@ -327,18 +333,6 @@ const ImageZoomInOut = (props) => {
                                             </div>
                                         )) : ""
                                 }
-                                {/* {
-                                    SubData.length !== 0 ?
-                                        SubData.map((item, key) => (
-                                            <div key={key}>
-                                                <div>
-                                                    <span>{item.subwayStation}</span>/<span style={{ fontSize: '18px', fontWeight: 'bold' }}>{item.lineName}</span>
-                                                    <button onClick={() => console.log(item)}>{item.lineName}</button>
-                                                </div>
-                                            </div>
-                                        ))
-                                    : ""
-                                } */}
                             </div>
                         </div> :
                         ""

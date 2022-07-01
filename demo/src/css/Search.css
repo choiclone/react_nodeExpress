@@ -14,6 +14,7 @@
     left: 0;
     right: 0;
     margin: auto;
+    background: #ffffff;
     border: 4px solid #1b5ac2;
 }
 
@@ -22,8 +23,8 @@
     color: black;
     margin: auto;
     left: 0;
-    width: 808px;
-    min-height: 608px;
+    width: 1008px;
+    min-height: 708px;
     right: 0;
     background: rgba(0, 0, 0, 0.3);
 }

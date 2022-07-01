@@ -224,7 +224,6 @@ app.get("/api/ReadLinePos", (req, res) => {
 
 app.get("/api/readSubway", (req, res) => {
   const {name, id} = req.query;
-  console.log(String(id).padStart(4, '0'), name)
   const data = [String(id).padStart(4, '0'), name]
   const sql = "SELECT l.lineName, p.subwayStation, p.subwayCode, p.PosX, p.PosY from subwayline as l left join subwaypos as p on l.idx=p.subwayLine WHERE subwayCode=? and subwayStation=?"
 

@@ -91,9 +91,9 @@ const SubwaySearch = () => {
         axios.get("/api/readSubway", { params: { name: item.Nm, id: item.Id } })
             .then((res) => {
                 setData(res.data.list);
-                setOpenModal(true)
+                setOpenModal(true);
             }).catch((err) => {
-                console.log(err)
+                console.log(err);
             });
     }
 
@@ -113,7 +113,7 @@ const SubwaySearch = () => {
                         searchTitle={subwayTitle}
                         searchIdType={"전철역코드"}
                     />
-                    {data.length !== 0 ?<ImageZoomInOut SubData={data} ModalStatus={openModal}/>:<ImageZoomInOut/>}
+                    {data.length !== 0 ? <ImageZoomInOut SubData={data}/> : <ImageZoomInOut/>}
                     {
                         openModal ?
                             <ModalDiv>
@@ -145,8 +145,8 @@ const ModalDiv = styled.div`
     z-index: 99;
     position: relative;
     background: rgba(0, 0, 0, 0.3);
-    width: 808px;
-    height: 608px;
+    width: 1008px;
+    height: 708px;
     left: 0;
     right: 0;
     margin: auto;
