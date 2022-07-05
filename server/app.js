@@ -20,6 +20,7 @@ app.use("/staticFolder/busImages", express.static(ImagePath));
 https://www.data.go.kr/index.do
 여기서 로그인 하고 자신이 사용하고 있는 api 중에서 연장하거나 취소할 거 누르면 됨*/
 const dataApiKey = '1tTp/cC+ot3y4T1GDzqOKLS6171dZSkuH70eiqtN5Qt9SWDQkV2QTvPrttM1+neB9kCsSBS5FSOYR6OQ8InPUg==';
+const SubwayApiKey = '446e49766e706572363268526b7272';
 
 const DATA_PATH = path.join(__dirname, "../demo/src/data");
 
@@ -114,6 +115,29 @@ app.post("/api/ArrInfoByRouteList", (req, res) => {
   });
 });
 
+/* 
+  요청한 정류장 명과 가까운 정류장 명들의 목록을 반환 
+*/
+app.post("/api/SubwayLiveList", (req, res) => {
+  const stationName = (req.body.stationName).split("역")[0];
+  const url = 'http://swopenAPI.seoul.go.kr/api/subway/';
+  let queryParams1 = encodeURIComponent(String(SubwayApiKey));
+  let queryParams2 = encodeURIComponent(String(stationName));
+  request({
+    url: url + queryParams1 + '/json/realtimeStationArrival/0/4/' + queryParams2,
+    method: 'GET'
+  }, (err, response, body) => {
+    if (err) return res.json({ error: err })
+    else {
+      try {
+        res.json({ subwayList: JSON.parse(body), code: 200 });
+      } catch (error) {
+        res.json({ subwayList: [], code: 400 })
+      }
+    }
+  });
+});
+
 app.get("/api/BusListSearch", (req, res) => {
   let excelFile;
   try {
@@ -143,7 +167,7 @@ app.get("/api/StationListSearch", (req, res) => {
 app.get("/api/SubwayListSearch", (req, res) => {
   let excelFile;
   try {
-    excelFile = xlsx.readFile(path.join(DATA_PATH, "SubwayInfoList.xlsx"));
+    excelFile = xlsx.readFile(path.join(DATA_PATH, "Subway.xlsx"));
   } catch (exception) {
     res.json({ subwayId: [], status: 404, searchStatus: false });
   }

@@ -113,7 +113,7 @@ const SubwaySearch = () => {
                         searchTitle={subwayTitle}
                         searchIdType={"전철역코드"}
                     />
-                    {data.length !== 0 ? <ImageZoomInOut SubData={data}/> : <ImageZoomInOut/>}
+                    {subway.length !== 0 ? <ImageZoomInOut SubData={data} Subway={subway}/> : <ImageZoomInOut SubData={[]} Subway={subway}/>}
                     {
                         openModal ?
                             <ModalDiv>

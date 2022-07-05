@@ -1,38 +1,41 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+
+const SCROLL_SENSITIVITY = 0.0005;
+const MAX_ZOOM = 5;
+const MIN_ZOOM = 0.5;
 
 const ImageZoomInOut = (props) => {
     const [subInfo, setSubInfo] = useState([]);
-    const image = "https://upload.wikimedia.org/wikipedia/commons/8/85/Seoul_subway_linemap_ko.svg"
+    const [subInfos, setSubInfos] = useState([]);
     const [openModal, setOpenModal] = useState(false);
 
-    const canvasRef = useRef(null);
-    const gkhead = useMemo(() => new Image(), [image]);
+    const canvasRef = useRef();
+    const gkhead = new Image();
 
     const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 
     useEffect(() => {
-    }, [gkhead]);
-
-    useEffect(() => {
         if (canvasRef.current === undefined) return;
         let canvas = canvasRef.current;
+        canvas.width = 1000;
+        canvas.height = 700;
+
+        gkhead.src = "https://upload.wikimedia.org/wikipedia/commons/8/85/Seoul_subway_linemap_ko.svg";
+        gkhead.width = 5000;
+        gkhead.height = 6000;
+
         let ctx = canvas.getContext('2d');
-        gkhead.src = image;
-
-        gkhead.onload = () => {
-            const x = canvas.width - gkhead.width / 2
-            const y = canvas.height - gkhead.height / 2
-            ctx.drawImage(gkhead, x, y);
+        gkhead.onload = function () {
+            ctx.drawImage(gkhead, canvas.width/2 - gkhead.width/2, canvas.height/2 - gkhead.height/2);
         }
-
         axios.get("/api/ReadLinePos")
             .then((res) => {
                 let arcs = [];
                 const Data = res.data.test;
 
-                let imgPosX = canvas.width - gkhead.width / 2;
-                let imgPosY = canvas.height - gkhead.height / 2;
+                const imgPosX = canvas.width/2 - gkhead.width/2;
+                const imgPosY = canvas.height/2 - gkhead.height/2;
 
                 gkhead.onload = () => {
                     arcs = [];
@@ -78,7 +81,7 @@ const ImageZoomInOut = (props) => {
                         ctx.fillStyle = this.fill;
                         ctx.strokeStyle = stroke;
                         ctx.lineWidth = 5;
-                        ctx.arc(this.x+10, this.y+10, 15, 0, Math.PI * 2, true);
+                        ctx.arc(this.x + 10, this.y + 10, 15, 0, Math.PI * 2, true);
                         // ctx.rect(this.x, this.y, this.width, this.height);
                         ctx.stroke();
                         ctx.fill();
@@ -95,7 +98,7 @@ const ImageZoomInOut = (props) => {
 
                 let dragStart, dragged;
 
-                function redraw(x, y) {
+                function redraw() {
                     arcs = [];
                     let p1 = ctx.transformedPoint(0, 0);
                     let p2 = ctx.transformedPoint(canvas.width, canvas.height);
@@ -106,16 +109,9 @@ const ImageZoomInOut = (props) => {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     ctx.restore();
 
-                    let posX = imgPosX;
-                    let posY = imgPosY;
-                    if (x !== undefined && y !== undefined) {
-                        posX = x;
-                        posY = y;
-                    }
-
-                    ctx.drawImage(gkhead, posX, posY);
+                    ctx.drawImage(gkhead, imgPosX, imgPosY);
                     Data.map((item, key) => {
-                        arcs.push(new arc(item.subwayCode, item.subwayStation, (item.PosX + posX), (item.PosY + posY), item.lineName));
+                        arcs.push(new arc(item.subwayCode, item.subwayStation, (item.PosX + imgPosX), (item.PosY + imgPosY), item.lineName));
                     })
                     ctx.closePath();
                 }
@@ -182,18 +178,14 @@ const ImageZoomInOut = (props) => {
                     var pt = ctx.transformedPoint(lastX, lastY);
                     ctx.translate(pt.x, pt.y);
                     ctx.scale(factors, factors);
-                    console.log(pt.x, pt.y)
                     ctx.translate(-pt.x, -pt.y);
                     redraw();
                 }
 
-                const handleScroll = (evt) => {
-                    const SCROLL_SENSITIVITY = 0.0005;
-                    const MAX_ZOOM = 5;
-                    const MIN_ZOOM = 0.5;
-                    var delta = evt.wheelDelta ? evt.wheelDelta / 40 : evt.detail ? -evt.detail : 0;
-                    if (delta) zoom(clamp((1 + evt.wheelDelta * SCROLL_SENSITIVITY), MIN_ZOOM, MAX_ZOOM));
-                    return evt.preventDefault() && false;
+                const handleScroll = (e) => {
+                    var delta = e.deltaY ? e.wheelDeltaY / 40 : e.detail ? -e.detail : 0;
+                    if (delta) zoom(clamp((1 + e.wheelDeltaY * SCROLL_SENSITIVITY), MIN_ZOOM, MAX_ZOOM));
+                    return e.preventDefault() && false;
                 };
 
                 canvas.addEventListener('DOMMouseScroll', handleScroll, false);
@@ -288,16 +280,15 @@ const ImageZoomInOut = (props) => {
         await setTimeout(() => {
             setSubInfo(list);
             setOpenModal(true);
+            axios.post("/api/SubwayLiveList", { stationName: subwayName })
+                .then((res) => {
+                    if (res.data.code === 200) {
+                        setSubInfos(res.data.subwayList["realtimeArrivalList"]);
+                    }
+                }).catch((err) => {
+
+                })
         }, 100);
-        // const x = e.pageX;
-        // const y = e.pageY-90;
-        // console.log(x, y)
-        // await axios.post("/api/AddLinePos", { x: x, y: y, line:1 })
-        //     .then((res) => {
-        //         console.log(res.data.test);
-        //     }).catch((err) => {
-        //         console.error(err);
-        //     });
     }
 
     const LineInfo = (code) => {
@@ -310,8 +301,6 @@ const ImageZoomInOut = (props) => {
                 <canvas
                     className='map-canvasImg'
                     ref={canvasRef}
-                    width={1000}
-                    height={700}
                 />
                 {
                     openModal ?
@@ -333,11 +322,23 @@ const ImageZoomInOut = (props) => {
                                             </div>
                                         )) : ""
                                 }
+                                <div>
+                                    {
+                                        subInfos.length !== 0 ?
+                                            subInfos.map((item, key) => (
+                                                    <p>{item.statnFid}/{item.statnTid}</p>
+                                            )) : ""
+                                    }
+                                </div>
                             </div>
-                        </div> :
-                        ""
+                        </div>
+                        : ""
                 }
-                {/* <img src="https://upload.wikimedia.org/wikipedia/commons/8/85/Seoul_subway_linemap_ko.svg" onClick={(e) => ImagePosition(e)}></img> */}
+                {/* <form>
+                    <input type="text"></input>
+                    <input type="text"></input>
+                    <button type="submit">길찾기</button>
+                </form> */}
             </div>
         </>
     );
