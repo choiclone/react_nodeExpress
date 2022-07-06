@@ -8,6 +8,7 @@ const MIN_ZOOM = 0.5;
 const ImageZoomInOut = (props) => {
     const [subInfo, setSubInfo] = useState([]);
     const [subInfos, setSubInfos] = useState([]);
+    const [subwayId, setSubwayId] = useState('');
     const [openModal, setOpenModal] = useState(false);
 
     const canvasRef = useRef();
@@ -18,8 +19,6 @@ const ImageZoomInOut = (props) => {
     useEffect(() => {
         if (canvasRef.current === undefined) return;
         let canvas = canvasRef.current;
-        canvas.width = 1000;
-        canvas.height = 700;
 
         gkhead.src = "https://upload.wikimedia.org/wikipedia/commons/8/85/Seoul_subway_linemap_ko.svg";
         gkhead.width = 5000;
@@ -27,28 +26,28 @@ const ImageZoomInOut = (props) => {
 
         let ctx = canvas.getContext('2d');
         gkhead.onload = function () {
-            ctx.drawImage(gkhead, canvas.width/2 - gkhead.width/2, canvas.height/2 - gkhead.height/2);
+            ctx.drawImage(gkhead, canvas.width - gkhead.width/2, canvas.height - gkhead.height/2);
         }
         axios.get("/api/ReadLinePos")
             .then((res) => {
                 let arcs = [];
                 const Data = res.data.test;
 
-                const imgPosX = canvas.width/2 - gkhead.width/2;
-                const imgPosY = canvas.height/2 - gkhead.height/2;
+                const imgPosX = canvas.width - gkhead.width/2;
+                const imgPosY = canvas.height - gkhead.height/2;
 
                 gkhead.onload = () => {
                     arcs = [];
                     ctx.drawImage(gkhead, imgPosX, imgPosY);
                     Data.map((item, key) => {
-                        arcs.push(new arc(item.subwayCode, item.subwayStation, (item.PosX + imgPosX), (item.PosY + imgPosY), item.lineName));
+                        arcs.push(new arc(item.subwayCode, item.subwayStation, (item.PosX + imgPosX), (item.PosY + imgPosY), item.lineName, item.lineId));
                     })
                     ctx.closePath();
                 }
                 trackTransforms(ctx);
 
                 const arc = (() => {
-                    function arc(code, name, x, y, line, fill, stroke) {
+                    function arc(code, name, x, y, line, subId, fill, stroke) {
                         this.x = (x - 10);
                         this.y = (y - 10);
                         this.width = 20;
@@ -56,6 +55,7 @@ const ImageZoomInOut = (props) => {
                         this.name = name;
                         this.code = code
                         this.line = line;
+                        this.subId = subId;
                         this.fill = fill || "white";
                         this.stroke = stroke || "black";
                         this.redraws(this.x, this.y);
@@ -96,22 +96,30 @@ const ImageZoomInOut = (props) => {
 
                 let lastX = canvas.width / 2, lastY = canvas.height / 2;
 
-                let dragStart, dragged;
+                let dragStart; 
+                let dragged;
 
-                function redraw() {
+                function redraw(w, h) {
                     arcs = [];
+                    let imgW = gkhead.width
+                    let imgH = gkhead.height
                     let p1 = ctx.transformedPoint(0, 0);
-                    let p2 = ctx.transformedPoint(canvas.width, canvas.height);
+                    let p2 = ctx.transformedPoint(imgW, imgH);
                     ctx.clearRect(p1.x, p1.y, p2.x - p1.x, p2.y - p1.y);
 
                     ctx.save();
                     ctx.setTransform(1, 0, 0, 1, 0, 0);
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.clearRect(0, 0, imgW, imgH);
                     ctx.restore();
 
+                    if(w !== undefined && h !== undefined){
+                        imgW = w;
+                        imgH = h;
+                    }
+
                     ctx.drawImage(gkhead, imgPosX, imgPosY);
-                    Data.map((item, key) => {
-                        arcs.push(new arc(item.subwayCode, item.subwayStation, (item.PosX + imgPosX), (item.PosY + imgPosY), item.lineName));
+                    Data.map((item) => {
+                        arcs.push(new arc(item.subwayCode, item.subwayStation, (item.PosX + imgPosX), (item.PosY + imgPosY), item.lineName, item.lineId));
                     })
                     ctx.closePath();
                 }
@@ -133,7 +141,7 @@ const ImageZoomInOut = (props) => {
 
                 canvas.addEventListener('contextmenu', (evt) => evt.preventDefault());
 
-                canvas.addEventListener("mouseleave", (evt) => {
+                canvas.addEventListener("mouseleave", () => {
                     dragStart = null;
                     dragged = false;
                 }, false);
@@ -166,7 +174,7 @@ const ImageZoomInOut = (props) => {
                     var pt = ctx.transformedPoint(lastX, lastY);
                     for (var i = 0; i < arcs.length; i++) {
                         if (arcs[i].isPointInside(pt.x, pt.y)) {
-                            clicked += arcs[i].name + "_" + arcs[i].code + "_" + arcs[i].line + "_";
+                            clicked += arcs[i].name + "_" + arcs[i].code + "_" + arcs[i].line + "_" + arcs[i].subId + "_";
                         }
                     }
                     if (clicked.length > 0) {
@@ -178,13 +186,22 @@ const ImageZoomInOut = (props) => {
                     var pt = ctx.transformedPoint(lastX, lastY);
                     ctx.translate(pt.x, pt.y);
                     ctx.scale(factors, factors);
+                    console.log(ctx)
                     ctx.translate(-pt.x, -pt.y);
                     redraw();
                 }
 
                 const handleScroll = (e) => {
-                    var delta = e.deltaY ? e.wheelDeltaY / 40 : e.detail ? -e.detail : 0;
-                    if (delta) zoom(clamp((1 + e.wheelDeltaY * SCROLL_SENSITIVITY), MIN_ZOOM, MAX_ZOOM));
+                    let y = e.wheelDeltaY;
+                    var delta = y ? y / 40 : e.detail ? -e.detail : 0;
+                    // if (delta) 
+                    if (y > 0) {
+                        zoom(clamp((1 + y * SCROLL_SENSITIVITY), MIN_ZOOM, MAX_ZOOM));
+                    }
+                  
+                    if (y < 0) {
+                        zoom(clamp((1 + y * SCROLL_SENSITIVITY), MIN_ZOOM, MAX_ZOOM));
+                    }
                     return e.preventDefault() && false;
                 };
 
@@ -267,15 +284,19 @@ const ImageZoomInOut = (props) => {
     }
 
     const ImagePosition = async (clickList) => {
+        setSubInfos([])
+        setSubwayId('')
         const subwayName = clickList.split("_")[0];
         const subwayCode = clickList.split("_")[1].split(",");
         const subwayLine = clickList.split("_")[2].split(",");
+        const subwayId = clickList.split("_")[3].split(",");
 
         let list = [];
         list.push({
             name: subwayName,
             codes: subwayCode,
-            lines: subwayLine
+            lines: subwayLine,
+            subIds: subwayId,
         });
         await setTimeout(() => {
             setSubInfo(list);
@@ -286,13 +307,13 @@ const ImageZoomInOut = (props) => {
                         setSubInfos(res.data.subwayList["realtimeArrivalList"]);
                     }
                 }).catch((err) => {
-
+                    console.error(err);
                 })
         }, 100);
     }
 
     const LineInfo = (code) => {
-        console.log(code);
+        setSubwayId(code);
     }
 
     return (
@@ -300,6 +321,8 @@ const ImageZoomInOut = (props) => {
             <div className={'map-subway-div'}>
                 <canvas
                     className='map-canvasImg'
+                    width={1000}
+                    height={600}
                     ref={canvasRef}
                 />
                 {
@@ -309,24 +332,25 @@ const ImageZoomInOut = (props) => {
                                 <div className='map-header-modal'>
                                     <i className='fa fa-close' onClick={() => setOpenModal(false)} />
                                 </div>
-                                {
-                                    subInfo.length !== 0 ?
-                                        Object.keys(subInfo).map((item, key) => (
-                                            <div key={key}>
-                                                {subInfo[item].name}
-                                                <div>{
-                                                    subInfo[item].codes.map((i, key) => (
-                                                        <button key={key} onClick={() => LineInfo(subInfo[item].codes[key])}>{subInfo[item].lines[key]}</button>
-                                                    ))
-                                                }</div>
-                                            </div>
-                                        )) : ""
-                                }
                                 <div>
+                                    {
+                                        subInfo.length !== 0 ?
+                                            Object.keys(subInfo).map((item, key) => (
+                                                <div key={key}>
+                                                    {subInfo[item].name}
+                                                    <div>{
+                                                        subInfo[item].codes.map((i, key) => (
+                                                            <button key={key} onClick={() => LineInfo(subInfo[item].subIds[key])}>{subInfo[item].lines[key]}</button>
+                                                        ))
+                                                    }</div>
+                                                </div>
+                                            )) : ""
+                                    }
                                     {
                                         subInfos.length !== 0 ?
                                             subInfos.map((item, key) => (
-                                                    <p>{item.statnFid}/{item.statnTid}</p>
+                                                subwayId === '' ? "" : subwayId === item.subwayId ? <p key={key}>{item.subwayId}/{item.statnFid}/{item.statnTid}/{item.updnLine}</p> : ""
+
                                             )) : ""
                                     }
                                 </div>

@@ -24,6 +24,15 @@ const SubwayApiKey = '446e49766e706572363268526b7272';
 
 const DATA_PATH = path.join(__dirname, "../demo/src/data");
 
+function getKeyIndex(arr, obj) {
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i].subwayStation === obj.subwayStation) {
+      return i;
+    }
+  }
+  return -1;
+}
+
 /* 해당 정류소에 경유하는 노선 목록 조회 */
 app.post("/api/BusStationList", (req, res) => {
   let arsID = req.body.arsID;
@@ -92,6 +101,30 @@ app.post("/api/BusStationApi", (req, res) => {
     }
   });
 });
+//http://swopenapi.seoul.go.kr/api/subway/sample/xml/shortestRoute/0/5/%ED%99%8D%EC%A0%9C/%ED%99%94%EA%B3%A1
+app.post("/api/SubwayShortList", (req, res) => {
+  const startSub = (req.body.startSub).split("역")[0];
+  const arriveSub = (req.body.arriveSub).split("역")[0];
+  const url = 'http://swopenAPI.seoul.go.kr/api/subway/';
+  let queryParams1 = encodeURIComponent(String(SubwayApiKey));
+  let queryParams2 = encodeURIComponent(String(startSub))+"/"+encodeURIComponent(String(arriveSub));
+  request({
+    url: url + queryParams1 + '/json/shortestRoute/0/5/' + queryParams2,
+    method: 'GET'
+  }, (err, response, body) => {
+    if (err) return res.json({ error: err })
+    else {
+      try {
+        let subInfo = JSON.parse(body)
+
+        res.json({ subwayShort: JSON.parse(body), code: 200 });
+      } catch (error) {
+        res.json({ subwayShort: [], code: 400 })
+      }
+    }
+  });
+});
+
 
 /* 요청한 정류장 명과 가까운 정류장 명들의 목록을 반환 */
 app.post("/api/ArrInfoByRouteList", (req, res) => {
@@ -115,21 +148,22 @@ app.post("/api/ArrInfoByRouteList", (req, res) => {
   });
 });
 
-/* 
-  요청한 정류장 명과 가까운 정류장 명들의 목록을 반환 
-*/
+/* 요청한 정류장 명과 가까운 정류장 명들의 목록을 반환 */
 app.post("/api/SubwayLiveList", (req, res) => {
-  const stationName = (req.body.stationName).split("역")[0];
+  let stationName = (req.body.stationName).split("역")[0];
+  if(req.body.stationName === "동대문역사문화공원") stationName = "동대문역사문화공원"
   const url = 'http://swopenAPI.seoul.go.kr/api/subway/';
   let queryParams1 = encodeURIComponent(String(SubwayApiKey));
   let queryParams2 = encodeURIComponent(String(stationName));
   request({
-    url: url + queryParams1 + '/json/realtimeStationArrival/0/4/' + queryParams2,
+    url: url + queryParams1 + '/json/realtimeStationArrival/0/20/' + queryParams2,
     method: 'GET'
   }, (err, response, body) => {
     if (err) return res.json({ error: err })
     else {
       try {
+        let subInfo = JSON.parse(body)["realtimeArrivalList"]
+
         res.json({ subwayList: JSON.parse(body), code: 200 });
       } catch (error) {
         res.json({ subwayList: [], code: 400 })
@@ -209,17 +243,8 @@ app.post("/api/AddLinePos", (req, res) => {
   });
 });
 
-function getKeyIndex(arr, obj) {
-  for (var i = 0; i < arr.length; i++) {
-    if (arr[i].subwayStation === obj.subwayStation) {
-      return i;
-    }
-  }
-  return -1;
-}
-
 app.get("/api/ReadLinePos", (req, res) => {
-  const sql = "SELECT l.lineName, p.subwayStation, p.subwayCode, p.PosX, p.PosY from subwayline as l left join subwaypos as p on l.idx=p.subwayLine WHERE p.idx IS NOT null";
+  const sql = "SELECT l.lineName, l.lineId, p.subwayStation, p.subwayCode, p.PosX, p.PosY from subwayline as l left join subwaypos as p on l.idx=p.subwayLine WHERE p.idx IS NOT null";
   maria.query(sql, (err, rows, fields) => {
     if(err) return res.json({error: err});
     if(rows.length === 0) return res.json({test: rows})
@@ -230,6 +255,7 @@ app.get("/api/ReadLinePos", (req, res) => {
       if (idx > -1) {
         resultArr[idx].lineName += "," + rows[i].lineName;
         resultArr[idx].subwayCode += "," + rows[i].subwayCode;
+        resultArr[idx].lineId += "," + rows[i].lineId;
       } else {
         resultArr.push(rows[i]);
       }
@@ -241,6 +267,9 @@ app.get("/api/ReadLinePos", (req, res) => {
       resultArr[i].subwayCode = String(resultArr[i].subwayCode).split(
         ","
       );
+      resultArr[i].lineId = String(resultArr[i].lineId).split(
+        ","
+      );
     }
     res.json({test: resultArr});
   });
@@ -249,7 +278,7 @@ app.get("/api/ReadLinePos", (req, res) => {
 app.get("/api/readSubway", (req, res) => {
   const {name, id} = req.query;
   const data = [String(id).padStart(4, '0'), name]
-  const sql = "SELECT l.lineName, p.subwayStation, p.subwayCode, p.PosX, p.PosY from subwayline as l left join subwaypos as p on l.idx=p.subwayLine WHERE subwayCode=? and subwayStation=?"
+  const sql = "SELECT l.lineName, l.lineId, p.subwayStation, p.subwayCode, p.PosX, p.PosY from subwayline as l left join subwaypos as p on l.idx=p.subwayLine WHERE subwayCode=? and subwayStation=?"
 
   maria.query(sql, data, (err, rows, fields) => {
     if(err) return res.json({status: 500, list: []})
