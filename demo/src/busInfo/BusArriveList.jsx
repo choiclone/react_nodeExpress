@@ -3,7 +3,7 @@ import useInterval from '../script/useInterval';
 import axios from 'axios';
 
 const BusArriveList = (props) => {
-    const { arsId, busRouteType } = props;
+    const { stNm, arsId, busRouteType } = props;
     const [arrive, setArrive] = useState([]);
     const [stateTitle, setStateTitle] = useState('결과 없음');
 
@@ -37,11 +37,22 @@ const BusArriveList = (props) => {
             })
     }
 
+    const StationTime = (seconds) => {
+        let hour = parseInt(seconds/3600);
+        let min = parseInt((seconds/60)%60);
+        if(hour === 0) return min === 0 ? "" : min+"분";
+        else return hour+":"+min+"분"
+    }
+
+    const BusPosition = (arrmsg) => {
+        return arrmsg.split("[")[1] === undefined ? arrmsg.split("[")[0]+"]" : arrmsg.split("[")[1]
+    }
+
     return (
         <>
             <div className="App">
                 <header className="App-header">
-                    <h2>정류소 고유번호에 해당하는 정류소의 도착버스 정보 조회/도착 버스 개수: {arrive.length}</h2>
+                    <h2>정류소 고유번호에 해당하는 정류소의 도착버스 정보 조회/도착 버스 개수: {arrive.length} / {stNm}</h2>
                     {
                         arrive.length !== 0 ?
                             <table>
@@ -65,8 +76,14 @@ const BusArriveList = (props) => {
                                                 <td>{item.stNm["_text"]}</td>
                                                 <td>{busRouteType[item.routeType["_text"]]}</td>
                                                 <td>{item.adirection["_text"]}</td>
-                                                <td>{item.arrmsg1["_text"]}</td>
-                                                <td>{item.arrmsg2["_text"]}</td>
+                                                <td>
+                                                    {
+                                                        StationTime(item.traTime1["_text"])+"["+BusPosition(item.arrmsg1["_text"])
+                                                    }
+                                                </td>
+                                                <td>
+                                                    {StationTime(item.traTime2["_text"])+"["+BusPosition(item.arrmsg2["_text"])}
+                                                </td>
                                             </tr>
                                         ))
                                     }

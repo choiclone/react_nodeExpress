@@ -1,13 +1,30 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import styled from 'styled-components';
+
 import BusStationList from '../busInfo/BusStationList';
 import BusArriveList from '../busInfo/BusArriveList';
+
 import { useLocation } from 'react-router';
 import { createBrowserHistory } from "history"
 
 const StationArriveBusInfo = () => {
     const { stNm, arsId, busRouteType, searchType } = useLocation().state;
     const history = createBrowserHistory();
-    const [BusStation, setBusStation] = useState(<BusArriveList arsId={arsId} busRouteType={busRouteType}></BusArriveList>);
+    const [BusStation, setBusStation] = useState(<BusArriveList stNm={stNm} arsId={arsId} busRouteType={busRouteType}></BusArriveList>);
+    const [BusStationLists, setBusStationLists] = useState([]);
+
+    useEffect(() => {
+        let BusList = [];
+        axios.post("/api/ArriveBusList", { arsID: arsId })
+            .then((res) => {
+                if (res.data.code === 200) {
+                    BusList.push(res.data.arrive["ServiceResult"]["msgBody"]["itemList"]);
+                    if (Array.isArray(BusList[0])) setBusStationLists(BusList[0][0]);
+                    else setBusStationLists(BusList[0]);
+                }
+            })
+    }, [])
 
     useEffect(() => {
         if (stNm !== "") {
@@ -30,11 +47,11 @@ const StationArriveBusInfo = () => {
         const infoTypes = infoType;
         switch (infoTypes) {
             case 0: {
-                setBusStation(<BusStationList arsId={arsId} busRouteType={busRouteType}></BusStationList>);
+                setBusStation(<BusStationList stNm={stNm} arsId={arsId} busRouteType={busRouteType} stations={BusStationLists}></BusStationList>);
                 break;
             }
             case 1: {
-                setBusStation(<BusArriveList arsId={arsId} busRouteType={busRouteType}></BusArriveList>);
+                setBusStation(<BusArriveList stNm={stNm} arsId={arsId} busRouteType={busRouteType}></BusArriveList>);
                 break;
             }
             default: {
@@ -46,17 +63,19 @@ const StationArriveBusInfo = () => {
 
     return (
         <>
-            <div className="App">
-                <header className="App-header">
-                    <div>
-                        {/* <button type="button" onClick={() => BusInfoFunc(0)}>버스 정보 목록</button> */}
-                        <button type="button" onClick={() => BusInfoFunc(1)}>도착 버스 정보 목록</button>
-                        {BusStation}
-                    </div>
-                </header>
-            </div>
+            <StationInfoDiv>
+                <button type="button" onClick={() => BusInfoFunc(0)}>정류소 위치</button>
+                <button type="button" onClick={() => BusInfoFunc(1)}>도착 버스 정보 목록</button>
+                {BusStation}
+            </StationInfoDiv>
         </>
     );
 }
+
+const StationInfoDiv = styled.div`
+    width: 70%;
+    margin: auto;
+    text-align: center;
+`;
 
 export default StationArriveBusInfo;

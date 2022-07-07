@@ -1,37 +1,39 @@
+/*global kakao*/
 import React, { useState, useEffect, useRef } from 'react';
 import BusRoutModal from '../script/BusRouteModal';
 import useInterval from '../script/useInterval';
+import KakaoMapScript from '../script/KakaoMapScript';
 import axios from 'axios';
 
 const BusStationList = (props) => {
-    const { arsId, busRouteType } = props;
+    const { stNm, arsId, busRouteType, stations } = props;
     const [BusStation, setBusStation] = useState([]);
     const [BusRoute, setBusRoute] = useState([]);
     const [stateTitle, setStateTitle] = useState('결과 없음');
     const [modalOpen, setModalOpen] = useState(false);
     const [routeId, setRouteId] = useState(0);
 
-    useEffect(() => {
-        clickStationInfo();
-    }, []);
+    // useEffect(() => {
+    //     clickStationInfo();
+    // }, []);
 
-    const clickStationInfo = async (e) => {
-        let BusList = [];
-        setStateTitle('로딩 중...');
-        await axios.post("/api/BusStationList", { arsID: arsId })
-            .then((res) => {
-                if (res.data.code === 200) {
-                    BusList.push(res.data.stationList["ServiceResult"]["msgBody"]["itemList"]);
-                    if (Array.isArray(BusList[0])) setBusStation(BusList[0])
-                    else setBusStation(BusList)
-                    setStateTitle('검색완료');
-                } else {
-                    setStateTitle('결과 없음');
-                }
-            }).catch((err) => {
-                console.log(err)
-            })
-    }
+    // const clickStationInfo = async (e) => {
+    //     let BusList = [];
+    //     setStateTitle('로딩 중...');
+    //     await axios.post("/api/ArriveBusList", { arsID: arsId })
+    //         .then((res) => {
+    //             if (res.data.code === 200) {
+    //                 BusList.push(res.data.arrive["ServiceResult"]["msgBody"]["itemList"]);
+    //                 if (Array.isArray(BusList[0])) setBusStation(BusList[0])
+    //                 else setBusStation(BusList)
+    //                 setStateTitle('검색완료');
+    //             } else {
+    //                 setStateTitle('결과 없음');
+    //             }
+    //         }).catch((err) => {
+    //             console.log(err)
+    //         })
+    // }
 
     const openModal = async (routeId) => {
         let BusList = [];
@@ -69,7 +71,8 @@ const BusStationList = (props) => {
 
     return (
         <>
-            <div className="App">
+            <KakaoMapScript searchTitle={stNm} arsID={arsId} stationList={stations}/>
+            {/* <div className="App">
                 <header className="App-header">
                     <h2>해당 정류소에 경유하는 버스 목록/경유 버스 개수: {BusStation.length}</h2>
                     {
@@ -106,7 +109,7 @@ const BusStationList = (props) => {
                     }
                     <BusRoutModal open={modalOpen} close={closeModal} reload={reloadModal} header="Bus Route List" BusRoute={BusRoute} routeId={routeId} />
                 </header>
-            </div>
+            </div> */}
         </>
     );
 }

@@ -1,10 +1,8 @@
-/*global kakao*/
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createFuzzyMatcher } from '../module/consonantSearch';
 import { debounce } from 'lodash';
 import SearchComponent from './ComponentSearch';
-// import KakaoMapScript from '../script/KakaoMapScript';
 import axios from 'axios';
 
 const BusStationSearch = () => {
