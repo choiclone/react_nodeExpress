@@ -17,7 +17,7 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
         const container = document.getElementById('map');
         const options = {
             center: new kakao.maps.LatLng(37.555167, 126.970833),
-            level: 9,
+            level: 5,
         };
 
         let placeOverlay = new kakao.maps.CustomOverlay({zIndex:1}), 
@@ -25,16 +25,22 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
         markers = [], // 마커를 담을 배열입니다
         currCategory = ''; // 현재 선택된 카테고리를 가지고 있을 변수입니다
 
+        contentNode.className = "placeinfo_wrap"
+
         addEventHandle(contentNode, 'mousedown', kakao.maps.event.preventMap);
         addEventHandle(contentNode, 'touchstart', kakao.maps.event.preventMap);
-
-        contentNode.className = 'placeinfo_wrap';
+        
         placeOverlay.setContent(contentNode);
+
+        addCategoryClickEvent();
 
         mapRef.current = new kakao.maps.Map(container, options);
         const map = mapRef.current;
         const geocoder = new kakao.maps.services.Geocoder();
         const ps = new kakao.maps.services.Places();
+
+        ps.categorySearch("FD6", callbackFunc);
+
         map.addOverlayMapTypeId(kakao.maps.MapTypeId.TRAFFIC); 
         kakao.maps.event.addListener(map, 'idle', searchPlaces);
 
@@ -59,8 +65,6 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
             
             ps.categorySearch(currCategory, placesSearchCB, {useMapBounds:true}); 
         }
-
-        ps.categorySearch("FD6", callbackFunc);
         
         function callbackFunc (result, status, pagination) {
             if (status === kakao.maps.services.Status.OK) {
@@ -74,18 +78,15 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
 
         function displayPlaces(places) {
             var order = document.getElementById(currCategory).getAttribute('data-order');
-        
-            
-        
-            for ( var i=0; i<places.length; i++ ) {
-                    var marker = addMarker(new kakao.maps.LatLng(places[i].y, places[i].x), order);
 
-                    (function(marker, place) {
-                        kakao.maps.event.addListener(marker, 'click', function() {
-                            console.log(place)
-                            // displayPlaceInfo(place);
-                        });
-                    })(marker, places[i]);
+            for ( var i=0; i<places.length; i++ ) {
+                var marker = addMarker(new kakao.maps.LatLng(places[i].y, places[i].x), order);
+                (function(marker, place) {
+                    kakao.maps.event.addListener(marker, 'click', function() {
+                        console.log(place)
+                        // displayPlaceInfo(place);
+                    });
+                })(marker, places[i]);
             }
         }
 
@@ -151,6 +152,47 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
             return marker;
         }
 
+        function addCategoryClickEvent() {
+            var category = document.getElementById('category'),
+                children = category.children;
+        
+            for (var i=0; i<children.length; i++) {
+                children[i].onclick = onClickCategory;
+            }
+        }
+        
+        function onClickCategory() {
+            var id = this.id,
+                className = this.className;
+        
+            placeOverlay.setMap(null);
+        
+            if (className === 'on') {
+                currCategory = '';
+                changeCategoryClass();
+                removeMarker();
+            } else {
+                currCategory = id;
+                changeCategoryClass(this);
+                searchPlaces();
+            }
+        }
+        
+        // 클릭된 카테고리에만 클릭된 스타일을 적용하는 함수입니다
+        function changeCategoryClass(el) {
+            var category = document.getElementById('category'),
+                children = category.children,
+                i;
+        
+            for ( i=0; i<children.length; i++ ) {
+                children[i].className = '';
+            }
+        
+            if (el) {
+                el.className = 'on';
+            } 
+        } 
+
         let bounds = new kakao.maps.LatLngBounds();
         displayMarker(stationList);
         bounds.extend(new kakao.maps.LatLng(stationList["gpsY"]["_text"], stationList["gpsX"]["_text"]));
@@ -161,6 +203,32 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
     return (
         <div>
             <MapDiv id="map"></MapDiv>
+            <CateMoveUL id="category">
+                <li id="BK1" data-order="0">
+                    <span class="category_bg bank"></span>
+                    은행
+                </li>
+                <li id="MT1" data-order="1">
+                    <span class="category_bg mart"></span>
+                    마트
+                </li>
+                <li id="PM9" data-order="2">
+                    <span class="category_bg pharmacy"></span>
+                    약국
+                </li>
+                <li id="OL7" data-order="3">
+                    <span class="category_bg oil"></span>
+                    주유소
+                </li>
+                <li id="CE7" data-order="4">
+                    <span class="category_bg cafe"></span>
+                    카페
+                </li>
+                <li id="CS2" data-order="5">
+                    <span class="category_bg store"></span>
+                    편의점
+                </li>
+            </CateMoveUL>
             {
                 openPopUp ? 
                     <MapPopUpDiv >
@@ -186,32 +254,6 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
                         </p>
                         <p>{searchTitle}/{arsID}</p>
                         <p>{address}</p>
-                        <ul id="category">
-                            <li id="BK9" data-order="0">
-                                <span class="category_bg bank"></span>
-                                은행
-                            </li>
-                            <li id="MT1" data-order="1">
-                                <span class="category_bg mart"></span>
-                                마트
-                            </li>
-                            <li id="PM9" data-order="2">
-                                <span class="category_bg pharmacy"></span>
-                                약국
-                            </li>
-                            <li id="OL7" data-order="3">
-                                <span class="category_bg oil"></span>
-                                주유소
-                            </li>
-                            <li id="CE7" data-order="4">
-                                <span class="category_bg cafe"></span>
-                                카페
-                            </li>
-                            <li id="CS2" data-order="5">
-                                <span class="category_bg store"></span>
-                                편의점
-                            </li>
-                        </ul>
                     </MapPopUpDiv>
                 : ""
             }
@@ -243,6 +285,13 @@ const MapPopUpHeaderDiv = styled.div`
     padding: 15px;
     background: red;
     border: 2px solid black
+`
+
+const CateMoveUL = styled.ul`
+    position: relative;
+    display: block;
+    background: white;
+    z-index: 99;
 `
 
 export default KakaoMapScript
