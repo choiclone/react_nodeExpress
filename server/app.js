@@ -21,6 +21,7 @@ https://www.data.go.kr/index.do
 여기서 로그인 하고 자신이 사용하고 있는 api 중에서 연장하거나 취소할 거 누르면 됨*/
 const dataApiKey = '1tTp/cC+ot3y4T1GDzqOKLS6171dZSkuH70eiqtN5Qt9SWDQkV2QTvPrttM1+neB9kCsSBS5FSOYR6OQ8InPUg==';
 const SubwayApiKey = '446e49766e706572363268526b7272';
+const TMAPKEY = 'l7xxa8eb3750200245709a28c24780f939d0';
 
 const DATA_PATH = path.join(__dirname, "../demo/src/data");
 
@@ -101,6 +102,37 @@ app.post("/api/BusStationApi", (req, res) => {
     }
   });
 });
+
+/* 명칭별 정류소 목록 조회 */
+app.post("/api/TmapAPI", (req, res) => {
+  const {convine, lon, lat} = req.body;
+  const url = 'https://apis.openapi.sk.com/tmap/pois/search/around';
+  let bodJson;
+
+  let queryParams = '?' + encodeURIComponent('version') + '=' + encodeURIComponent(1);
+  queryParams += '&' + encodeURIComponent('centerLon') + '=' + encodeURIComponent(String(lon));
+  queryParams += '&' + encodeURIComponent('centerLat') + '=' + encodeURIComponent(String(lat));
+  queryParams += '&' + encodeURIComponent('count') + '=' + encodeURIComponent(200);
+  queryParams += '&' + encodeURIComponent('radius') + '=' + encodeURIComponent(1);
+  queryParams += '&' + encodeURIComponent('categories') + '=' + encodeURIComponent(String(convine));
+  queryParams += '&' + encodeURIComponent('appKey') + '=' + encodeURIComponent(String(TMAPKEY));
+
+  request({
+    url: url + queryParams,
+    method: 'GET'
+  }, (err, response, body) => {
+    if (err) return res.json({ error: err })
+    else {
+      try{
+        bodJson = JSON.parse(body);
+        return res.json({ CatePlace: bodJson, code: 200 });
+      }catch(e){
+        return res.json({ CatePlace: [], code: 500 });
+      }
+    }
+  });
+});
+
 //http://swopenapi.seoul.go.kr/api/subway/sample/xml/shortestRoute/0/5/%ED%99%8D%EC%A0%9C/%ED%99%94%EA%B3%A1
 app.post("/api/SubwayShortList", (req, res) => {
   const startSub = (req.body.startSub).split("역")[0];
