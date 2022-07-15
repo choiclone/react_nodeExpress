@@ -12,9 +12,11 @@ const path = require("path");
 const fs = require("fs");
 
 const ImagePath = path.join(__dirname, "images");
+const ImgPlacePath = path.join(__dirname, "images/cateImg");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use("/staticFolder/busImages", express.static(ImagePath));
+app.use("/staticFolder/placeImages", express.static(ImgPlacePath));
 
 /* 24개월(2년) 마다 현재 할당 받은 key 값은 사라지니 다시 받거나 기간 연장이 필요함
 https://www.data.go.kr/index.do
@@ -22,6 +24,7 @@ https://www.data.go.kr/index.do
 const dataApiKey = '1tTp/cC+ot3y4T1GDzqOKLS6171dZSkuH70eiqtN5Qt9SWDQkV2QTvPrttM1+neB9kCsSBS5FSOYR6OQ8InPUg==';
 const SubwayApiKey = '446e49766e706572363268526b7272';
 const TMAPKEY = 'l7xxa8eb3750200245709a28c24780f939d0';
+const KAKAOKEY = 'c0527fea9319d3732cd14be8adeb6295';
 
 const DATA_PATH = path.join(__dirname, "../demo/src/data");
 
