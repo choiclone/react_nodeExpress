@@ -6,17 +6,15 @@ import "../css/Kakao.css"
 
 const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
     const [address, setAddress] = useState("");
-    const [searchTitles, setSearchTitles] = useState(""); 
-    // const [start, setStart] = useState("");
-    // const [arrive, setArrive] = useState("");
+    const [searchTitles, setSearchTitles] = useState("");
     const [openPopUp, setOpenPopUp] = useState(false); 
     const [openSearchPopUp, setOpenSearchPopUp] = useState(false); 
     const [places, setPlaces] = useState([]);
-    // const [catePlaces, setCatePlaces] = useState([]);
+    const [markersA2, setMarkersA2] = useState([]);
 
-    const busRouteType = {
-        "1": "공항", "2": "마을", "3": "간선", "4": "지선", "5": "순환", "6": "광역", "7": "인천", "8": "경기", "9": "폐지", "0": "공용"
-    }
+    // const busRouteType = {
+    //     "1": "공항", "2": "마을", "3": "간선", "4": "지선", "5": "순환", "6": "광역", "7": "인천", "8": "경기", "9": "폐지", "0": "공용"
+    // }
 
     const CatePlace = [
         {name:"은행", id: "bank"}, 
@@ -27,18 +25,21 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
         {name:"편의점", id: "store"}, 
         {name:"병원", id: "store"}, 
     ];
+
     const mapRef = useRef();
     const markerRef = useRef();
+    const placeRef = useRef();
 
     let placeOverlay = new kakao.maps.CustomOverlay({zIndex:1}), 
     contentNode = document.createElement('div'), // 커스텀 오버레이의 컨텐츠 엘리먼트 입니다 
     markers = [], // 마커를 담을 배열입니다
+    markers2 = [], // 마커를 담을 배열입니다
     currCategory = ''; // 현재 선택된 카테고리를 가지고 있을 변수입니다
 
     useEffect(() => {
         const container = document.getElementById('map');
         const options = {
-            center: new kakao.maps.LatLng(37.555167, 126.970833),
+            center: new kakao.maps.LatLng(stationList["gpsY"]["_text"], stationList["gpsX"]["_text"]),
             level: 5,
         };
 
@@ -52,9 +53,10 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
         addCategoryClickEvent();
 
         mapRef.current = new kakao.maps.Map(container, options);
+        placeRef.current = new kakao.maps.services.Places();
         const map = mapRef.current;
         const geocoder = new kakao.maps.services.Geocoder();
-        const ps = new kakao.maps.services.Places();
+        const ps = placeRef.current;
 
         map.addOverlayMapTypeId(kakao.maps.MapTypeId.TRAFFIC); 
 
@@ -88,7 +90,7 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
         function removeMarker() {
             for ( var i = 0; i < markers.length; i++ ) {
                 markers[i].setMap(null);
-            }   
+            }
             markers = [];
         }
 
@@ -122,7 +124,7 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
 
         function addMarker(position, order) {
             var imageSrc = '/staticFolder/placeImages/'+String(order)+'.png',
-                imageSize = new kakao.maps.Size(27, 28),
+                imageSize = new kakao.maps.Size(20, 20),
                 imgOptions =  {},
                 markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imgOptions),
                 marker = new kakao.maps.Marker({
@@ -154,9 +156,12 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
                 currCategory = '';
                 changeCategoryClass();
                 removeMarker();
+            } if(id === '검색'){
+                removeMarker();
+                setOpenSearchPopUp(false);
             } else {
                 removeMarker();
-                setOpenSearchPopUp(true);
+                setOpenSearchPopUp(false);
                 currCategory = id;
                 changeCategoryClass(this);
                 axios.post("/api/TmapAPI", {convine: id, lon: stationList["gpsX"]["_text"], lat: stationList["gpsY"]["_text"]})
@@ -213,8 +218,51 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
 
     }, [searchTitle]);
 
-    const OpenSearch = () => {
-        setOpenSearchPopUp(true);
+    function displayPlaces(place) {
+        const places = place["poi"];
+        let marker;
+        for (var i = 0; i < places.length; i++) {
+            let lat = places[i]["noorLat"];
+            let lon = places[i]["noorLon"];
+            marker = addMarker(new kakao.maps.LatLng(lat, lon), 1);
+            (function (marker, places) {
+                kakao.maps.event.addListener(marker, 'click', function () {
+                    console.log(places);
+                });
+            })(marker, places[i]);
+        }
+        setMarkersA2(markers2)
+        // console.log(markers2)
+    }
+
+    function addMarker(position, order) {
+        const map = mapRef.current;
+        var imageSrc = '/staticFolder/placeImages/1.png',
+            imageSize = new kakao.maps.Size(20, 20),
+            imgOptions = {},
+            markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imgOptions),
+            marker = new kakao.maps.Marker({
+                position: position, // 마커의 위치
+                image: markerImage
+            });
+
+        marker.setMap(map); // 지도 위에 마커를 표출합니다
+        markers2.push(marker);  // 배열에 생성된 마커를 추가합니다
+        return marker;
+    }
+
+    function removeMarker() {
+        for (var i = 0; i < markersA2.length; i++) {
+            markersA2[i].setMap(null);
+        }
+        setMarkersA2([]);
+    }
+
+    const removeMarker2 = () => {
+        for (var i = 0; i < markersA2.length; i++) {
+            markersA2[i].setMap(null);
+        }
+        setMarkersA2([]);
     }
 
     const handleSearchTitle = (e) => {
@@ -222,27 +270,21 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
     }
 
     const SubmitSearch = (e) => {
+        currCategory = '';
         const search = searchTitles;
+        removeMarker();
+        axios.post("/api/TmapAPI", {convine: search, lon: stationList["gpsX"]["_text"], lat: stationList["gpsY"]["_text"]})
+        .then((res) => {
+            if(res.data.code === 200){
+                displayPlaces(res.data.CatePlace["searchPoiInfo"]["pois"]);
+            }else{
+                displayPlaces({"poi": []});
+            }
+        }).catch((err) => {
+            console.log(err);
+        });
         e.preventDefault();
     }
-
-    // const handle = (start, end) => {
-    //     setStart(start);
-    //     setArrive(end);
-    // }
-
-    // const handleStart = (e) => {
-    //     setStart(e.target.value);
-    // }
-
-    // const handleEnd = (e) => {
-    //     setArrive(e.target.value);
-    // }
-
-    // const GetDirections = (e) => {
-    //     console.log(start, arrive)
-    //     e.preventDefault();
-    // }
 
     return (
         <div>
@@ -250,25 +292,21 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
             <ul id="category">
                 {
                     CatePlace.map((item, key) => (
-                        <li key={key} id={item.name} data-order={key}>
+                        <li key={key} id={item.name} data-order={key} onClick={() => removeMarker2()}>
                             {item.name}
                         </li>
                     ))
                 }
-                <span>
-                    1km
-                </span>
+                <li onClick={() => setOpenSearchPopUp(true)}>검색</li>
             </ul>
-            <button style={{position: "relative", zIndex: 99}} onClick={OpenSearch}>검색</button>
             {
                 openSearchPopUp ? 
-                    <SearchPopup>
-                        <form onSubmit={SubmitSearch}>
-                            <input type="text" onChange={handleSearchTitle}/>
-                            <button type="submit">검색</button>
-                        </form>
-                    </SearchPopup> 
-                : ""
+                <SearchPopup>
+                    <form onSubmit={SubmitSearch}>
+                        <input type="text" value={searchTitles} onChange={handleSearchTitle} />
+                        <button type="submit">검색</button>
+                    </form>
+                </SearchPopup> : ""
             }
             {
                 openPopUp ? 
@@ -295,17 +333,6 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
                         </p>
                         <p>{searchTitle}/{arsID}</p>
                         <p>{address}</p>
-                        {/* <form onSubmit={GetDirections}>
-                            <span>
-                                <button type='button' onClick={() => handle(places["stNm"]["_text"], "")}>출발</button>
-                                <input type="text" name='start' value={start} onChange={handleStart} autoComplete="off"/>
-                            </span>
-                            <span>
-                                <button type='button' onClick={() => handle("", places["stNm"]["_text"])}>도착</button>
-                                <input type="text" name='arrive' value={arrive} onChange={handleEnd} autoComplete="off"/>
-                            </span>
-                            <button type='submit'>길찾기</button>
-                        </form> */}
                     </MapPopUpDiv>
                 : ""
             }
@@ -327,7 +354,7 @@ const MapPopUpDiv = styled.div`
     z-index: 99;
     position: relative;
     display: block;
-    width: 65%;
+    width: 100%;
     height: 200px;
     top: 349px;
     left: 0;
@@ -342,8 +369,11 @@ const MapPopUpHeaderDiv = styled.div`
 `;
 
 const SearchPopup = styled.div`
-    position: relative;
+    position: absolute;
     z-index: 99;
+    left: 0;
+    right: 0;
+    margin: auto;
 `;
 
 export default KakaoMapScript

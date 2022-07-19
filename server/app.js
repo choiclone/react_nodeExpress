@@ -109,31 +109,35 @@ app.post("/api/BusStationApi", (req, res) => {
 /* 명칭별 정류소 목록 조회 */
 app.post("/api/TmapAPI", (req, res) => {
   const {convine, lon, lat} = req.body;
-  const url = 'https://apis.openapi.sk.com/tmap/pois/search/around';
-  let bodJson;
-
-  let queryParams = '?' + encodeURIComponent('version') + '=' + encodeURIComponent(1);
-  queryParams += '&' + encodeURIComponent('centerLon') + '=' + encodeURIComponent(String(lon));
-  queryParams += '&' + encodeURIComponent('centerLat') + '=' + encodeURIComponent(String(lat));
-  queryParams += '&' + encodeURIComponent('count') + '=' + encodeURIComponent(200);
-  queryParams += '&' + encodeURIComponent('radius') + '=' + encodeURIComponent(1);
-  queryParams += '&' + encodeURIComponent('categories') + '=' + encodeURIComponent(String(convine));
-  queryParams += '&' + encodeURIComponent('appKey') + '=' + encodeURIComponent(String(TMAPKEY));
-
-  request({
-    url: url + queryParams,
-    method: 'GET'
-  }, (err, response, body) => {
-    if (err) return res.json({ error: err })
-    else {
-      try{
-        bodJson = JSON.parse(body);
-        return res.json({ CatePlace: bodJson, code: 200 });
-      }catch(e){
-        return res.json({ CatePlace: [], code: 500 });
+  if(convine !== ""){
+    const url = 'https://apis.openapi.sk.com/tmap/pois/search/around';
+    let bodJson;
+  
+    let queryParams = '?' + encodeURIComponent('version') + '=' + encodeURIComponent(1);
+    queryParams += '&' + encodeURIComponent('centerLon') + '=' + encodeURIComponent(String(lon));
+    queryParams += '&' + encodeURIComponent('centerLat') + '=' + encodeURIComponent(String(lat));
+    queryParams += '&' + encodeURIComponent('count') + '=' + encodeURIComponent(50);
+    queryParams += '&' + encodeURIComponent('radius') + '=' + encodeURIComponent(1);
+    queryParams += '&' + encodeURIComponent('categories') + '=' + encodeURIComponent(String(convine));
+    queryParams += '&' + encodeURIComponent('appKey') + '=' + encodeURIComponent(String(TMAPKEY));
+  
+    request({
+      url: url + queryParams,
+      method: 'GET'
+    }, (err, response, body) => {
+      if (err) return res.json({ error: err })
+      else {
+        try{
+          bodJson = JSON.parse(body);
+          return res.json({ CatePlace: bodJson, code: 200 });
+        }catch(e){
+          return res.json({ CatePlace: [], code: 500 });
+        }
       }
-    }
-  });
+    });
+  }else{
+    return res.json({CatePlace: [], code: 401});
+  }
 });
 
 //http://swopenapi.seoul.go.kr/api/subway/sample/xml/shortestRoute/0/5/%ED%99%8D%EC%A0%9C/%ED%99%94%EA%B3%A1

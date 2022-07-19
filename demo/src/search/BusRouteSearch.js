@@ -82,6 +82,7 @@ const BusRouteSearch = () => {
         } else {
             setBusRouteId([]);
         }
+        clearInterval(IntervalRef.current);
     }
 
     const BusRouteStatusList = async (routeId) => {
