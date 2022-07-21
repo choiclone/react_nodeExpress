@@ -186,7 +186,6 @@ const ImageZoomInOut = (props) => {
                     var pt = ctx.transformedPoint(lastX, lastY);
                     ctx.translate(pt.x, pt.y);
                     ctx.scale(factors, factors);
-                    console.log(ctx)
                     ctx.translate(-pt.x, -pt.y);
                     redraw();
                 }

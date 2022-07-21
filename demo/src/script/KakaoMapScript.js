@@ -11,6 +11,10 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
     const [openSearchPopUp, setOpenSearchPopUp] = useState(false); 
     const [places, setPlaces] = useState([]);
     const [markersA2, setMarkersA2] = useState([]);
+    const [placePopUp, setPlacePopUp] = useState({
+        addressName: "",
+        placeName: ""
+    });
 
     // const busRouteType = {
     //     "1": "공항", "2": "마을", "3": "간선", "4": "지선", "5": "순환", "6": "광역", "7": "인천", "8": "경기", "9": "폐지", "0": "공용"
@@ -193,6 +197,7 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
         } 
 
         function displayPlaceInfo (place) {
+            const map = mapRef.current;
             let addressName = place.upperAddrName+" "+place.middleAddrName+" "+place.roadName+" "+place.buildingNo1;
             if(place.buildingNo2 !== "" && place.buildingNo2 !== "0") addressName = addressName+"-"+place.buildingNo2;
             let content = '<div class="placeinfo">' +
@@ -218,6 +223,11 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
 
     }, [searchTitle]);
 
+    function displayPlaceInfo (place) {
+        let addressName = place.upperAddrName+" "+place.middleAddrName+" "+place.roadName+" "+place.buildingNo1;
+        setPlacePopUp({ ...placePopUp, addressName: addressName, placeName: place.name });
+    }
+
     function displayPlaces(place) {
         const places = place["poi"];
         let marker;
@@ -227,18 +237,17 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
             marker = addMarker(new kakao.maps.LatLng(lat, lon), 1);
             (function (marker, places) {
                 kakao.maps.event.addListener(marker, 'click', function () {
-                    console.log(places);
+                    displayPlaceInfo(places);
                 });
             })(marker, places[i]);
         }
         setMarkersA2(markers2)
-        // console.log(markers2)
     }
 
     function addMarker(position, order) {
         const map = mapRef.current;
-        var imageSrc = '/staticFolder/placeImages/1.png',
-            imageSize = new kakao.maps.Size(20, 20),
+        var imageSrc = '/staticFolder/placeImages/location.png',
+            imageSize = new kakao.maps.Size(30, 30),
             imgOptions = {},
             markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imgOptions),
             marker = new kakao.maps.Marker({
@@ -307,6 +316,9 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
                         <button type="submit">검색</button>
                     </form>
                 </SearchPopup> : ""
+            }
+            { 
+                <span>{placePopUp.addressName}/{placePopUp.placeName}</span>
             }
             {
                 openPopUp ? 
