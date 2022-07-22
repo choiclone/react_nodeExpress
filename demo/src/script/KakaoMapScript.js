@@ -5,15 +5,15 @@ import axios from 'axios';
 import "../css/Kakao.css"
 
 const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
-    const [address, setAddress] = useState("");
     const [searchTitles, setSearchTitles] = useState("");
     const [openPopUp, setOpenPopUp] = useState(false); 
     const [openSearchPopUp, setOpenSearchPopUp] = useState(false); 
-    const [places, setPlaces] = useState([]);
     const [markersA2, setMarkersA2] = useState([]);
     const [placePopUp, setPlacePopUp] = useState({
         addressName: "",
-        placeName: ""
+        placeName: "",
+        x: 0,
+        y: 0
     });
 
     // const busRouteType = {
@@ -31,6 +31,7 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
     ];
 
     const mapRef = useRef();
+    const TmapRef = useRef();
     const markerRef = useRef();
     const placeRef = useRef();
 
@@ -46,6 +47,7 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
             center: new kakao.maps.LatLng(stationList["gpsY"]["_text"], stationList["gpsX"]["_text"]),
             level: 5,
         };
+        // TmapRef.current = new Tmapv2.Map;
 
         contentNode.className = "placeinfo_wrap"
 
@@ -86,9 +88,11 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
                 (function(marker, places) {
                     kakao.maps.event.addListener(marker, 'click', function() {
                         displayPlaceInfo(places);
+                        setOpenPopUp(true);
                     });
                 })(marker, places[i]);
             }
+            map.panTo(new kakao.maps.LatLng(places[0]["noorLat"], places[0]["noorLon"]));
         }
 
         function removeMarker() {
@@ -101,6 +105,8 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
         function displayMarker(place) {
             const x = place["gpsX"]["_text"];
             const y = place["gpsY"]["_text"];
+            const name = place["stNm"]["_text"];
+            console.log(place)
             markerRef.current = new kakao.maps.Marker({
                 map: map,
                 clickable: true,
@@ -110,10 +116,9 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
             kakao.maps.event.addListener(marker, 'click', () => {
                 searchDetailAddrFromCoords(new kakao.maps.LatLng(y, x), (result, status) => {
                     if (status === kakao.maps.services.Status.OK) {
-                        map.setCenter(new kakao.maps.LatLng(y, x));
-                        setPlaces(place);
-                        setAddress(result[0].address.address_name);
-                        setOpenPopUp(true)
+                        map.panTo(new kakao.maps.LatLng(y, x));
+                        setPlacePopUp({ ...placePopUp, addressName: result[0].address.address_name, placeName: name, x: x, y: y });
+                        setOpenPopUp(true);
                     }
                 });
             });
@@ -127,8 +132,8 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
         }
 
         function addMarker(position, order) {
-            var imageSrc = '/staticFolder/placeImages/'+String(order)+'.png',
-                imageSize = new kakao.maps.Size(20, 20),
+            var imageSrc = '/staticFolder/placeImages/location.png',
+                imageSize = new kakao.maps.Size(30, 30),
                 imgOptions =  {},
                 markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imgOptions),
                 marker = new kakao.maps.Marker({
@@ -155,6 +160,7 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
             const id = this.id, className = this.className;
         
             placeOverlay.setMap(null);
+            setOpenPopUp(false);
         
             if (className === 'on') {
                 currCategory = '';
@@ -184,36 +190,20 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
         // 클릭된 카테고리에만 클릭된 스타일을 적용하는 함수입니다
         function changeCategoryClass(el) {
             var category = document.getElementById('category'),
-                children = category.children,
-                i;
+                children = category.children, i;
         
             for ( i=0; i<children.length; i++ ) {
                 children[i].className = '';
             }
         
-            if (el) {
-                el.className = 'on';
-            } 
+            if (el) el.className = 'on';
         } 
 
         function displayPlaceInfo (place) {
-            const map = mapRef.current;
+            map.panTo(new kakao.maps.LatLng(place["noorLat"], place["noorLon"]))
             let addressName = place.upperAddrName+" "+place.middleAddrName+" "+place.roadName+" "+place.buildingNo1;
-            if(place.buildingNo2 !== "" && place.buildingNo2 !== "0") addressName = addressName+"-"+place.buildingNo2;
-            let content = '<div class="placeinfo">' +
-                            '<a class="title" href="' + 'https://map.kakao.com/?q=' + addressName + '" target="_blank" title="' + place.name + '">' + place.name + '</a>';   
-            if(place.road_address_name) {
-                content += '<span title="' + place.road_address_name + '">' + place.road_address_name + '</span>' +
-                            '<span class="jibun" title="' + addressName + '">(지번 : ' + addressName + ')</span>';
-            }else {
-                content += '<span title="' + addressName + '">' + addressName + '</span>';
-            }                
-            content +=  '</div>' + 
-                        '<div class="after"></div>';
-        
-            contentNode.innerHTML = content;
-            placeOverlay.setPosition(new kakao.maps.LatLng(place.noorLat, place.noorLon));
-            placeOverlay.setMap(map);  
+            setPlacePopUp({ ...placePopUp, addressName: addressName, placeName: place.name, x:place["noorLat"], y:place["noorLon"] });
+            console.log(place)
         }
 
         let bounds = new kakao.maps.LatLngBounds();
@@ -222,10 +212,12 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
         map.setBounds(bounds);
 
     }, [searchTitle]);
+    const map = mapRef.current;
 
     function displayPlaceInfo (place) {
         let addressName = place.upperAddrName+" "+place.middleAddrName+" "+place.roadName+" "+place.buildingNo1;
-        setPlacePopUp({ ...placePopUp, addressName: addressName, placeName: place.name });
+        map.panTo(new kakao.maps.LatLng(place["noorLat"], place["noorLon"]))
+        setPlacePopUp({ ...placePopUp, addressName: addressName, placeName: place.name, x: place["noorLat"], y: place["noorLon"] });
     }
 
     function displayPlaces(place) {
@@ -238,14 +230,20 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
             (function (marker, places) {
                 kakao.maps.event.addListener(marker, 'click', function () {
                     displayPlaceInfo(places);
+                    setOpenPopUp(true)
                 });
             })(marker, places[i]);
         }
-        setMarkersA2(markers2)
+        setMarkersA2(markers2);
+        if(places[0] !== undefined)
+            map.panTo(new kakao.maps.LatLng(places[0]["noorLat"], places[0]["noorLon"]));
+        else {
+            map.panTo(new kakao.maps.LatLng(stationList["gpsY"]["_text"], stationList["gpsX"]["_text"]));
+            setPlacePopUp({ ...placePopUp, addressName: "", placeName: "", x:0, y:0 });
+        }
     }
 
     function addMarker(position, order) {
-        const map = mapRef.current;
         var imageSrc = '/staticFolder/placeImages/location.png',
             imageSize = new kakao.maps.Size(30, 30),
             imgOptions = {},
@@ -295,9 +293,23 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
         e.preventDefault();
     }
 
+    const CilckSearch = () => {
+        // setSearchTitles("");
+        // setOpenPopUp(false)
+        // setOpenSearchPopUp(true);
+    }
+
     return (
         <div>
             <MapDiv id="map"></MapDiv>
+            <div
+                id="TMapApp"
+                style={{
+                    height: "100%",
+                    width: "100%",
+                    position: "fixed",
+                }}
+            />
             <ul id="category">
                 {
                     CatePlace.map((item, key) => (
@@ -306,7 +318,7 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
                         </li>
                     ))
                 }
-                <li onClick={() => setOpenSearchPopUp(true)}>검색</li>
+                <li onClick={() => CilckSearch()}>검색</li>
             </ul>
             {
                 openSearchPopUp ? 
@@ -316,9 +328,6 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
                         <button type="submit">검색</button>
                     </form>
                 </SearchPopup> : ""
-            }
-            { 
-                <span>{placePopUp.addressName}/{placePopUp.placeName}</span>
             }
             {
                 openPopUp ? 
@@ -332,19 +341,20 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
                                 <i className='fa fa-close'/>
                             </button>
                         </MapPopUpHeaderDiv>
+                        {placePopUp.placeName !== searchTitle ? 
                         <p>
-                            <a href={
-                                "https://map.kakao.com/?q=" + 
-                                places["stNm"]["_text"] + ', ' + 
-                                String(places["gpsY"]["_text"]) + ', ' + 
-                                String(places["gpsX"]["_text"])}
-                                target="_blank"
-                            >
+                            <a href={"https://map.kakao.com/?q=" + placePopUp.addressName } target="_blank">
                                 길찾기
-                            </a>
+                            </a>/
+                            {placePopUp.placeName}
+                        </p> : 
+                        <p>
+                                <a href={"https://map.kakao.com/?q=" + searchTitle } target="_blank">
+                                    길찾기
+                                </a>/{searchTitle}/{arsID}
                         </p>
-                        <p>{searchTitle}/{arsID}</p>
-                        <p>{address}</p>
+                        }
+                        <p>{placePopUp.addressName}</p>
                     </MapPopUpDiv>
                 : ""
             }

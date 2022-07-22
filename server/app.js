@@ -24,7 +24,8 @@ https://www.data.go.kr/index.do
 const dataApiKey = '1tTp/cC+ot3y4T1GDzqOKLS6171dZSkuH70eiqtN5Qt9SWDQkV2QTvPrttM1+neB9kCsSBS5FSOYR6OQ8InPUg==';
 const SubwayApiKey = '446e49766e706572363268526b7272';
 const TMAPKEY = 'l7xxa8eb3750200245709a28c24780f939d0';
-const KAKAOKEY = 'c0527fea9319d3732cd14be8adeb6295';
+// const CLIENTID = 'Zap81BEd1EZCoNTLuPqH';
+// const CLIENTSECRET = 'HiFNIaiXLV';
 
 const DATA_PATH = path.join(__dirname, "../demo/src/data");
 

@@ -42,6 +42,24 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
             geocoder.coord2Address(coords.getLng(), coords.getLat(), callback);
         }
 
+        
+            // let addressName = place.upperAddrName+" "+place.middleAddrName+" "+place.roadName+" "+place.buildingNo1;
+            // if(place.buildingNo2 !== "" && place.buildingNo2 !== "0") addressName = addressName+"-"+place.buildingNo2;
+            // let content = '<div class="placeinfo">' +
+            //                 '<a class="title" href="' + 'https://map.kakao.com/?q=' + addressName + '" target="_blank" title="' + place.name + '">' + place.name + '</a>';   
+            // if(place.road_address_name) {
+            //     content += '<span title="' + place.road_address_name + '">' + place.road_address_name + '</span>' +
+            //                 '<span class="jibun" title="' + addressName + '">(지번 : ' + addressName + ')</span>';
+            // }else {
+            //     content += '<span title="' + addressName + '">' + addressName + '</span>';
+            // }                
+            // content +=  '</div>' + 
+            //             '<div class="after"></div>';
+        
+            // contentNode.innerHTML = content;
+            // placeOverlay.setPosition(new kakao.maps.LatLng(place.noorLat, place.noorLon));
+            // placeOverlay.setMap(map);  
+
         function displayMarker(place) {
             const name = String(place["stNm"]["_text"]);
             const id = String(place["arsId"]["_text"]);
