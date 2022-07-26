@@ -8,6 +8,7 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
     const [searchTitles, setSearchTitles] = useState("");
     const [openPopUp, setOpenPopUp] = useState(false); 
     const [openSearchPopUp, setOpenSearchPopUp] = useState(false); 
+    const [openSearchPopUp2, setOpenSearchPopUp2] = useState(false); 
     const [markersA2, setMarkersA2] = useState([]);
     const [placePopUp, setPlacePopUp] = useState({
         addressName: "",
@@ -106,7 +107,6 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
             const x = place["gpsX"]["_text"];
             const y = place["gpsY"]["_text"];
             const name = place["stNm"]["_text"];
-            console.log(place)
             markerRef.current = new kakao.maps.Marker({
                 map: map,
                 clickable: true,
@@ -215,18 +215,23 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
     const map = mapRef.current;
 
     function displayPlaceInfo (place) {
-        let addressName = place.upperAddrName+" "+place.middleAddrName+" "+place.roadName+" "+place.buildingNo1;
-        map.panTo(new kakao.maps.LatLng(place["noorLat"], place["noorLon"]))
-        setPlacePopUp({ ...placePopUp, addressName: addressName, placeName: place.name, x: place["noorLat"], y: place["noorLon"] });
+        if(Object.keys(place).includes("noorLat")) {
+            let addressName = place.upperAddrName+" "+place.middleAddrName+" "+place.roadName+" "+place.buildingNo1;
+            map.panTo(new kakao.maps.LatLng(place["noorLat"], place["noorLon"]))
+            setPlacePopUp({ ...placePopUp, addressName: addressName, placeName: place.name, x: place["noorLat"], y: place["noorLon"] });
+        }else{
+            map.panTo(new kakao.maps.LatLng(place["noorLat"], place["noorLon"]))
+            setPlacePopUp({ ...placePopUp, addressName: place.road_address_name, placeName: place.place_name, x: place.x, y: place.y });
+        }
     }
 
     function displayPlaces(place) {
-        const places = place["poi"];
+        const places = place;
         let marker;
         for (var i = 0; i < places.length; i++) {
-            let lat = places[i]["noorLat"];
-            let lon = places[i]["noorLon"];
-            marker = addMarker(new kakao.maps.LatLng(lat, lon), 1);
+            if(Object.keys(places[i]).includes("noorLat")) 
+                marker = addMarker(new kakao.maps.LatLng(places[i]["noorLat"], places[i]["noorLon"]), 1);
+            else marker = addMarker(new kakao.maps.LatLng(places[i].y, places[i].x), 1);
             (function (marker, places) {
                 kakao.maps.event.addListener(marker, 'click', function () {
                     displayPlaceInfo(places);
@@ -235,8 +240,11 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
             })(marker, places[i]);
         }
         setMarkersA2(markers2);
-        if(places[0] !== undefined)
-            map.panTo(new kakao.maps.LatLng(places[0]["noorLat"], places[0]["noorLon"]));
+        if(places[0] !== undefined){
+            if(Object.keys(places[0]).includes("noorLat")) 
+                map.panTo(new kakao.maps.LatLng(places[0]["noorLat"], places[0]["noorLon"]));
+            else map.panTo(new kakao.maps.LatLng(places[0].y, places[0].x));
+        }
         else {
             map.panTo(new kakao.maps.LatLng(stationList["gpsY"]["_text"], stationList["gpsX"]["_text"]));
             setPlacePopUp({ ...placePopUp, addressName: "", placeName: "", x:0, y:0 });
@@ -280,10 +288,29 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
         currCategory = '';
         const search = searchTitles;
         removeMarker();
+        setOpenPopUp(false);
         axios.post("/api/TmapAPI", {convine: search, lon: stationList["gpsX"]["_text"], lat: stationList["gpsY"]["_text"]})
         .then((res) => {
             if(res.data.code === 200){
-                displayPlaces(res.data.CatePlace["searchPoiInfo"]["pois"]);
+                displayPlaces(res.data.CatePlace["searchPoiInfo"]["pois"]["poi"]);
+            }else{
+                displayPlaces({"poi": []});
+            }
+        }).catch((err) => {
+            console.log(err);
+        });
+        e.preventDefault();
+    }
+
+    const SubmitSearch2 = (e) => {
+        currCategory = '';
+        const search = searchTitles;
+        removeMarker();
+        setOpenPopUp(false);
+        axios.post("/api/KakaoApi", {convine: search, lon: stationList["gpsX"]["_text"], lat: stationList["gpsY"]["_text"]})
+        .then((res) => {
+            if(res.data.code === 200){
+                displayPlaces(res.data.CatePlace["documents"]);
             }else{
                 displayPlaces({"poi": []});
             }
@@ -294,9 +321,17 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
     }
 
     const CilckSearch = () => {
-        // setSearchTitles("");
-        // setOpenPopUp(false)
-        // setOpenSearchPopUp(true);
+        setSearchTitles("");
+        setOpenPopUp(false)
+        setOpenSearchPopUp(true);
+        setOpenSearchPopUp2(false);
+    }
+
+    const CilckSearch2 = () => {
+        setSearchTitles("");
+        setOpenPopUp(false)
+        setOpenSearchPopUp(false);
+        setOpenSearchPopUp2(true);
     }
 
     return (
@@ -318,12 +353,22 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
                         </li>
                     ))
                 }
-                <li onClick={() => CilckSearch()}>검색</li>
+                <li onClick={() => CilckSearch()}>카테고리</li>
+                {/* <li onClick={() => CilckSearch2()}>주변검색</li> */}
             </ul>
             {
                 openSearchPopUp ? 
                 <SearchPopup>
                     <form onSubmit={SubmitSearch}>
+                        <input type="text" value={searchTitles} onChange={handleSearchTitle} />
+                        <button type="submit">검색</button>
+                    </form>
+                </SearchPopup> : ""
+            }
+            {
+                openSearchPopUp2 ? 
+                <SearchPopup>
+                    <form onSubmit={SubmitSearch2}>
                         <input type="text" value={searchTitles} onChange={handleSearchTitle} />
                         <button type="submit">검색</button>
                     </form>

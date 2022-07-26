@@ -26,7 +26,7 @@
 #category li {
     float: left;
     list-style: none;
-    width: 50px;
+    width: 70px;
     border-right: 1px solid #acacac;
     padding: 6px 0;
     text-align: center;
@@ -51,7 +51,7 @@
 #category li span {
     display: block;
     margin: 0 auto 3px;
-    width: 27px;
+    width: 50px;
     height: 28px;
 }
 

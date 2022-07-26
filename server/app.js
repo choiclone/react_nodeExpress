@@ -24,6 +24,7 @@ https://www.data.go.kr/index.do
 const dataApiKey = '1tTp/cC+ot3y4T1GDzqOKLS6171dZSkuH70eiqtN5Qt9SWDQkV2QTvPrttM1+neB9kCsSBS5FSOYR6OQ8InPUg==';
 const SubwayApiKey = '446e49766e706572363268526b7272';
 const TMAPKEY = 'l7xxa8eb3750200245709a28c24780f939d0';
+const KAKAOKEY = '57e2f5ddec9917700ca7d75b15ea8395';
 // const CLIENTID = 'Zap81BEd1EZCoNTLuPqH';
 // const CLIENTSECRET = 'HiFNIaiXLV';
 
@@ -125,6 +126,42 @@ app.post("/api/TmapAPI", (req, res) => {
     request({
       url: url + queryParams,
       method: 'GET'
+    }, (err, response, body) => {
+      if (err) return res.json({ error: err })
+      else {
+        try{
+          bodJson = JSON.parse(body);
+          return res.json({ CatePlace: bodJson, code: 200 });
+        }catch(e){
+          return res.json({ CatePlace: [], code: 500 });
+        }
+      }
+    });
+  }else{
+    return res.json({CatePlace: [], code: 401});
+  }
+});
+
+/* 명칭별 정류소 목록 조회 */
+app.post("/api/KakaoApi", (req, res) => {
+  const {convine, lon, lat} = req.body;
+  if(convine !== ""){
+    const url = 'https://dapi.kakao.com/v2/local/search/keyword.json';
+    let bodJson;
+  
+    let queryParams = '?' + encodeURIComponent('y') + '=' + encodeURIComponent(lon);
+    queryParams += '&' + encodeURIComponent('x') + '=' + encodeURIComponent(lat);
+    queryParams += '&' + encodeURIComponent('radius') + '=' + encodeURIComponent(1000);
+    queryParams += '&' + encodeURIComponent('query') + '=' + encodeURIComponent(String(convine));
+    queryParams += '&' + encodeURIComponent('size') + '=' + encodeURIComponent(15);
+    queryParams += '&' + encodeURIComponent('page') + '=' + encodeURIComponent(3);
+  
+    request({
+      url: url + queryParams,
+      method: 'GET',
+      headers: {
+        'Authorization': 'KakaoAK '+ KAKAOKEY
+      }
     }, (err, response, body) => {
       if (err) return res.json({ error: err })
       else {
