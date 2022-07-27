@@ -36,13 +36,15 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
     const markerRef = useRef();
     const placeRef = useRef();
 
-    let placeOverlay = new kakao.maps.CustomOverlay({zIndex:1}), 
-    contentNode = document.createElement('div'), // 커스텀 오버레이의 컨텐츠 엘리먼트 입니다 
-    markers = [], // 마커를 담을 배열입니다
-    markers2 = [], // 마커를 담을 배열입니다
+    
+    let markers2 = [], // 마커를 담을 배열입니다
     currCategory = ''; // 현재 선택된 카테고리를 가지고 있을 변수입니다
 
     useEffect(() => {
+        let placeOverlay = new kakao.maps.CustomOverlay({zIndex:1}), 
+        contentNode = document.createElement('div'), // 커스텀 오버레이의 컨텐츠 엘리먼트 입니다 
+        markers = []; // 마커를 담을 배열입니다
+
         const container = document.getElementById('map');
         const options = {
             center: new kakao.maps.LatLng(stationList["gpsY"]["_text"], stationList["gpsX"]["_text"]),
@@ -327,12 +329,12 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
         setOpenSearchPopUp2(false);
     }
 
-    const CilckSearch2 = () => {
-        setSearchTitles("");
-        setOpenPopUp(false)
-        setOpenSearchPopUp(false);
-        setOpenSearchPopUp2(true);
-    }
+    // const CilckSearch2 = () => {
+    //     setSearchTitles("");
+    //     setOpenPopUp(false)
+    //     setOpenSearchPopUp(false);
+    //     setOpenSearchPopUp2(true);
+    // }
 
     return (
         <div>
@@ -408,7 +410,7 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
 }
 
 const MapDiv = styled.div`
-    width: 70%;
+    width: 100%;
     height: 600px;
     position: absolute;
     display: flex;

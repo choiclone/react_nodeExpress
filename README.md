@@ -31,6 +31,21 @@
       * cd server && yarn start
       * cd demo && yarn start
     </pre>
+    <br>
+    DB BackUP <br>
+    <pre>
+      - 전체 데이터베이스 백업
+      mysqldump -u[아이디] -p[패스워드] --all-databases > [백업파일명].sql
+      - 하나의 데이터베이스 백업
+      mysqldump -u[아이디] -p[패스워드] [데이터베이스명] > [백업파일명].sql
+
+      - 전체 데이터베이스 복구
+      mysql -u[아이디] -p[패스워드] < [백업파일명].sql
+      - 하나의 데이터베이스 복구
+      mysql -u[아이디] -p[패스워드] [데이터베이스명]  [백업파일명].sql
+      - 외부 데이터베이스 복구 시
+      mysql -u[아이디] -p[패스워드] -h[ip주소] [데이터베이스명] < [백업파일명].sql
+    </pre>
   </div>
 <br>
 <h5>제작자 정보</h5> 
