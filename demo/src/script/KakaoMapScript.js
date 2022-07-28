@@ -10,6 +10,7 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
     const [openPopUp, setOpenPopUp] = useState(false); 
     const [openSearchPopUp, setOpenSearchPopUp] = useState(false);
     const [markersA2, setMarkersA2] = useState([]);
+    const [searchLeng, setSearchLeng] =useState(0);
     const [placePopUp, setPlacePopUp] = useState({
         addressName: "",
         placeName: "",
@@ -18,9 +19,9 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
     });
 
     const Options = [
-        { radius: 1, selected: true },
-        { radius: 3, selected: false  },
-        { radius: 5, selected: false  },
+        { radius: 1 },
+        { radius: 3 },
+        { radius: 5 },
     ]
 
     const CatePlace = [
@@ -84,6 +85,7 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
 
         function displayPlaces(place) {
             const places = place["poi"];
+            setSearchLeng(places.length)
             var order = document.getElementById(currCategory).getAttribute('data-order');
             for ( var i=0; i<places.length; i++) {
                 let lat = places[i]["noorLat"];
@@ -166,6 +168,7 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
             
             placeOverlay.setMap(null);
             setOpenPopUp(false);
+            setSearchLeng(0);
         
             if (className === 'on') {
                 currCategory = '';
@@ -222,16 +225,18 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
     function displayPlaceInfo (place) {
         if(Object.keys(place).includes("noorLat")) {
             let addressName = place.upperAddrName+" "+place.middleAddrName+" "+place.roadName+" "+place.buildingNo1;
+            if(place.roadName === '') addressName = place.upperAddrName+" "+place.middleAddrName+" "+place.lowerAddrName;
             map.panTo(new kakao.maps.LatLng(place["noorLat"], place["noorLon"]))
             setPlacePopUp({ ...placePopUp, addressName: addressName, placeName: place.name, x: place["noorLat"], y: place["noorLon"] });
         }else{
-            map.panTo(new kakao.maps.LatLng(place["noorLat"], place["noorLon"]))
+            map.panTo(new kakao.maps.LatLng(place.y, place.x))
             setPlacePopUp({ ...placePopUp, addressName: place.road_address_name, placeName: place.place_name, x: place.x, y: place.y });
         }
     }
 
     function displayPlaces(place) {
         const places = place;
+        setSearchLeng(place.length)
         let marker;
         for (var i = 0; i < places.length; i++) {
             if(Object.keys(places[i]).includes("noorLat")) 
@@ -313,6 +318,7 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
 
     const CilckSearch = () => {
         setSearchTitles("");
+        setSearchLeng(0)
         setOpenPopUp(false)
         setOpenSearchPopUp(true);
     }
@@ -321,6 +327,7 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
         <div>
             <MapDiv id="map"></MapDiv>
             <ul id="category">
+                <li id={""}></li>
                 {
                     CatePlace.map((item, key) => (
                         <li key={key} id={item.name} data-order={key} onClick={() => removeMarker2()}>
@@ -338,6 +345,7 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
                         ))
                     }
                 </select>
+                <span>찾은 결과: {searchLeng}/200</span>
             </RadiusDiv>
             {
                 openSearchPopUp ? 
@@ -420,6 +428,8 @@ const SearchPopup = styled.div`
 const RadiusDiv = styled.div`
     position: absolute;
     z-index: 100;
+    right: 250px;
+    top: 115px;
 `;
 
 export default KakaoMapScript
