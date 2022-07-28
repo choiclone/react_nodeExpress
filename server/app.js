@@ -111,7 +111,6 @@ app.post("/api/BusStationApi", (req, res) => {
 /* 명칭별 정류소 목록 조회 */
 app.post("/api/TmapAPI", (req, res) => {
   const {convine, lon, lat, radius} = req.body;
-  console.log(radius)
   if(convine !== ""){
     const url = 'https://apis.openapi.sk.com/tmap/pois/search/around';
     let bodJson;
@@ -119,7 +118,7 @@ app.post("/api/TmapAPI", (req, res) => {
     let queryParams = '?' + encodeURIComponent('version') + '=' + encodeURIComponent(1);
     queryParams += '&' + encodeURIComponent('centerLon') + '=' + encodeURIComponent(String(lon));
     queryParams += '&' + encodeURIComponent('centerLat') + '=' + encodeURIComponent(String(lat));
-    queryParams += '&' + encodeURIComponent('count') + '=' + encodeURIComponent(50);
+    queryParams += '&' + encodeURIComponent('count') + '=' + encodeURIComponent(200);
     queryParams += '&' + encodeURIComponent('radius') + '=' + encodeURIComponent(radius);
     queryParams += '&' + encodeURIComponent('categories') + '=' + encodeURIComponent(String(convine));
     queryParams += '&' + encodeURIComponent('appKey') + '=' + encodeURIComponent(String(TMAPKEY));

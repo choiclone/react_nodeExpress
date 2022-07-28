@@ -14,13 +14,6 @@ const StationArriveBusInfo = () => {
     const [infoTyped, setInfoTyped] = useState(1)
     const [BusStation, setBusStation] = useState(<BusArriveList stNm={stNm} arsId={arsId} busRouteType={busRouteType}></BusArriveList>);
     const [BusStationLists, setBusStationLists] = useState([]);
-    const [radiusSelect, setRadiusSelect] = useState(1);
-
-    const Options = [
-        { key: 1, radius: 1 },
-        { key: 2, radius: 3 },
-        { key: 3, radius: 5 },
-    ]
 
     useEffect(() => {
         let BusList = [];
@@ -56,7 +49,7 @@ const StationArriveBusInfo = () => {
         setInfoTyped(infoType);
         switch (infoTypes) {
             case 0: {
-                setBusStation(<BusStationList stNm={stNm} arsId={arsId} busRouteType={busRouteType} stations={BusStationLists} SecRadius={radiusSelect}></BusStationList>);
+                setBusStation(<BusStationList stNm={stNm} arsId={arsId} busRouteType={busRouteType} stations={BusStationLists}></BusStationList>);
                 break;
             }
             case 1: {
@@ -70,24 +63,11 @@ const StationArriveBusInfo = () => {
         }
     }
 
-    const selectChange = (e) => {
-        setRadiusSelect(e.target.value);
-    }
-
     return (
         <>
             <StationInfoDiv>
                 <button type="button" onClick={() => BusInfoFunc(0)}>정류소 위치</button>
                 <button type="button" onClick={() => BusInfoFunc(1)}>도착 버스 정보 목록</button>
-                {infoTyped !== 1 ?
-                    <select onChange={selectChange} value={radiusSelect}>
-                        {
-                            Options.map((item, key) => (
-                                <option key={key} value={item.radius}>{item.radius}KM</option>
-                            ))
-                        }
-                    </select>
-                    : ""}
                 {BusStation}
             </StationInfoDiv>
         </>

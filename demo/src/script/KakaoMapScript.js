@@ -4,7 +4,8 @@ import styled from 'styled-components';
 import axios from 'axios';
 import "../css/Kakao.css"
 
-const KakaoMapScript = ({ searchTitle, arsID, stationList, SecRadius }) => {
+const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
+    const [radiusSelect, setRadiusSelect] = useState(1);
     const [searchTitles, setSearchTitles] = useState("");
     const [openPopUp, setOpenPopUp] = useState(false); 
     const [openSearchPopUp, setOpenSearchPopUp] = useState(false);
@@ -15,6 +16,12 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList, SecRadius }) => {
         x: 0,
         y: 0
     });
+
+    const Options = [
+        { radius: 1, selected: true },
+        { radius: 3, selected: false  },
+        { radius: 5, selected: false  },
+    ]
 
     const CatePlace = [
         {name:"은행", id: "bank"}, 
@@ -154,6 +161,8 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList, SecRadius }) => {
         
         function onClickCategory() {
             const id = this.id, className = this.className;
+            const radiusId = document.getElementById('RadiusId');
+            const radiusValue = radiusId.options[radiusId.selectedIndex].value;
             
             placeOverlay.setMap(null);
             setOpenPopUp(false);
@@ -170,7 +179,7 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList, SecRadius }) => {
                 setOpenSearchPopUp(false);
                 currCategory = id;
                 changeCategoryClass(this);
-                axios.post("/api/TmapAPI", {convine: id, lon: stationList["gpsX"]["_text"], lat: stationList["gpsY"]["_text"], radius: SecRadius})
+                axios.post("/api/TmapAPI", {convine: id, lon: stationList["gpsX"]["_text"], lat: stationList["gpsY"]["_text"], radius: radiusValue})
                 .then((res) => {
                     if(res.data.code === 200){
                         placesSearchCB(res.data.CatePlace["searchPoiInfo"]["pois"]);
@@ -207,6 +216,7 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList, SecRadius }) => {
         map.setBounds(bounds);
 
     }, [searchTitle]);
+
     const map = mapRef.current;
 
     function displayPlaceInfo (place) {
@@ -284,7 +294,7 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList, SecRadius }) => {
         const search = searchTitles;
         removeMarker();
         setOpenPopUp(false);
-        axios.post("/api/TmapAPI", {convine: search, lon: stationList["gpsX"]["_text"], lat: stationList["gpsY"]["_text"], radius: SecRadius})
+        axios.post("/api/TmapAPI", {convine: search, lon: stationList["gpsX"]["_text"], lat: stationList["gpsY"]["_text"], radius: radiusSelect})
         .then((res) => {
             if(res.data.code === 200){
                 displayPlaces(res.data.CatePlace["searchPoiInfo"]["pois"]["poi"]);
@@ -297,6 +307,10 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList, SecRadius }) => {
         e.preventDefault();
     }
 
+    const selectChange = (e) => {
+        setRadiusSelect(e.target.value);
+    }
+
     const CilckSearch = () => {
         setSearchTitles("");
         setOpenPopUp(false)
@@ -306,14 +320,6 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList, SecRadius }) => {
     return (
         <div>
             <MapDiv id="map"></MapDiv>
-            <div
-                id="TMapApp"
-                style={{
-                    height: "100%",
-                    width: "100%",
-                    position: "fixed",
-                }}
-            />
             <ul id="category">
                 {
                     CatePlace.map((item, key) => (
@@ -324,6 +330,15 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList, SecRadius }) => {
                 }
                 <li onClick={() => CilckSearch()}>카테고리</li>
             </ul>
+            <RadiusDiv>
+                <select id="RadiusId" onChange={selectChange} value={radiusSelect}>
+                    {
+                        Options.map((item, key) => (
+                            <option key={key} value={item.radius}>{item.radius}KM</option>
+                        ))
+                    }
+                </select>
+            </RadiusDiv>
             {
                 openSearchPopUp ? 
                 <SearchPopup>
@@ -400,6 +415,11 @@ const SearchPopup = styled.div`
     left: 0;
     right: 0;
     margin: auto;
+`;
+
+const RadiusDiv = styled.div`
+    position: absolute;
+    z-index: 100;
 `;
 
 export default KakaoMapScript
