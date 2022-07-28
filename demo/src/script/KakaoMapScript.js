@@ -4,11 +4,10 @@ import styled from 'styled-components';
 import axios from 'axios';
 import "../css/Kakao.css"
 
-const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
+const KakaoMapScript = ({ searchTitle, arsID, stationList, SecRadius }) => {
     const [searchTitles, setSearchTitles] = useState("");
     const [openPopUp, setOpenPopUp] = useState(false); 
-    const [openSearchPopUp, setOpenSearchPopUp] = useState(false); 
-    const [openSearchPopUp2, setOpenSearchPopUp2] = useState(false); 
+    const [openSearchPopUp, setOpenSearchPopUp] = useState(false);
     const [markersA2, setMarkersA2] = useState([]);
     const [placePopUp, setPlacePopUp] = useState({
         addressName: "",
@@ -16,10 +15,6 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
         x: 0,
         y: 0
     });
-
-    // const busRouteType = {
-    //     "1": "공항", "2": "마을", "3": "간선", "4": "지선", "5": "순환", "6": "광역", "7": "인천", "8": "경기", "9": "폐지", "0": "공용"
-    // }
 
     const CatePlace = [
         {name:"은행", id: "bank"}, 
@@ -42,15 +37,14 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
 
     useEffect(() => {
         let placeOverlay = new kakao.maps.CustomOverlay({zIndex:1}), 
-        contentNode = document.createElement('div'), // 커스텀 오버레이의 컨텐츠 엘리먼트 입니다 
-        markers = []; // 마커를 담을 배열입니다
+        contentNode = document.createElement('div'),
+        markers = [];
 
         const container = document.getElementById('map');
         const options = {
             center: new kakao.maps.LatLng(stationList["gpsY"]["_text"], stationList["gpsX"]["_text"]),
             level: 5,
         };
-        // TmapRef.current = new Tmapv2.Map;
 
         contentNode.className = "placeinfo_wrap"
 
@@ -160,7 +154,7 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
         
         function onClickCategory() {
             const id = this.id, className = this.className;
-        
+            
             placeOverlay.setMap(null);
             setOpenPopUp(false);
         
@@ -176,7 +170,7 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
                 setOpenSearchPopUp(false);
                 currCategory = id;
                 changeCategoryClass(this);
-                axios.post("/api/TmapAPI", {convine: id, lon: stationList["gpsX"]["_text"], lat: stationList["gpsY"]["_text"]})
+                axios.post("/api/TmapAPI", {convine: id, lon: stationList["gpsX"]["_text"], lat: stationList["gpsY"]["_text"], radius: SecRadius})
                 .then((res) => {
                     if(res.data.code === 200){
                         placesSearchCB(res.data.CatePlace["searchPoiInfo"]["pois"]);
@@ -189,7 +183,6 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
             }
         }
         
-        // 클릭된 카테고리에만 클릭된 스타일을 적용하는 함수입니다
         function changeCategoryClass(el) {
             var category = document.getElementById('category'),
                 children = category.children, i;
@@ -291,28 +284,10 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
         const search = searchTitles;
         removeMarker();
         setOpenPopUp(false);
-        axios.post("/api/TmapAPI", {convine: search, lon: stationList["gpsX"]["_text"], lat: stationList["gpsY"]["_text"]})
+        axios.post("/api/TmapAPI", {convine: search, lon: stationList["gpsX"]["_text"], lat: stationList["gpsY"]["_text"], radius: SecRadius})
         .then((res) => {
             if(res.data.code === 200){
                 displayPlaces(res.data.CatePlace["searchPoiInfo"]["pois"]["poi"]);
-            }else{
-                displayPlaces({"poi": []});
-            }
-        }).catch((err) => {
-            console.log(err);
-        });
-        e.preventDefault();
-    }
-
-    const SubmitSearch2 = (e) => {
-        currCategory = '';
-        const search = searchTitles;
-        removeMarker();
-        setOpenPopUp(false);
-        axios.post("/api/KakaoApi", {convine: search, lon: stationList["gpsX"]["_text"], lat: stationList["gpsY"]["_text"]})
-        .then((res) => {
-            if(res.data.code === 200){
-                displayPlaces(res.data.CatePlace["documents"]);
             }else{
                 displayPlaces({"poi": []});
             }
@@ -326,15 +301,7 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
         setSearchTitles("");
         setOpenPopUp(false)
         setOpenSearchPopUp(true);
-        setOpenSearchPopUp2(false);
     }
-
-    // const CilckSearch2 = () => {
-    //     setSearchTitles("");
-    //     setOpenPopUp(false)
-    //     setOpenSearchPopUp(false);
-    //     setOpenSearchPopUp2(true);
-    // }
 
     return (
         <div>
@@ -356,21 +323,11 @@ const KakaoMapScript = ({ searchTitle, arsID, stationList }) => {
                     ))
                 }
                 <li onClick={() => CilckSearch()}>카테고리</li>
-                {/* <li onClick={() => CilckSearch2()}>주변검색</li> */}
             </ul>
             {
                 openSearchPopUp ? 
                 <SearchPopup>
                     <form onSubmit={SubmitSearch}>
-                        <input type="text" value={searchTitles} onChange={handleSearchTitle} />
-                        <button type="submit">검색</button>
-                    </form>
-                </SearchPopup> : ""
-            }
-            {
-                openSearchPopUp2 ? 
-                <SearchPopup>
-                    <form onSubmit={SubmitSearch2}>
                         <input type="text" value={searchTitles} onChange={handleSearchTitle} />
                         <button type="submit">검색</button>
                     </form>
