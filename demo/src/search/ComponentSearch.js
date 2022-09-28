@@ -107,8 +107,15 @@ const SearchComponent = (props) => {
         <div className='map-search-main'>
             <form onSubmit={SearchInfo}>
                 <div id="map-search-form" className='map-search-form'>
-                    <input type="text" name='stationName' onFocus={() => FocusSearchInput()}
-                        onChange={handleSearch} ref={inputRef} autoComplete="off" placeholder={"검색하실 " + buttonTitle + "을 입력해주세요"}></input>
+                    <input
+                        type="text"
+                        name='stationName'
+                        onFocus={() => FocusSearchInput()}
+                        onChange={handleSearch}
+                        ref={inputRef}
+                        autoComplete="off"
+                        placeholder={"검색하실 " + buttonTitle + "을 입력해주세요"}
+                    />
                     <button type="submit"><i className="fa fa-search" aria-hidden="true" /></button>
                     {autoCompleteList.length !== 0 ?
                         <div id="map-search-form-list" className='map-search-form-list'>

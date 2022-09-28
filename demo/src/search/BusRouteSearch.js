@@ -1,5 +1,6 @@
 /*global kakao*/
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { debounce } from 'lodash';
 import SearchComponent from './ComponentSearch';
 import "../css/Search.css";
 import axios from 'axios';
@@ -23,10 +24,6 @@ const BusRouteSearch = () => {
     const routeType = { 1: "공항", 2: "마을", 3: "간선", 4: "지선", 5: "순환", 6: "광역", 7: "인천", 8: "경기", 9: "폐지", 0: "공용" }
 
     useEffect(() => {
-        BusInfoList();
-    }, []);
-
-    useEffect(() => {
         localStorage.setItem('routes', JSON.stringify(routes));
     }, [routes]);
 
@@ -34,55 +31,21 @@ const BusRouteSearch = () => {
         return () => clearInterval(IntervalRef.current);
     }, []);
 
-    const BusInfoList = async () => {
-        await axios.get("/api/BusListSearch", { BusName: busName })
+    const SearchRoute = (e) => {
+        axios.get(`/api/RouteSearch?busName=${busName}`)
             .then((res) => {
                 if (res.data.status === 200) {
-                    setBusRouted(res.data.routeId);
-                } else setBusRouted(res.data.routeId);
+                    const {route} = res.data
+                    if(route.length !== 0){
+                        // IntervalStationList(route)
+                    }
+                } else clearInterval(IntervalRef.current);
             })
             .catch((err) => {
                 console.log(err);
-                setBusRouted([]);
+                clearInterval(IntervalRef.current);
             });
-    }
-
-    const SearchRoute = (e) => {
-        let busN = busName
-        if (busN !== '') {
-            let index = busRouted.filter((route, idx) => new RegExp("^"+busName, "gi").test(route["노선명"]) ? route : '');
-            index = index.sort(function(a, b) { 
-                return a["노선명"] < b["노선명"] ? -1 : a["노선명"] > b["노선명"] ? 1 : 0;
-            });
-            setBusRouteId(index.slice(0, 10));
-        } else {
-            setBusRouteId([]);
-        }
         e.preventDefault();
-    }
-
-    const handleBus = (e) => {
-        if (e.target.value !== '') setStateTitle("Click Bus");
-        else setStateTitle("");
-        setBusSearch("");
-        setBusRoute([]);
-        setBusReloadInfo([]);
-        setBusRouteId([]);
-        setBusLocate([]);
-        setArrive([]);
-        clearInterval(IntervalRef.current);
-        setBusName(e.target.value);
-        let busName = e.target.value;
-        if (busName !== '') {
-            let index = busRouted.filter((route, idx) => new RegExp(busName, "gi").test(route["노선명"]) ? route : '');
-            index = index.sort(function(a, b) { 
-                return a["노선명"] < b["노선명"] ? -1 : a["노선명"] > b["노선명"] ? 1 : 0;
-            });
-            setBusRouteId(index.slice(0, 10));
-        } else {
-            setBusRouteId([]);
-        }
-        clearInterval(IntervalRef.current);
     }
 
     const BusRouteStatusList = async (routeId) => {
@@ -131,6 +94,36 @@ const BusRouteSearch = () => {
             })
     }
 
+    const debounceSearch = useMemo(() => debounce((BusName) => {
+        axios.get(`/api/BusListSearch?busName=${BusName}`)
+            .then((res) => {
+                if (res.data.status === 200) {
+                    const {routeId} = res.data
+                    if(routeId.length !== 0){
+                        console.log(routeId)
+                        setBusRouteId(routeId);
+                    }
+                } else setBusRouteId(res.data.routeId);
+            })
+            .catch((err) => {
+                console.log(err);
+                setBusRouteId([]);
+            });
+    }, 200), [busName]);
+
+    const handleBus = (e) => {
+        if (e.target.value !== '') setStateTitle("Click Bus");
+        else setStateTitle("");
+        setBusSearch("");
+        setBusRoute([]);
+        setBusReloadInfo([]);
+        setBusLocate([]);
+        setArrive([]);
+        clearInterval(IntervalRef.current);
+        setBusName(e.target.value);
+        debounceSearch(e.target.value);
+    }
+
     const IntervalStationList = (item, state=undefined) => {
         clearInterval(IntervalRef.current);
         if(state!=="reload") setBusRoute([]);
@@ -150,13 +143,12 @@ const BusRouteSearch = () => {
         setBusName('');
         setBusRouteId([]);
         setBusReloadInfo({"노선명": Nm, "ROUTE_ID":id, "기점": item.Begin, "종점": item.End});
-        setBusSearch(Nm)
-        BusRouteStatusList(id)
-        getBusPosByRtidList(id)
-        getBusPosByRtidList(id)
+        setBusSearch(Nm);
+        BusRouteStatusList(id);
+        getBusPosByRtidList(id);
         IntervalRef.current = setInterval(async () => {
-            await BusRouteStatusList(id)
-            await getBusPosByRtidList(id)
+            await BusRouteStatusList(id);
+            await getBusPosByRtidList(id);
         }, 3000);
     }
 

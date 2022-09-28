@@ -13,6 +13,8 @@ const fs = require("fs");
 
 const ImagePath = path.join(__dirname, "images");
 const ImgPlacePath = path.join(__dirname, "images/cateImg");
+const DATA_PATH = path.join(__dirname, "../demo/src/data");
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use("/staticFolder/busImages", express.static(ImagePath));
@@ -27,8 +29,6 @@ const TMAPKEY = 'l7xxa8eb3750200245709a28c24780f939d0';
 const KAKAOKEY = '57e2f5ddec9917700ca7d75b15ea8395';
 // const CLIENTID = 'Zap81BEd1EZCoNTLuPqH';
 // const CLIENTSECRET = 'HiFNIaiXLV';
-
-const DATA_PATH = path.join(__dirname, "../demo/src/data");
 
 function getKeyIndex(arr, obj) {
   for (var i = 0; i < arr.length; i++) {
@@ -250,16 +250,43 @@ app.post("/api/SubwayLiveList", (req, res) => {
 });
 
 app.get("/api/BusListSearch", (req, res) => {
+  const busName = req.query.busName;
   let excelFile;
   try {
     excelFile = xlsx.readFile(path.join(DATA_PATH, "BusIdInfo.xlsx"));
+    const sheetName = excelFile.SheetNames[0];
+    const firstSheet = excelFile.Sheets[sheetName];
+    const jsonData = xlsx.utils.sheet_to_json(firstSheet, { defval: "" });
+
+    if(busName !== ''){
+      let index = jsonData.filter((route) => new RegExp("^" + busName, "gi").test(route["노선명"]) ? route : '');
+      index = index.sort(function (a, b) {
+          return a["노선명"] < b["노선명"] ? -1 : a["노선명"] > b["노선명"] ? 1 : 0;
+      });
+
+      res.status(200).json({ routeId: index.slice(0, 10), status: 200, searchStatus: true });
+    }else{
+      res.json({ routeId: [], status: 200, searchStatus: false });
+    }
   } catch (exception) {
     res.json({ routeId: [], status: 404, searchStatus: false })
   }
-  const sheetName = excelFile.SheetNames[0];
-  const firstSheet = excelFile.Sheets[sheetName];
-  const jsonData = xlsx.utils.sheet_to_json(firstSheet, { defval: "" });
-  res.json({ routeId: jsonData, status: 200, searchStatus: true })
+});
+
+app.get("/api/RouteSearch", (req, res) => {
+  const busName = req.query.busName;
+  let excelFile;
+  try {
+    excelFile = xlsx.readFile(path.join(DATA_PATH, "BusIdInfo.xlsx"));
+    const sheetName = excelFile.SheetNames[0];
+    const firstSheet = excelFile.Sheets[sheetName];
+    const jsonData = xlsx.utils.sheet_to_json(firstSheet, { defval: "" });
+
+    const routeItem = jsonData.filter((item) => String(item["노선명"]) === String(busName));
+    res.json({ route: routeItem, status: 200, searchStatus: false })
+  } catch (exception) {
+    res.json({ route: [], status: 404, searchStatus: false });
+  }
 });
 
 app.get("/api/StationListSearch", (req, res) => {
