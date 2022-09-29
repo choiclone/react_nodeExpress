@@ -110,6 +110,7 @@ const SearchComponent = (props) => {
                     <input
                         type="text"
                         name='stationName'
+                        value={searchTitle}
                         onFocus={() => FocusSearchInput()}
                         onChange={handleSearch}
                         ref={inputRef}
@@ -185,7 +186,7 @@ const SearchComponent = (props) => {
                     }
                 </div>
             </form>
-            <div>
+            {/* <div>
                 <ul id='map-search-recent-list' style={{ listStyle: "none" }}>
                     {
                         autoInfo.length !== 0 ? autoInfo.map((item, i) => (
@@ -200,7 +201,7 @@ const SearchComponent = (props) => {
                         )) : <li>최근 검색결과가 존재하지 않습니다.</li>
                     }
                 </ul>
-            </div>
+            </div> */}
             <BusStationModal open={modalOpen} close={closeModal} detailStation={detailStation} stationInfo={stationBusInfo} intervalInfo={intervalInfo} />
         </div>
     );

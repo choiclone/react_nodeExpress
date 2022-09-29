@@ -35,9 +35,12 @@ const BusRouteSearch = () => {
         axios.get(`/api/RouteSearch?busName=${busName}`)
             .then((res) => {
                 if (res.data.status === 200) {
-                    const {route} = res.data
+                    const {route} = res.data;
+                    let routeObj = route[0]
+                    let item = [];
                     if(route.length !== 0){
-                        // IntervalStationList(route)
+                        item.push({ Nm: routeObj["노선명"], Id: routeObj["ROUTE_ID"], Begin: routeObj["기점"], End: routeObj["종점"] });
+                        IntervalStationList(item[0]);
                     }
                 } else clearInterval(IntervalRef.current);
             })
@@ -136,9 +139,11 @@ const BusRouteSearch = () => {
             "기점": item.Begin,
             "종점": item.End
         };
+        console.log(newKeyword)
+        
         const distinctRoute = routes.filter((rmRoute) => {
             return rmRoute.id === id
-        })
+        });
         if(distinctRoute.length === 0) setRoutes([newKeyword, ...routes]);
         setBusName('');
         setBusRouteId([]);
