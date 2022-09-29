@@ -15,8 +15,6 @@ const BusStationSearch = () => {
     const [stations, setStations] = useState(JSON.parse(localStorage.getItem('stations') || '[]'));
     const [searchStationList, setSearchStationList] = useState([]);
 
-    const inputRef = useRef();
-
     useEffect(() => {
         clickBusStation();
     }, []);
@@ -41,12 +39,8 @@ const BusStationSearch = () => {
     const SearchInfo = (e) => {
         let stationName = station;
         if (stationName !== '') {
-            let stationN = createFuzzyMatcher(stationName);
-            let index = busStation.filter((station) => stationN.test(station["정류장"]) ? station : '');
-            index = index.sort(function (a, b) {
-                return a["정류장"] < b["정류장"] ? -1 : a["정류장"] > b["정류장"] ? 1 : 0;
-            });
-            setSearchStationList(index.slice(0, 10));
+            let index = busStation.filter((station) => station["정류장"] === stationName);
+            console.log(index)
         } else {
             setSearchStationList([]);
         }

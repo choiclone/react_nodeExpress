@@ -21,9 +21,9 @@ const SearchComponent = (props) => {
             if (container === null) return () => window.removeEventListener('mousedown', handleSearhDown);
             if (!container.contains(e.target)) {
                 const formList = document.getElementById("map-search-form-list");
-                const recentList = document.getElementById("map-search-recent-list");
+                // const recentList = document.getElementById("map-search-recent-list");
                 formList.style.display = "none";
-                recentList.style.display = "block";
+                // recentList.style.display = "block";
             }
         });
     }, []);
@@ -49,17 +49,17 @@ const SearchComponent = (props) => {
 
     const FocusSearchInput = () => {
         const formList = document.getElementById("map-search-form-list");
-        const recentList = document.getElementById("map-search-recent-list");
+        // const recentList = document.getElementById("map-search-recent-list");
         formList.style.display = "block";
-        recentList.style.display = "none";
+        // recentList.style.display = "none";
         setFocusState(true);
     }
 
     const ClickInterval = (Nm, Id, tem) => {
         let item = [];
         const formList = document.getElementById("map-search-form-list");
-        const recentList = document.getElementById("map-search-recent-list");
-        recentList.style.display = "block";
+        // const recentList = document.getElementById("map-search-recent-list");
+        // recentList.style.display = "block";
         formList.style.display = "none";
         if (Object.keys(tem).includes('기점') && Object.keys(tem).includes('종점')) {
             item.push({ Nm: Nm, Id: Id, Begin: tem["기점"], End: tem["종점"] });
