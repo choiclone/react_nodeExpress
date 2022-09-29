@@ -1,2 +1,8 @@
+# main node_module ignore
 node_modules/
+
+# demo node_modules ignore
 demo/node_modules/
+
+# server node_modules ignore
+server/node_modules/
