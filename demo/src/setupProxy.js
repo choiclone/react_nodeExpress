@@ -18,13 +18,13 @@ module.exports = function (app) {
   /* 로컬 서버 api*/
   app.use(
     createProxyMiddleware('/api', { 
-      target: `http://localhost:3000`,
+      target: `http://node-express-five.vercel.app/`,
       changeOrigin: true
     })
   );
   app.use(
     createProxyMiddleware('/staticFolder', {
-      target: `http://localhost:3000/`
+      target: `http://node-express-five.vercel.app/`
     })
   );
 };
