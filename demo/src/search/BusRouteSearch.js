@@ -36,8 +36,9 @@ const BusRouteSearch = () => {
             .then((res) => {
                 if (res.data.status === 200) {
                     const {route} = res.data;
-                    let routeObj = route[0]
+                    let routeObj = route[0];
                     let item = [];
+                    console.log(routeObj, route.length)
                     if(route.length !== 0){
                         item.push({ Nm: routeObj["노선명"], Id: routeObj["ROUTE_ID"], Begin: routeObj["기점"], End: routeObj["종점"] });
                         IntervalStationList(item[0]);
@@ -93,7 +94,7 @@ const BusRouteSearch = () => {
                     }
                 }
             }).catch((err) => {
-                console.log(err)
+                console.log(err);
             })
     }
 
@@ -103,8 +104,9 @@ const BusRouteSearch = () => {
                 if (res.data.status === 200) {
                     const {routeId} = res.data
                     if(routeId.length !== 0){
-                        console.log(routeId)
                         setBusRouteId(routeId);
+                    }else{
+                        setBusRouteId([]);
                     }
                 } else setBusRouteId(res.data.routeId);
             })
