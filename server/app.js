@@ -293,13 +293,13 @@ app.get("/api/StationListSearch", (req, res) => {
   let excelFile;
   try {
     excelFile = xlsx.readFile(path.join(DATA_PATH, "StationList.xlsx"));
+    const sheetName = excelFile.SheetNames[0];
+    const firstSheet = excelFile.Sheets[sheetName];
+    const jsonData = xlsx.utils.sheet_to_json(firstSheet, { defval: "" });
+    res.json({ stationId: jsonData, status: 200, searchStatus: true });
   } catch (exception) {
     res.json({ stationId: [], status: 404, searchStatus: false });
   }
-  const sheetName = excelFile.SheetNames[0];
-  const firstSheet = excelFile.Sheets[sheetName];
-  const jsonData = xlsx.utils.sheet_to_json(firstSheet, { defval: "" });
-  res.json({ stationId: jsonData, status: 200, searchStatus: true });
 });
 
 app.get("/api/SubwayListSearch", (req, res) => {

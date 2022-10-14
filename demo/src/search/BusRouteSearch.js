@@ -112,7 +112,7 @@ const BusRouteSearch = () => {
                 console.log(err);
                 setBusRouteId([]);
             });
-    }, 200), [busName]);
+    }, 10), [busName]);
 
     const handleBus = (e) => {
         if (e.target.value !== '') setStateTitle("Click Bus");
