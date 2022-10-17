@@ -10,12 +10,12 @@ const BusRouteLine = ({
 }) => {
     const styleSheet = {
         fontSize: "15px",
-        color: "green",
         listStyle: "none"
     };
 
     const verticalStyle = {
         verticalAlign: "middle",
+        color: "green",
     };
 
     return (
@@ -27,10 +27,21 @@ const BusRouteLine = ({
                         {
                             BusRoute.map((route, key) => (
                                 <li key={key} style={verticalStyle}>
-                                    <button style={verticalStyle} onClick={() => getBusArrInfo(route.arsId["_text"])}>{route.stNm["_text"]}</button>
                                     {
                                         busLocate.findIndex(loc => loc.lastStnId["_text"] === route.stId["_text"]) !== -1 ?
-                                            <img style={verticalStyle} src='/staticFolder/busImages/bus.png' width="50px" height="50px" /> : ""
+                                        <div>
+                                            <span style={{
+                                                verticalAlign: "middle",
+                                                color: "green",
+                                            }} onClick={() => getBusArrInfo(route.arsId["_text"])}>{route.stNm["_text"]}</span>
+                                            <img style={verticalStyle} src='/staticFolder/busImages/bus.png' width="50px" height="50px" />
+                                        </div> : 
+                                        <div>
+                                        <span style={{
+                                            verticalAlign: "middle",
+                                            color: "white",
+                                        }} onClick={() => getBusArrInfo(route.arsId["_text"])}>{route.stNm["_text"]}</span>
+                                        </div>
                                     }
                                 </li>
                             ))
