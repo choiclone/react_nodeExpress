@@ -1,15 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { createFuzzyMatcher } from '../module/consonantSearch';
-import { debounce } from 'lodash';
+import { busStationType } from '../util/InfoType'
 import SearchComponent from './ComponentSearch';
 import axios from 'axios';
 
 const BusStationSearch = () => {
     const navigate = useNavigate();
-    const busRouteType = {
-        "1": "공항", "2": "마을", "3": "간선", "4": "지선", "5": "순환", "6": "광역", "7": "인천", "8": "경기", "9": "폐지", "0": "공용"
-    }
     const [station, setStation] = useState('');
     const [busStation, setBusStation] = useState([]);
     const [stations, setStations] = useState(JSON.parse(localStorage.getItem('stations') || '[]'));
@@ -40,7 +37,6 @@ const BusStationSearch = () => {
         let stationName = station;
         if (stationName !== '') {
             let index = busStation.filter((station) => station["정류장"] === stationName);
-            console.log(index)
         } else {
             setSearchStationList([]);
         }
@@ -80,7 +76,7 @@ const BusStationSearch = () => {
             state: {
                 stNm: item.Nm,
                 arsId: item.Id,
-                busRouteType: busRouteType,
+                busRouteType: busStationType,
                 searchType: "station",
             }
         });

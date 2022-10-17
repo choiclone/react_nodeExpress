@@ -4,12 +4,13 @@ import { debounce } from 'lodash';
 import SearchComponent from './ComponentSearch';
 import "../css/Search.css";
 import axios from 'axios';
+import ArriveBusRoute from '../components/arriveBusRoute';
+import BusRouteLine from '../components/busRouteLine';
 
 const BusRouteSearch = () => {
     const [busName, setBusName] = useState('');
     const [stateTitle, setStateTitle] = useState('Click Bus');
     const [busSearch, setBusSearch] = useState('');
-    const [busRouted, setBusRouted] = useState([]);
     const [busRouteId, setBusRouteId] = useState([]);
     const [busReloadInfo, setBusReloadInfo] = useState([]);
     const [busLocate, setBusLocate] = useState([]);
@@ -18,10 +19,6 @@ const BusRouteSearch = () => {
     const [routes, setRoutes] = useState(JSON.parse(localStorage.getItem('routes') || '[]'));
 
     const IntervalRef = useRef();
-    const inputRef = useRef();
-
-    const stationType = { 0: "공용 버스", 1: "일반형 시내/ 농어촌버스", 2: "좌석형 시내 / 농어촌버스", 3: "직행좌석형 시내 / 농어촌버스", 4: "일반형 시외버스", 5: "좌석형 시외버스", 6: "고속형 시외버스", 7: "마을버스" }
-    const routeType = { 1: "공항", 2: "마을", 3: "간선", 4: "지선", 5: "순환", 6: "광역", 7: "인천", 8: "경기", 9: "폐지", 0: "공용" }
 
     useEffect(() => {
         localStorage.setItem('routes', JSON.stringify(routes));
@@ -182,16 +179,6 @@ const BusRouteSearch = () => {
         IntervalStationList(item[0], "reload");
     }
 
-    const styleSheet = {
-        fontSize: "15px",
-        color: "green",
-        listStyle: "none"
-    };
-
-    const verticalStyle = {
-        verticalAlign: "middle",
-    }
-
     return (
         <>
             <div className='map-search'>
@@ -207,44 +194,18 @@ const BusRouteSearch = () => {
                     searchTitle={busName}
                     searchIdType={"ROUTE_ID"}
                 />
-                {
-                    arrive.length !== 0 ?
-                        <div>
-                            {stationType[arrive[0].stationTp["_text"]]}
-                            {arrive.map((item, key) => (
-                                <ol key={key}>
-                                    <li>{String(busSearch) === String(item.rtNm["_text"]) ?
-                                        <span style={{ color: "red" }}>{item.rtNm["_text"] + "/" + routeType[item.routeType["_text"]] + "버스"}</span>
-                                        : item.rtNm["_text"] + "/" + routeType[item.routeType["_text"]] + "버스"}</li>
-                                    <li>{item.arrmsg1["_text"]}</li>
-                                    <li>{item.arrmsg2["_text"]}</li>
-                                </ol>
-                            ))}
-                        </div> : ""
-                }
-                {busRoute.length !== 0 ?
-                    <div>
-                        <h5> {busSearch} 운행 개수: {busLocate.length !== 0 ? busLocate.length + "개" : ""}</h5>
-                        <ul style={styleSheet}>
-                            {
-                                busRoute.map((route, key) => (
-                                    <li key={key} style={verticalStyle}>
-                                        <button style={verticalStyle} onClick={() => getBusArrInfo(route.arsId["_text"])}>{route.stNm["_text"]}</button>
-                                        {
-                                            busLocate.findIndex(loc => loc.lastStnId["_text"] === route.stId["_text"]) !== -1 ?
-                                                <img style={verticalStyle} src='/staticFolder/busImages/bus.png' width="50px" height="50px" /> : ""
-                                        }
-                                    </li>
-                                ))
-                            }
-                            <li>
-                                <button onClick={(e) => ReloadRoute(busReloadInfo["노선명"], busReloadInfo["ROUTE_ID"], busReloadInfo)}>
-                                    <img src="/staticFolder/busImages/reload.png" width="40px" height="40px" />
-                                </button>
-                            </li>
-                        </ul>
-                    </div> : ""
-                }
+                <ArriveBusRoute
+                    ArriveBus={arrive}
+                    busSearch={busSearch}
+                />
+                <BusRouteLine 
+                    BusRoute={busRoute}
+                    ReloadRoute={ReloadRoute}
+                    getBusArrInfo={getBusArrInfo}
+                    busSearch={busSearch}
+                    busLocate={busLocate}
+                    busReloadInfo={busReloadInfo}
+                />
             </div>
         </>
     );
