@@ -22,7 +22,13 @@ const BusRouteLine = ({
         <>
             {BusRoute.length !== 0 ?
                 <div>
-                    <h5> {busSearch} 운행 개수: {busLocate.length !== 0 ? busLocate.length + "개" : ""}</h5>
+                    <div> 
+                        <span style={{
+                            fontSize: "25px"
+                        }}>
+                            {busSearch} 운행 개수: {busLocate.length !== 0 ? busLocate.length + "개" : ""}
+                        </span>
+                    </div>
                     <ul style={styleSheet}>
                         {
                             BusRoute.map((route, key) => (

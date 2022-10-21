@@ -35,7 +35,6 @@ const BusRouteSearch = () => {
                     const {route} = res.data;
                     let routeObj = route[0];
                     let item = [];
-                    console.log(routeObj, route.length)
                     if(route.length !== 0){
                         item.push({ Nm: routeObj["노선명"], Id: routeObj["ROUTE_ID"], Begin: routeObj["기점"], End: routeObj["종점"] });
                         IntervalStationList(item[0]);
@@ -138,7 +137,6 @@ const BusRouteSearch = () => {
             "기점": item.Begin,
             "종점": item.End
         };
-        console.log(newKeyword)
         
         const distinctRoute = routes.filter((rmRoute) => {
             return rmRoute.id === id
@@ -181,6 +179,9 @@ const BusRouteSearch = () => {
 
     return (
         <>
+            <div>
+                버스 검색            
+            </div>
             <div className='map-search'>
                 <SearchComponent 
                     SearchInfo={SearchRoute} 
@@ -206,6 +207,9 @@ const BusRouteSearch = () => {
                     busLocate={busLocate}
                     busReloadInfo={busReloadInfo}
                 />
+            </div>
+            <div>
+
             </div>
         </>
     );
