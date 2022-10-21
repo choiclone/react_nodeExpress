@@ -150,10 +150,10 @@ const BusRouteSearch = () => {
         setBusSearch(Nm);
         BusRouteStatusList(id);
         getBusPosByRtidList(id);
-        IntervalRef.current = setInterval(async () => {
-            await BusRouteStatusList(id);
-            await getBusPosByRtidList(id);
-        }, 3000);
+        // IntervalRef.current = setInterval(async () => {
+        //     await BusRouteStatusList(id);
+        //     await getBusPosByRtidList(id);
+        // }, 3000);
     }
 
     const allRemoveStorage = (id) => {

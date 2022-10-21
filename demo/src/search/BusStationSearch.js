@@ -17,7 +17,7 @@ const BusStationSearch = () => {
     }, []);
 
     useEffect(() => {
-        localStorage.setItem('stations', JSON.stringify(stations))
+        localStorage.setItem('stations', JSON.stringify(stations));
     }, [stations]);
 
     const clickBusStation = async () => {

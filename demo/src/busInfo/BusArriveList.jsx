@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { StationTime, BusPosition } from '../util/InfoType';
 import useInterval from '../script/useInterval';
 import axios from 'axios';
 
@@ -35,17 +36,6 @@ const BusArriveList = (props) => {
             }).catch((err) => {
                 console.log(err)
             })
-    }
-
-    const StationTime = (seconds) => {
-        let hour = parseInt(seconds/3600);
-        let min = parseInt((seconds/60)%60);
-        if(hour === 0) return min === 0 ? "" : min+"분";
-        else return hour+":"+min+"분"
-    }
-
-    const BusPosition = (arrmsg) => {
-        return arrmsg.split("[")[1] === undefined ? arrmsg.split("[")[0]+"]" : arrmsg.split("[")[1]
     }
 
     return (
