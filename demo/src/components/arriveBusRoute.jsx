@@ -1,8 +1,10 @@
 import React from 'react'
 import styled from 'styled-components'
-import { stationType, routeType, StationTime, BusPosition } from '../util/InfoType'
+import { stationType, routeType, StationTime, BusPosition, sortGroupString } from '../util/InfoType'
 
 const ArriveBusRoute = ({ ArriveBus, busSearch }) => {
+    const buslist = sortGroupString(ArriveBus);
+    const selectBus = ArriveBus.filter((item) => String(busSearch) === item.rtNm["_text"])[0];
     return (
         <>
             {ArriveBus.length !== 0 ?
@@ -16,17 +18,28 @@ const ArriveBusRoute = ({ ArriveBus, busSearch }) => {
                             </tr>
                         </thead>
                         <tbody>
+                            <tr>
+                                <td>
+                                    <span style={{ color: "red" }}>
+                                        {selectBus.rtNm["_text"] + "/" + routeType[selectBus.routeType["_text"]] + "버스"}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span>{StationTime(selectBus.traTime1["_text"])+"["+BusPosition(selectBus.arrmsg1["_text"])}</span><br/>
+                                    <span>{StationTime(selectBus.traTime2["_text"])+"["+BusPosition(selectBus.arrmsg2["_text"])}</span>
+                                </td>
+                            </tr>
                             {ArriveBus.map((item, key) => (
+                                String(busSearch) !== String(item.rtNm["_text"]) ?
                                 <tr key={key}>
-                                    <td>{String(busSearch) === String(item.rtNm["_text"]) ?
-                                        <span style={{ color: "red" }}>{item.rtNm["_text"] + "/" + routeType[item.routeType["_text"]] + "버스"}</span>
-                                        : item.rtNm["_text"] + "/" + routeType[item.routeType["_text"]] + "버스"}
+                                    <td>
+                                        {item.rtNm["_text"] + "/" + routeType[item.routeType["_text"]] + "버스"}
                                     </td>
                                     <td>
                                         <span>{StationTime(item.traTime1["_text"])+"["+BusPosition(item.arrmsg1["_text"])}</span><br/>
                                         <span>{StationTime(item.traTime2["_text"])+"["+BusPosition(item.arrmsg2["_text"])}</span>
                                     </td>
-                                </tr>
+                                </tr>: ""
                             ))}
                         </tbody>
                     </table>

@@ -84,6 +84,9 @@ const BusStationSearch = () => {
 
     return (
         <>
+            <div>
+                정류장 검색
+            </div>
             <div className='map-search'>
                 <SearchComponent
                     SearchInfo={SearchInfo}

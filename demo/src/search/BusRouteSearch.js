@@ -163,7 +163,7 @@ const BusRouteSearch = () => {
         const removeRoute = routes.filter((rmRoute) => {
             return rmRoute.id !== id
         })
-        setRoutes(removeRoute)
+        setRoutes(removeRoute);
     }
 
     const ReloadRoute = (Nm, id, itemList) => {

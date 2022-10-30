@@ -36,12 +36,34 @@ export const routeType = {
 };
 
 export const StationTime = (seconds) => {
-    let hour = parseInt(seconds/3600);
-    let min = parseInt((seconds/60)%60);
-    if(hour === 0) return min === 0 ? "" : min+"분";
-    else return hour+"시간"+min+"분"
+    let hour = parseInt(seconds / 3600);
+    let min = parseInt((seconds / 60) % 60);
+    if (hour === 0) return min === 0 ? "" : min + "분";
+    else return hour + "시간" + min + "분"
 };
 
 export const BusPosition = (arrmsg) => {
-    return arrmsg.split("[")[1] === undefined ? arrmsg.split("[")[0]+"]" : arrmsg.split("[")[1]
+    return arrmsg.split("[")[1] === undefined ? arrmsg.split("[")[0] + "]" : arrmsg.split("[")[1]
 };
+
+const patternNumber = /[0-9]/
+const patternAlphabet = /[a-zA-Z]/
+const patternHangul = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/
+const orderLevelDesc = [patternNumber, patternAlphabet, patternHangul]
+
+const getLevel = (s) => {
+    const index = orderLevelDesc.findIndex((pattern) => pattern.test(s))
+    return index;
+}
+
+export const sortGroupString = (source) => {
+    source.sort((a, b) => {
+        const aLevel = getLevel(a.rtNm["_text"].charAt(0))
+        const bLevel = getLevel(b.rtNm["_text"].charAt(0))
+        console.log(aLevel, bLevel)
+        // if (aLevel === bLevel) {
+        //     return a.charCodeAt(0) - b.charCodeAt(0)
+        // }
+        // return bLevel - aLevel; // 오름 차순 정렬 
+    });
+}
