@@ -27,6 +27,7 @@ const dataApiKey = '1tTp/cC+ot3y4T1GDzqOKLS6171dZSkuH70eiqtN5Qt9SWDQkV2QTvPrttM1
 const SubwayApiKey = '446e49766e706572363268526b7272';
 const TMAPKEY = 'l7xxa8eb3750200245709a28c24780f939d0';
 const KAKAOKEY = '57e2f5ddec9917700ca7d75b15ea8395';
+const BOOKKEY = '0d90c05230a470dde4a17b8446f7958fc8749fa452365cf7d340c04f11153ba8';
 // const CLIENTID = 'Zap81BEd1EZCoNTLuPqH';
 // const CLIENTSECRET = 'HiFNIaiXLV';
 
@@ -201,7 +202,6 @@ app.post("/api/SubwayShortList", (req, res) => {
     }
   });
 });
-
 
 /* 요청한 정류장 명과 가까운 정류장 명들의 목록을 반환 */
 app.post("/api/ArrInfoByRouteList", (req, res) => {
@@ -386,10 +386,43 @@ app.get("/api/readSubway", (req, res) => {
 
   maria.query(sql, data, (err, rows, fields) => {
     if(err) return res.json({status: 500, list: []})
-    if(rows.length === 0) return res.json({status:200, list: []})
+    if(rows.length === 0) return res.json({status:200, list: []});
     return res.json({status:200, list:rows})
   });
 })
+
+app.post("/api/ISBNSearchList", (req, res) => {
+  const isbn = req.body.bookName;
+  const deposit = req.body.bookSearchType;
+
+  const url = 'https://www.nl.go.kr/seoji/SearchApi.do';
+  let queryParams = '?' + encodeURIComponent('cert_key') + '=' + encodeURIComponent(BOOKKEY);
+  queryParams += '&' + encodeURIComponent('result_style') + '=' + encodeURIComponent("json");
+  queryParams += '&' + encodeURIComponent('page_no') + '=' + encodeURIComponent(1);
+  queryParams += '&' + encodeURIComponent('page_size') + '=' + encodeURIComponent(10);
+  queryParams += '&' + encodeURIComponent('isbn') + '=' + encodeURIComponent(String(isbn));
+  queryParams += '&' + encodeURIComponent('deposit_yn') + '=' + encodeURIComponent(String(deposit));
+
+  request({
+    url: url + queryParams,
+    method: 'GET'
+  }, (err, response, body) => {
+    if (err) return res.json({ error: err });
+    else {
+      try {
+        res.json({ bookInfo: JSON.parse(body), status: 200 });
+      } catch (error) {
+        res.json({ bookInfo: [], status: 400 })
+      }
+    }
+  });
+  // return res.json({ bookInfo: [
+  //   {abc: "ddd"+isbn, sd: "ddd"+deposit},
+  //   {abc: "ddd5", sd: "ddd5"},
+  //   {abc: "ddd6", sd: "ddd3"},
+  //   {abc: "ddd2", sd: "ddd2"},
+  // ], status: 200 });
+});
 
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
