@@ -72,7 +72,7 @@ const ISBNBookSearch = () => {
                                 placeholder={"검색하실 ISBN 도서를 입력해주세요."}
                             />
                             <button type="submit" disabled={apiState}><i className="fa fa-search" aria-hidden="true" /></button>
-                            <div style={{ fontSize: "20px" }}>
+                            <div style={{ fontSize: "20px", display:"inline-block"}}>
                                 <label>
                                     납본 목록
                                     <input type="radio" value="Y" onChange={handleSearchType} checked={b === "Y"} />
