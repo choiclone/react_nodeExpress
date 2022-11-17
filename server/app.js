@@ -28,6 +28,7 @@ const SubwayApiKey = '446e49766e706572363268526b7272';
 const TMAPKEY = 'l7xxa8eb3750200245709a28c24780f939d0';
 const KAKAOKEY = '57e2f5ddec9917700ca7d75b15ea8395';
 const BOOKKEY = '0d90c05230a470dde4a17b8446f7958fc8749fa452365cf7d340c04f11153ba8';
+const KEY = '15B6FE2C7AE15EA1E85C53D592BCD808ECC16196956F4A56354F281FF42BF79D';
 // const CLIENTID = 'Zap81BEd1EZCoNTLuPqH';
 // const CLIENTSECRET = 'HiFNIaiXLV';
 
@@ -111,11 +112,11 @@ app.post("/api/BusStationApi", (req, res) => {
 
 /* 명칭별 정류소 목록 조회 */
 app.post("/api/TmapAPI", (req, res) => {
-  const {convine, lon, lat, radius} = req.body;
-  if(convine !== ""){
+  const { convine, lon, lat, radius } = req.body;
+  if (convine !== "") {
     const url = 'https://apis.openapi.sk.com/tmap/pois/search/around';
     let bodJson;
-  
+
     let queryParams = '?' + encodeURIComponent('version') + '=' + encodeURIComponent(1);
     queryParams += '&' + encodeURIComponent('centerLon') + '=' + encodeURIComponent(String(lon));
     queryParams += '&' + encodeURIComponent('centerLat') + '=' + encodeURIComponent(String(lat));
@@ -123,59 +124,59 @@ app.post("/api/TmapAPI", (req, res) => {
     queryParams += '&' + encodeURIComponent('radius') + '=' + encodeURIComponent(radius);
     queryParams += '&' + encodeURIComponent('categories') + '=' + encodeURIComponent(String(convine));
     queryParams += '&' + encodeURIComponent('appKey') + '=' + encodeURIComponent(String(TMAPKEY));
-  
+
     request({
       url: url + queryParams,
       method: 'GET'
     }, (err, response, body) => {
       if (err) return res.json({ error: err })
       else {
-        try{
+        try {
           bodJson = JSON.parse(body);
           return res.json({ CatePlace: bodJson, code: 200 });
-        }catch(e){
+        } catch (e) {
           return res.json({ CatePlace: [], code: 500 });
         }
       }
     });
-  }else{
-    return res.json({CatePlace: [], code: 401});
+  } else {
+    return res.json({ CatePlace: [], code: 401 });
   }
 });
 
 /* 명칭별 정류소 목록 조회 */
 app.post("/api/KakaoApi", (req, res) => {
-  const {convine, lon, lat} = req.body;
-  if(convine !== ""){
+  const { convine, lon, lat } = req.body;
+  if (convine !== "") {
     const url = 'https://dapi.kakao.com/v2/local/search/keyword.json';
     let bodJson;
-  
+
     let queryParams = '?' + encodeURIComponent('y') + '=' + encodeURIComponent(lon);
     queryParams += '&' + encodeURIComponent('x') + '=' + encodeURIComponent(lat);
     queryParams += '&' + encodeURIComponent('radius') + '=' + encodeURIComponent(1000);
     queryParams += '&' + encodeURIComponent('query') + '=' + encodeURIComponent(String(convine));
     queryParams += '&' + encodeURIComponent('size') + '=' + encodeURIComponent(15);
     queryParams += '&' + encodeURIComponent('page') + '=' + encodeURIComponent(3);
-  
+
     request({
       url: url + queryParams,
       method: 'GET',
       headers: {
-        'Authorization': 'KakaoAK '+ KAKAOKEY
+        'Authorization': 'KakaoAK ' + KAKAOKEY
       }
     }, (err, response, body) => {
       if (err) return res.json({ error: err })
       else {
-        try{
+        try {
           bodJson = JSON.parse(body);
           return res.json({ CatePlace: bodJson, code: 200 });
-        }catch(e){
+        } catch (e) {
           return res.json({ CatePlace: [], code: 500 });
         }
       }
     });
-  }else{
-    return res.json({CatePlace: [], code: 401});
+  } else {
+    return res.json({ CatePlace: [], code: 401 });
   }
 });
 
@@ -185,7 +186,7 @@ app.post("/api/SubwayShortList", (req, res) => {
   const arriveSub = (req.body.arriveSub).split("역")[0];
   const url = 'http://swopenAPI.seoul.go.kr/api/subway/';
   let queryParams1 = encodeURIComponent(String(SubwayApiKey));
-  let queryParams2 = encodeURIComponent(String(startSub))+"/"+encodeURIComponent(String(arriveSub));
+  let queryParams2 = encodeURIComponent(String(startSub)) + "/" + encodeURIComponent(String(arriveSub));
   request({
     url: url + queryParams1 + '/json/shortestRoute/0/5/' + queryParams2,
     method: 'GET'
@@ -228,7 +229,7 @@ app.post("/api/ArrInfoByRouteList", (req, res) => {
 /* 요청한 정류장 명과 가까운 정류장 명들의 목록을 반환 */
 app.post("/api/SubwayLiveList", (req, res) => {
   let stationName = (req.body.stationName).split("역")[0];
-  if(req.body.stationName === "동대문역사문화공원") stationName = "동대문역사문화공원"
+  if (req.body.stationName === "동대문역사문화공원") stationName = "동대문역사문화공원"
   const url = 'http://swopenAPI.seoul.go.kr/api/subway/';
   let queryParams1 = encodeURIComponent(String(SubwayApiKey));
   let queryParams2 = encodeURIComponent(String(stationName));
@@ -258,14 +259,14 @@ app.get("/api/BusListSearch", (req, res) => {
     const firstSheet = excelFile.Sheets[sheetName];
     const jsonData = xlsx.utils.sheet_to_json(firstSheet, { defval: "" });
 
-    if(busName !== ''){
+    if (busName !== '') {
       let index = jsonData.filter((route) => new RegExp("^" + busName, "gi").test(route["노선명"]) ? route : '');
       index = index.sort(function (a, b) {
-          return a["노선명"] < b["노선명"] ? -1 : a["노선명"] > b["노선명"] ? 1 : 0;
+        return a["노선명"] < b["노선명"] ? -1 : a["노선명"] > b["노선명"] ? 1 : 0;
       });
 
       res.status(200).json({ routeId: index.slice(0, 10), status: 200, searchStatus: true });
-    }else{
+    } else {
       res.json({ routeId: [], status: 200, searchStatus: false });
     }
   } catch (exception) {
@@ -342,18 +343,18 @@ app.post("/api/AddLinePos", (req, res) => {
   const sql = "INSERT INTO subwaypos (PosX, PosY, subwayLine) values (?, ?, ?)";
 
   maria.query(sql, [x, y, line], (err, rows, fields) => {
-    if(err) return res.json({error: err});
-    res.json({test: true});
+    if (err) return res.json({ error: err });
+    res.json({ test: true });
   });
 });
 
 app.get("/api/ReadLinePos", (req, res) => {
   const sql = "SELECT l.lineName, l.lineId, p.subwayStation, p.subwayCode, p.PosX, p.PosY from subwayline as l left join subwaypos as p on l.idx=p.subwayLine WHERE p.idx IS NOT null";
   maria.query(sql, (err, rows, fields) => {
-    if(err) return res.json({error: err});
-    if(rows.length === 0) return res.json({test: rows})
+    if (err) return res.json({ error: err });
+    if (rows.length === 0) return res.json({ test: rows })
     let resultArr = [];
-    for(var i in rows){
+    for (var i in rows) {
       let idx = getKeyIndex(resultArr, rows[i]);
 
       if (idx > -1) {
@@ -375,19 +376,19 @@ app.get("/api/ReadLinePos", (req, res) => {
         ","
       );
     }
-    res.json({test: resultArr});
+    res.json({ test: resultArr });
   });
 });
 
 app.get("/api/readSubway", (req, res) => {
-  const {name, id} = req.query;
+  const { name, id } = req.query;
   const data = [String(id).padStart(4, '0'), name]
   const sql = "SELECT l.lineName, l.lineId, p.subwayStation, p.subwayCode, p.PosX, p.PosY from subwayline as l left join subwaypos as p on l.idx=p.subwayLine WHERE subwayCode=? and subwayStation=?"
 
   maria.query(sql, data, (err, rows, fields) => {
-    if(err) return res.json({status: 500, list: []})
-    if(rows.length === 0) return res.json({status:200, list: []});
-    return res.json({status:200, list:rows})
+    if (err) return res.json({ status: 500, list: [] })
+    if (rows.length === 0) return res.json({ status: 200, list: [] });
+    return res.json({ status: 200, list: rows })
   });
 })
 
@@ -422,6 +423,30 @@ app.post("/api/ISBNSearchList", (req, res) => {
   //   {abc: "ddd6", sd: "ddd3"},
   //   {abc: "ddd2", sd: "ddd2"},
   // ], status: 200 });
+});
+
+app.post("/api/InterSearchList", (req, res) => {
+  const isbn = req.body.bookName;
+
+  const url = 'http://book.interpark.com/api/search.api';
+  let queryParams = '?' + encodeURIComponent('key') + '=' + encodeURIComponent(KEY);
+  queryParams += '&' + encodeURIComponent('output') + '=' + encodeURIComponent("json");
+  queryParams += '&' + encodeURIComponent('queryType') + '=' + encodeURIComponent("isbn");
+  queryParams += '&' + encodeURIComponent('query') + '=' + encodeURIComponent(String(isbn));
+
+  request({
+    url: url + queryParams,
+    method: 'GET'
+  }, (err, response, body) => {
+    if (err) return res.json({ error: err });
+    else {
+      try {
+        res.json({ bookInfo: JSON.parse(body), status: 200 });
+      } catch (error) {
+        res.json({ bookInfo: [], status: 400 })
+      }
+    }
+  });
 });
 
 const PORT = 3000;

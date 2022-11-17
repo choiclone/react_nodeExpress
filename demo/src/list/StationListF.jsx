@@ -4,9 +4,10 @@ import BusRouteSearch from '../search/BusRouteSearch';
 import BusStationSearch from '../search/BusStationSearch';
 import SubwaySearch from '../search/SubwaySearch';
 import ISBNBookSearch from '../search/ISBNBookSearch';
+import InterBookSearch from '../search/InterBookSearch';
 
 const StationListF = () => {
-  const [infoType, setInfoType] = useState('Bus');
+  const [infoType, setInfoType] = useState('ISBN');
 
   const ChangeSearchInfo = (info) => {
     switch (info) {
@@ -22,6 +23,14 @@ const StationListF = () => {
         setInfoType(info);
         break;
       }
+      case "ISBN": {
+        setInfoType(info);
+        break;
+      }
+      case "INTER": {
+        setInfoType(info);
+        break;
+      }
       default:
         break;
     }
@@ -34,14 +43,15 @@ const StationListF = () => {
           {/* <button onClick={() => ChangeSearchInfo("Bus")}>버스</button>
           <button onClick={() => ChangeSearchInfo("Station")}>정류소</button> */}
           {/* <button onClick={() => ChangeSearchInfo("Subway")}>지하철</button> */}
-          <button onClick={() => ChangeSearchInfo("ISBN")}>ISBN 도서정보 검색</button>
+          <button onClick={() => ChangeSearchInfo("ISBN")}>국립중앙도서관 ISBN 검색</button>
+          <button onClick={() => ChangeSearchInfo("INTER")}>인터파크 ISBN 검색</button>
         </div>
       </header>
       <div className='main-fullScreen'>
         <section className='main-content'>
             {
               // infoType === "Bus" ? <BusRouteSearch /> : infoType === "Station" ? <BusStationSearch /> : <SubwaySearch />
-              <ISBNBookSearch/>
+              infoType === "ISBN"? <ISBNBookSearch/> : <InterBookSearch/>
             }
         </section>
       </div>
