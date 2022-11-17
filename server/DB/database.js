@@ -1,12 +1,12 @@
 const maria = require("mysql");
-var config = require('./config');
+require('dotenv').config();
 
 const db_config = {
-    host: config.host,
-    port: config.port,
-    user: config.user,
-    password: config.password,
-    database: config.database
+    host: process.env.LOCAL_IP_ADDRESS,
+    port: process.env.LOCAL_DB_PORT,
+    user: process.env.LOCAL_USER_NAME,
+    password: process.env.LOCAL_PASSWORD,
+    database: process.env.LOCAL_DB_NAME
 };
 
 let connection;
