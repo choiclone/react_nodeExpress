@@ -6,3 +6,5 @@ demo/node_modules/
 
 # server node_modules ignore
 server/node_modules/
+
+.env

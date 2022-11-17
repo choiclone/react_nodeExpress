@@ -2,7 +2,7 @@ import axios from 'axios';
 import React, { useRef, useState } from 'react'
 import styled from 'styled-components';
 
-const ISBNBookSearch = () => {
+const InterBookSearch = () => {
     const [bookName, setBookName] = useState('');
     const [b, setB] = useState("Y");
 
@@ -12,7 +12,7 @@ const ISBNBookSearch = () => {
 
     const inputRef = useRef();
 
-    const tableHead = ["책제목", "발행처", "상세보기", "저자", "ISBN", "예상가"];
+    const tableHead = ["책제목", "발행처", "상세보기", "저자", "ISBN", "예상가", "설명"];
 
     const SearchInfo = (e) => {
         if (bookName !== "") {
@@ -99,6 +99,14 @@ const ISBNBookSearch = () => {
                                                         <td>{item.author}</td>
                                                         <td>{bookInfoList.query}</td>
                                                         <td>{item["priceStandard"]}</td>
+                                                        <td style={{width:"300px", height:"250px"}}>
+                                                            <textarea
+                                                                defaultValue={item.description}
+                                                                maxLength={500}
+                                                                readOnly
+                                                                style={{width:"300px", height:"250px"}}
+                                                            />
+                                                        </td>
                                                     </tr>
                                                 )): 
                                             <tr>
@@ -132,4 +140,4 @@ const TBody = styled.tbody`
     font-size: 22px;
 `
 
-export default ISBNBookSearch
+export default InterBookSearch

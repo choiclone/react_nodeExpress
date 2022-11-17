@@ -5,6 +5,7 @@ import BusStationSearch from '../search/BusStationSearch';
 import SubwaySearch from '../search/SubwaySearch';
 import ISBNBookSearch from '../search/ISBNBookSearch';
 import InterBookSearch from '../search/InterBookSearch';
+import NaverBookSearch from '../search/NaverBookSearch';
 
 const StationListF = () => {
   const [infoType, setInfoType] = useState('ISBN');
@@ -31,8 +32,10 @@ const StationListF = () => {
         setInfoType(info);
         break;
       }
-      default:
+      default: {
+        setInfoType(info);
         break;
+      }
     }
   }
 
@@ -45,13 +48,14 @@ const StationListF = () => {
           {/* <button onClick={() => ChangeSearchInfo("Subway")}>지하철</button> */}
           <button onClick={() => ChangeSearchInfo("ISBN")}>국립중앙도서관 ISBN 검색</button>
           <button onClick={() => ChangeSearchInfo("INTER")}>인터파크 ISBN 검색</button>
+          <button onClick={() => ChangeSearchInfo("123")}>네이버 ISBN 검색</button>
         </div>
       </header>
       <div className='main-fullScreen'>
         <section className='main-content'>
             {
               // infoType === "Bus" ? <BusRouteSearch /> : infoType === "Station" ? <BusStationSearch /> : <SubwaySearch />
-              infoType === "ISBN"? <ISBNBookSearch/> : <InterBookSearch/>
+              infoType === "ISBN"? <ISBNBookSearch/> :infoType === "INTER"? <InterBookSearch/> : <NaverBookSearch/>
             }
         </section>
       </div>

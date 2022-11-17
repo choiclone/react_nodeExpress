@@ -1,3 +1,5 @@
+require('dotenv').config({path: '../.env'});
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const maria = require("./DB/database");
@@ -19,18 +21,18 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use("/staticFolder/busImages", express.static(ImagePath));
 app.use("/staticFolder/placeImages", express.static(ImgPlacePath));
-
 /* 24개월(2년) 마다 현재 할당 받은 key 값은 사라지니 다시 받거나 기간 연장이 필요함
 https://www.data.go.kr/index.do
 여기서 로그인 하고 자신이 사용하고 있는 api 중에서 연장하거나 취소할 거 누르면 됨*/
-const dataApiKey = '1tTp/cC+ot3y4T1GDzqOKLS6171dZSkuH70eiqtN5Qt9SWDQkV2QTvPrttM1+neB9kCsSBS5FSOYR6OQ8InPUg==';
-const SubwayApiKey = '446e49766e706572363268526b7272';
-const TMAPKEY = 'l7xxa8eb3750200245709a28c24780f939d0';
-const KAKAOKEY = '57e2f5ddec9917700ca7d75b15ea8395';
-const BOOKKEY = '0d90c05230a470dde4a17b8446f7958fc8749fa452365cf7d340c04f11153ba8';
-const KEY = '15B6FE2C7AE15EA1E85C53D592BCD808ECC16196956F4A56354F281FF42BF79D';
-// const CLIENTID = 'Zap81BEd1EZCoNTLuPqH';
-// const CLIENTSECRET = 'HiFNIaiXLV';
+const dataApiKey = process.env.DATA_API_KEY;
+const SubwayApiKey = process.env.SUBWAY_API_KEY;
+const TMAPKEY = process.env.TMAP_KEY;
+const KAKAOKEY = process.env.KAKAO_KEY;
+const BOOKKEY = process.env.BOOK_KEY;
+const KEY = process.env.INTER_KEY;
+
+const CLIENTID = process.env.CLIENTID;
+const CLIENTSECRET = process.env.CLIENT_SECRET;
 
 function getKeyIndex(arr, obj) {
   for (var i = 0; i < arr.length; i++) {
@@ -437,6 +439,30 @@ app.post("/api/InterSearchList", (req, res) => {
   request({
     url: url + queryParams,
     method: 'GET'
+  }, (err, response, body) => {
+    if (err) return res.json({ error: err });
+    else {
+      try {
+        res.json({ bookInfo: JSON.parse(body), status: 200 });
+      } catch (error) {
+        res.json({ bookInfo: [], status: 400 })
+      }
+    }
+  });
+});
+
+app.post("/api/NaverSearchList", (req, res) => {
+  const isbn = req.body.bookName;
+
+  const url = 'https://openapi.naver.com/v1/search/book_adv.json';
+  let queryParams = '?' + encodeURIComponent('d_isbn') + '=' + encodeURIComponent(String(isbn));
+  queryParams += '&' + encodeURIComponent('display') + '=' + encodeURIComponent(10);
+  queryParams += '&' + encodeURIComponent('start') + '=' + encodeURIComponent(1);
+
+  request({
+    url: url + queryParams,
+    method: 'GET',
+    headers: {'X-Naver-Client-Id':CLIENTID, 'X-Naver-Client-Secret': CLIENTSECRET}
   }, (err, response, body) => {
     if (err) return res.json({ error: err });
     else {

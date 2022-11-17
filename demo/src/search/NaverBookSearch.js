@@ -2,9 +2,8 @@ import axios from 'axios';
 import React, { useRef, useState } from 'react'
 import styled from 'styled-components';
 
-const ISBNBookSearch = () => {
+const NaverBookSearch = () => {
     const [bookName, setBookName] = useState('');
-    const [b, setB] = useState("Y");
 
     const [bookInfoList, setBookInfoList] = useState([]);
     const [searchState, setSearchState] = useState(false);
@@ -12,17 +11,18 @@ const ISBNBookSearch = () => {
 
     const inputRef = useRef();
 
-    const tableHead = ["책제목", "발행처", "저자", "ISBN", "페이지수", "제본형태", "예상가", "책크기", "책소개"];
+    const tableHead = ["책제목", "발행처", "상세보기", "저자", "ISBN", "예상가", "설명"];
 
     const SearchInfo = (e) => {
         if (bookName !== "") {
             setBookInfoList([]);
             setSearchState(true);
             setApiState(true);
-            axios.post("/api/ISBNSearchList", { bookName: bookName, bookSearchType: b })
+            axios.post("/api/NaverSearchList", { bookName: bookName })
                 .then((res) => {
                     if (res.data.status === 200) {
                         setSearchState(false);
+                        console.log(res.data.bookInfo)
                         setBookInfoList(res.data.bookInfo);
                         setApiState(false);
                     }
@@ -49,14 +49,10 @@ const ISBNBookSearch = () => {
         }
     }
 
-    const handleSearchType = (e) => {
-        setB(e.target.value);
-    }
-
     return (
         <>
             <div>
-                국립중앙도서관 ISBN 도서 검색
+                네이버 ISBN 도서 검색
             </div>
             <div className='map-search'>
                 <div className='map-search-main'>
@@ -69,19 +65,9 @@ const ISBNBookSearch = () => {
                                 onChange={handleSearch}
                                 ref={inputRef}
                                 autoComplete="off"
-                                placeholder={"검색하실 ISBN 도서를 입력해주세요."}
+                                placeholder={"검색하실 네이버 ISBN 도서를 입력해주세요."}
                             />
                             <button type="submit" disabled={apiState}><i className="fa fa-search" aria-hidden="true" /></button>
-                            <div style={{ fontSize: "20px", display:"inline-block"}}>
-                                <label>
-                                    납본 목록
-                                    <input type="radio" value="Y" onChange={handleSearchType} checked={b === "Y"} />
-                                </label>
-                                <label>
-                                    미납본 목록
-                                    <input type="radio" value="N" onChange={handleSearchType} checked={b === "N"} />
-                                </label>
-                            </div>
                         </div>
                     </form>
                 </div>
@@ -99,24 +85,28 @@ const ISBNBookSearch = () => {
                                     </Thead>
                                     <TBody>
                                         {
-                                            bookInfoList["docs"].length !== 0 ?
-                                                bookInfoList["docs"].map((item, key) => (
+                                            bookInfoList.items.length !== 0 ?
+                                                bookInfoList.items.map((item, key) => (
                                                     <tr key={key}>
-                                                        <td>{item.TITLE}</td>
-                                                        <td>{item.PUBLISHER}</td>
-                                                        {/* <td><button onClick={() => window.open(item.PUBLISHER_URL, "_blank")}>출판사 이동</button></td> */}
-                                                        <td>{item.AUTHOR}</td>
-                                                        <td>{item["EA_ISBN"]}</td>
-                                                        <td>{item["PAGE"]}</td>
-                                                        <td>{item["FORM"]}</td>
-                                                        <td>{item["PRE_PRICE"]}</td>
-                                                        <td>{item["BOOK_SIZE"]}</td>
-                                                        <td>{item["BOOK_INTRODUCTION_URL"]}</td>
+                                                        <td>{item.title}</td>
+                                                        <td>{item.publisher}</td>
+                                                        <td><button onClick={() => window.open(item.link, "_blank")}>네이버 도서</button></td>
+                                                        <td>{item.author}</td>
+                                                        <td>{item.isbn}</td>
+                                                        <td>{item.discount}</td>
+                                                        <td style={{width:"300px", height:"250px"}}>
+                                                            <textarea
+                                                                defaultValue={item.description}
+                                                                maxLength={500}
+                                                                readOnly
+                                                                style={{width:"300px", height:"250px"}}
+                                                            />
+                                                        </td>
                                                     </tr>
-                                                )): 
-                                            <tr>
-                                                <td colSpan={9}>검색한 결과가 존재하지 않습니다.</td>    
-                                            </tr>
+                                                )) :
+                                                <tr>
+                                                    <td colSpan={7}>검색한 결과가 존재하지 않습니다.</td>
+                                                </tr>
                                         }
                                     </TBody>
                                 </Tables>
@@ -145,4 +135,4 @@ const TBody = styled.tbody`
     font-size: 22px;
 `
 
-export default ISBNBookSearch
+export default NaverBookSearch
